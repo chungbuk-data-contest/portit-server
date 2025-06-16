@@ -6,3 +6,7 @@
 | **기술 스택** | <img src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" width="40" height="40"/> | <img src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" width="40" height="40"/> |
 | **역할** | `백엔드` | `백엔드` |
 | **R&R** | 공공데이터 API<br>EC2<br>RDS<br>S3 | WebSocket<br>JWT |
+
+# 시스템 아키텍처
+
+# 기능 목록
