@@ -18,8 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublicApiClient {
 
-    @Value("${public-api-d.key}")
-//    @Value("${public-api.key}")
+    @Value("${public-api.key}")
     private String serviceKey;
 
     public List<PublicCompanyDto> fetchData() {

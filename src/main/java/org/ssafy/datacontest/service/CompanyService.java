@@ -41,14 +41,14 @@ public class CompanyService {
         List<Company> companies = publicCompanyList.stream()
                 .map(dto -> {
                     Company company = new Company();
-                    company.setCompanyName(dto.get업체명());
-                    company.setCompanyDescription(dto.get업종명());
-                    company.setCompanyLoc(dto.get지역());
-                    company.setCompanyField(dto.get업종분류());
+                    company.setCompanyName(dto.getCompanyName());
+                    company.setCompanyDescription(dto.getCompanyDescription());
+                    company.setCompanyLoc(dto.getCompanyLoc());
+                    company.setCompanyField(dto.getCompanyField());
 
                     // 랜덤 필드 생성
                     company.setEmail(RandomUtil.email());
-                    company.setPassword(RandomUtil.password());
+                    company.setPassword("1234");
                     company.setPhoneNum(RandomUtil.phone());
                     company.setHiring(false);
                     company.setProfileImage(null);   // 없으면 null 가능

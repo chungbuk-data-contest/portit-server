@@ -4,11 +4,7 @@ import java.util.UUID;
 
 public class RandomUtil {
     public static String email() {
-        return UUID.randomUUID().toString().substring(0, 8) + "@mail.com";
-    }
-
-    public static String password() {
-        return UUID.randomUUID().toString().substring(0, 12);
+        return UUID.randomUUID().toString().substring(0, 3) + "@mail.com";
     }
 
     public static String phone() {

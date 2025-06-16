@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PublicCompanyDto {
     @JsonProperty("업체명")
-    public String 업체명;
+    public String companyName;
 
     @JsonProperty("업종명(11차)")
-    public String 업종명;
+    public String companyDescription;
 
     @JsonProperty("지역")
-    public String 지역;
+    public String companyLoc;
 
     @JsonProperty("업종분류(기보)")
-    public String 업종분류;
+    public String companyField;
 }

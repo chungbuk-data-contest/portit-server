@@ -29,6 +29,6 @@ public class Company {
 
     private String phoneNum;
     private String profileImage;
-    private boolean hiring;
+    private Boolean hiring;
     private String companyLink;
 }
