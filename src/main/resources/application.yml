@@ -12,3 +12,6 @@ spring:
         hibernate:
             ddl-auto: update
         show-sql: true
+
+public-api:
+    key: ${API_SERVICE_KEY}
