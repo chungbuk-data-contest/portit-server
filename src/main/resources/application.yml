@@ -30,3 +30,7 @@ cloud:
             static: ${S3_REGION}
         stack:
             auto: false
+
+
+public-api:
+    key: ${API_SERVICE_KEY}
