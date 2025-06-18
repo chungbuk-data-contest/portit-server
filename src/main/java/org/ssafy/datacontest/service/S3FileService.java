@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3FileService {
@@ -23,8 +25,8 @@ public class S3FileService {
 
     public String uploadFile(MultipartFile multipartFile) {
         String fileName = makeFileName(multipartFile);
-        // S3에 파일을 업로드할 때 메타데이터(metadata)를 설정
 
+        // S3에 파일을 업로드할 때 메타데이터(metadata)를 설정
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType()); // MIME 타입 설정
         objectMetadata.setContentLength(multipartFile.getSize()); // 파일 크기 설정
@@ -34,6 +36,7 @@ public class S3FileService {
             amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }catch(IOException e){
+            log.error(e.getMessage());
             // TODO: ERROR 작성해주기
         }
 

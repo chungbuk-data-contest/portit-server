@@ -10,15 +10,14 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
-            ddl-auto: update
+            ddl-auto: create
         show-sql: true
 
     servlet:
         multipart:
             enabled: true
-            max-file-size: 10MB       # 단일 파일 최대 크기
-            max-request-size: 20MB    # 전체 요청의 최대 크기
-
+            max-file-size: 500MB      # 단일 파일 최대 크기
+            max-request-size: 500MB   # 전체 요청의 최대 크기
 cloud:
     aws:
         credentials:
