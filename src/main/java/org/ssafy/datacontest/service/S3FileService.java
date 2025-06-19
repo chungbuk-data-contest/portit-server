@@ -43,13 +43,23 @@ public class S3FileService {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
-    public String makeFileName(MultipartFile multipartFile){
+    private String makeFileName(MultipartFile multipartFile){
         // 사용자가 업로드한 원본 파일 이름 가져오기
         String originalName = multipartFile.getOriginalFilename();
         final String ext = originalName.substring(originalName.lastIndexOf("."));
         // 네트워크 상에서 고유성이 보장되는 id를 만들기 위한 표준 규약
-        final String fileName = UUID.randomUUID().toString() + ext;
+        final String fileName = UUID.randomUUID() + ext;
         // 	현재 JVM(자바 프로그램)이 실행 중인 작업 디렉토리의 경로를 문자열로 가져오는 명령
         return fileName;
+    }
+
+    public void deleteFile(String fileUrl) {
+        String key = extractKeyFromUrl(fileUrl);
+        amazonS3.deleteObject(bucket, key);
+    }
+
+    private String extractKeyFromUrl(String fileUrl) {
+        // 예: https://your-bucket.s3.amazonaws.com/images/cat.png
+        return fileUrl.substring(fileUrl.indexOf(".com/") + 5); // "images/cat.png" 추출
     }
 }
