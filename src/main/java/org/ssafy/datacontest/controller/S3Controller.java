@@ -13,12 +13,12 @@ import org.ssafy.datacontest.service.S3FileService;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "S3", description = "S3 파일 관련 API")
-@RequestMapping("/api/s3")
+@RequestMapping("/s3")
 public class S3Controller {
 
     private final S3FileService s3FileService;
 
-    @PostMapping("/upload")
+    @PostMapping("")
     @Operation(
             summary = "S3에 파일 업로드",
             description = "Multipart 형식으로 파일을 업로드하면, 저장된 파일의 접근 URL을 반환합니다."
