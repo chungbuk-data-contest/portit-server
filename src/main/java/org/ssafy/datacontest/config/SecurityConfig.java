@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.ssafy.datacontest.jwt.JwtFilter;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.jwt.LoginFilter;
+import org.ssafy.datacontest.jwt.LogoutFilter;
 import org.ssafy.datacontest.repository.RefreshRepository;
 
 @Configuration
@@ -74,8 +75,8 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//        http
-//                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), org.springframework.security.web.authentication.logout.LogoutFilter.class);
+        http
+                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), org.springframework.security.web.authentication.logout.LogoutFilter.class);
 
         http
                 .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class);
