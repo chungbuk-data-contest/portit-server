@@ -8,7 +8,7 @@ import org.ssafy.datacontest.enums.Category;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "article")
+@Table(name = "Article")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Article {
