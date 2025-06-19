@@ -10,11 +10,29 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
-            ddl-auto: update
+            ddl-auto: update # TODO: update 변경
         show-sql: true
 
     jwt:
         secret: ${JWT_SECRET}
+
+    servlet:
+        multipart:
+            enabled: true
+            max-file-size: 500MB      # 단일 파일 최대 크기
+            max-request-size: 500MB   # 전체 요청의 최대 크기
+cloud:
+    aws:
+        credentials:
+            accessKey: ${S3_ACCESS_KEY}
+            secretKey: ${S3_SECRET_ACCESS_KEY}
+        s3:
+            bucket: ${S3_BUCKET_NAME}
+        region:
+            static: ${S3_REGION}
+        stack:
+            auto: false
+
 
 public-api:
     key: ${API_SERVICE_KEY}

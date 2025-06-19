@@ -1,5 +1,7 @@
 package org.ssafy.datacontest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,12 +11,16 @@ import org.ssafy.datacontest.service.CompanyService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/companies")
+@Tag(name = "Company", description = "기업 관련 API")
+@RequestMapping("/company")
 public class CompanyController {
 
     private final CompanyService companyService;
 
-    @PostMapping("/import")
+    @PostMapping("")
+    @Operation(
+            summary = "공공데이터 이용한 기업 등록"
+    )
     public ResponseEntity<String> importCompanies() {
         companyService.fetchAndSaveCompanies();
 
