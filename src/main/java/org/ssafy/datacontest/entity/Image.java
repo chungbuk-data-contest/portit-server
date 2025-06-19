@@ -1,0 +1,29 @@
+package org.ssafy.datacontest.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+
+@Entity
+@Table(name = "Image")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Image {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long imageId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "art_id") // 실제 DB 컬럼명
+    private Article article;
+
+    private String imageUrl;
+
+    @Builder
+    public Image(String imageUrl, Article article) {
+        this.imageUrl = imageUrl;
+        this.article = article;
+    }
+
+
+}
