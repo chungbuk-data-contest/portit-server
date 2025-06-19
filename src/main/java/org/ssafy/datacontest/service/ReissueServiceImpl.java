@@ -1,0 +1,102 @@
+package org.ssafy.datacontest.service;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.ssafy.datacontest.entity.Refresh;
+import org.ssafy.datacontest.jwt.JwtUtil;
+import org.ssafy.datacontest.repository.RefreshRepository;
+
+import java.util.Date;
+
+@Service
+public class ReissueServiceImpl implements ReissueService {
+
+    private final JwtUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
+
+    @Autowired
+    public ReissueServiceImpl(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+        this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
+    }
+
+    @Override
+    public void reissue(HttpServletRequest request, HttpServletResponse response) {
+        // get refresh token
+        String refresh = null;
+        Cookie[] cookies = request.getCookies();
+        for(Cookie cookie : cookies) {
+            if(cookie.getName().equals("refresh")) {
+                refresh = cookie.getValue();
+            }
+        }
+
+//        if(refresh == null){
+//            // response status code
+//            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+//        }
+//
+//        // expired check
+//        try{
+//            jwtUtil.isExpired(refresh);
+//        } catch (ExpiredJwtException e){
+//            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+//        }
+//
+//        // 토큰이 refresh인지 확인(발급시 페이로드에 명시)
+//        String category = jwtUtil.getCategory(refresh);
+//        if(!category.equals("refresh")){
+//            return new ResponseEntity<>("refresh token invalid", HttpStatus.BAD_REQUEST);
+//        }
+//
+//        // DB에 저장되어 있는지 확인
+//        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+//        if(!isExist){
+//            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+//        }
+
+        String email = jwtUtil.getEmail(refresh);
+        String role = jwtUtil.getRole(refresh);
+
+        // make new JWT
+        String newAccess = jwtUtil.generateToken("access", email, role, 600000L);
+        String newRefresh = jwtUtil.generateToken("refresh", email, role, 86400000L);
+
+        // Refresh Token 저장 DB에 기존의 Refresh Token 삭제 후 새 Refresh Token 저장
+        refreshRepository.deleteByRefresh(refresh);
+        addRefreshEntity(email, newRefresh, 86400000L);
+
+        response.setHeader("access", newAccess);
+        response.addCookie(createCookie("refresh", newRefresh));
+    }
+
+    private void addRefreshEntity(String email, String newRefresh, long expiredMs) {
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        Refresh refresh = new Refresh();
+        refresh.setRefresh(newRefresh);
+        refresh.setEmail(email);
+        refresh.setExpiration(date.toString());
+
+        refreshRepository.save(refresh);
+        // TODO: Redis 사용해 만료시간 설정
+//        TTL 설정을 통해 자동으로 Refresh 토큰이 삭제되면 무방하지만 계속해서 토큰이 쌓일 경우 용량 문제가 발생할 수 있다.
+//        따라서 스케줄 작업을 통해 만료시간이 지난 토큰은 주기적으로 삭제하는 것이 올바르다.
+    }
+
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+//        cookie.setSecure(true);
+//        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+}

@@ -47,8 +47,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         LoginFilter loginFilter = new LoginFilter(refreshRepository, authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/auth/login");
+
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
         // 세션 방식에서는 세션이 고정되기 때문에 csrf 방식을 방어를 해줘야 한다.
         // 하지만 jwt 방식은 세션을 스테이트리스상태로 관리해 방어하지 않아도 된다.
