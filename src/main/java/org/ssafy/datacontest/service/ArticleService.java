@@ -1,15 +1,18 @@
 package org.ssafy.datacontest.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
+import org.ssafy.datacontest.enums.Category;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
 import org.ssafy.datacontest.mapper.TagMapper;
@@ -31,62 +34,91 @@ public class ArticleService {
     private final S3FileService s3FileService;
 
     @Transactional
-    public ArticleResponseDto registerArtwork(ArticleRequestDto articleRequestDto) {
+    public Long createArticle(ArticleRequestDto articleRequestDto) {
         // TODO: 유저 인증
-        log.info(articleRequestDto.getCategory());
+
+        isValidRequest(articleRequestDto); // null 여부 처리
 
         // 이미지, 영상 업로드
-        String videoUrl = null;
-        if(articleRequestDto.getVideoFile() != null){
-            videoUrl = uploadFile(articleRequestDto.getVideoFile());
+        List<String> fileUrls = new ArrayList<>();
+        for(MultipartFile file : articleRequestDto.getFiles()){
+            String fileUrl = uploadFile(file);
+            fileUrls.add(fileUrl);
         }
 
-        List<String> imageUrls = new ArrayList<>();
-        for(MultipartFile imageFile : articleRequestDto.getImageFiles()){
-            String imageUrl = uploadFile(imageFile);
-            imageUrls.add(imageUrl);
-        }
-
-        // 글 DB 등록(영상 포함) -> 글 번호 반환
-        Article article = ArticleMapper.toEntity(articleRequestDto, videoUrl);
+        // 글 DB 등록
+        Article article = ArticleMapper.toEntity(articleRequestDto);
         articleRepository.save(article);
 
-        // 글 번호 가지고 태그 DB 등록
-        if(articleRequestDto.getTag() != null || !articleRequestDto.getTag().isEmpty()) {
-            saveTag(articleRequestDto.getTag(), article);
-        }
+        // List들 DB 등록
+        saveTag(articleRequestDto.getTag(), article);
+        saveFile(fileUrls, article);
 
-        // 글 번호 가지고 이미지 DB 등록
-        saveImage(imageUrls, article);
-
-        List<ImageDto> imageDtos = imageRepository.findByArticle(article)
-                .stream()
-                .map(ImageDto::new)
-                .toList();
-
-        List<TagDto> tagDtos = tagRepository.findByArticle(article)
-                .stream()
-                .map(TagDto::new)
-                .toList();
-
-        return new ArticleResponseDto(ArticleDto.from(article, imageDtos, tagDtos));
+        return article.getArtId();
     }
 
-    public String uploadFile(MultipartFile file) {
+    private String uploadFile(MultipartFile file) {
         return s3FileService.uploadFile(file);
     }
 
-    public void saveTag(List<String> tags, Article article) {
+    private void saveTag(List<String> tags, Article article) {
         for(String tag: tags){
             Tag tagg = TagMapper.toEntity(tag, article);
             tagRepository.save(tagg);
         }
     }
 
-    public void saveImage(List<String> imageUrls, Article article) {
-        for(String imageUrl : imageUrls){
-            Image imagee = ImageMapper.toEntity(imageUrl, article);
-            imageRepository.save(imagee);
+    private void saveFile(List<String> fileUrls, Article article) {
+        for(String fileUrl : fileUrls){
+            Image file = ImageMapper.toEntity(fileUrl, article);
+            imageRepository.save(file);
         }
     }
+
+    private void isValidRequest(ArticleRequestDto request) {
+        isValidTitle(request.getTitle());
+        isValidCategory(request.getCategory());
+        isValidCategoryName(request.getCategory());
+        isValidFile(request.getFiles());
+        isValidTag(request.getTag());
+    }
+
+    private void isValidTitle(String title){
+        if(title == null || title.isBlank()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TITLE);
+        }
+    }
+
+    private void isValidCategory(String category){
+        if(category == null || category.isBlank()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_CATEGORY);
+        }
+    }
+
+    private void isValidCategoryName(String category){
+        try{
+            Category.valueOf(category);
+        } catch (IllegalArgumentException e){
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_CATEGORY);
+        }
+    }
+
+    private void isValidTag(List<String> tag){
+        if(tag == null || tag.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TAG);
+        }
+    }
+
+    private void isValidFile(List<MultipartFile> file){
+        if(file == null || file.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_FILE);
+        }
+
+        // MultipartFile 은 폼 필드만 있을 경우에도 리스트 생성 => files 안의 모든 파일이 isEmpty 인지 확인
+        boolean allEmpty = file.stream().allMatch(MultipartFile::isEmpty);
+        if (allEmpty) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_FILE);
+        }
+    }
+
 }

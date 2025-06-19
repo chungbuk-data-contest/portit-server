@@ -2,15 +2,18 @@ package org.ssafy.datacontest.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.protocol.HTTP;
-import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "", ""),
+    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "", ""), // 예시
+    EMPTY_TITLE(HttpStatus.BAD_REQUEST, "001_EMPTY_TITLE", "제목은 필수 입력 항목입니다."),
+    EMPTY_CATEGORY(HttpStatus.BAD_REQUEST, "002_EMPTY_CATEGORY", "카테고리는 필수 선택 항목입니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "003_EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
+    EMPTY_TAG(HttpStatus.BAD_REQUEST, "004_EMPTY_TAG", "태그는 필수 선택 항목입니다."),
+    INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "005_INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
     ;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,

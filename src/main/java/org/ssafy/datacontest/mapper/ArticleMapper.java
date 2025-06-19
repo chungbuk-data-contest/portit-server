@@ -6,14 +6,12 @@ import org.ssafy.datacontest.enums.Category;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto, String videoUrl){
+    public static Article toEntity(ArticleRequestDto dto){
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
-                .userId(dto.getUserId())
-                .videoFileUrl(videoUrl)
-                .category(Category.valueOf(dto.getCategory()))
                 .externalLink(dto.getExternalLink())
-                .visible(dto.isVisible()).build();
+                .category(Category.valueOf(dto.getCategory()))
+                .build();
     }
 }

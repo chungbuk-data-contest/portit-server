@@ -8,7 +8,7 @@ import org.ssafy.datacontest.enums.Category;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "artwork")
+@Table(name = "article")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Article {
@@ -19,28 +19,21 @@ public class Article {
     private String title;
     private String description;
 
-    // 복수 선택
     @Enumerated(EnumType.STRING)
     private Category category;
 
     private String externalLink;
-    private boolean visible;
 
-    private String videoFileUrl;
-
-    private Long userId; // TODO: FK 연결
+//    private Long userId; // TODO: FK 연결
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Builder
-    public Article(String title, String description, Category category, String externalLink, boolean visible, String videoFileUrl, Long userId) {
+    public Article(String title, String description, String externalLink, Category category) {
         this.title = title;
         this.description = description;
-        this.category = category;
         this.externalLink = externalLink;
-        this.visible = visible;
-        this.videoFileUrl = videoFileUrl;
-        this.userId = userId;
+        this.category = category;
     }
 }
