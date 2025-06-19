@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class testController {
 
-    @GetMapping("/")
+    @GetMapping("/test")
     @Operation(
             summary = "테스트용"
     )
