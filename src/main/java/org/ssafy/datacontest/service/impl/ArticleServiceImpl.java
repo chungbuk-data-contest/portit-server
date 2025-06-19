@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleResponseDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
@@ -56,6 +57,26 @@ public class ArticleServiceImpl implements ArticleService {
         saveFile(fileUrls, article);
 
         return article.getArtId();
+    }
+
+    @Override
+    public Long updateArticle(ArticleRequestDto articleRequestDto) {
+        return 0L;
+    }
+
+    @Override
+    public Long deleteArticle(ArticleRequestDto articleRequestDto) {
+        return 0L;
+    }
+
+    @Override
+    public ArticleResponseDto getArticle(Long articleId) {
+        return null;
+    }
+
+    @Override
+    public List<ArticleResponseDto> getArticles() {
+        return List.of();
     }
 
     private String uploadFile(MultipartFile file) {
