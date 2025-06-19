@@ -3,6 +3,7 @@ package org.ssafy.datacontest.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
@@ -10,6 +11,8 @@ import org.ssafy.datacontest.dto.article.ArticleResponseDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
 import org.ssafy.datacontest.mapper.TagMapper;
@@ -65,8 +68,22 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Long deleteArticle(ArticleRequestDto articleRequestDto) {
-        return 0L;
+    @Transactional
+    public void deleteArticle(Long articleId) {
+        // TODO: 유저 확인 / 권한 확인
+
+        // articleId 존재 여부 확인
+        Article article = articleRepository.findByArtId(articleId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        // 파일 조회 => s3 삭제
+        List<Image> images = imageRepository.findByArticle(article);
+        deleteFile(images);
+
+        imageRepository.deleteByArticle(article);
+        tagRepository.deleteByArticle(article);
+
+        articleRepository.deleteById(articleId); // 글 삭제
     }
 
     @Override
@@ -94,6 +111,12 @@ public class ArticleServiceImpl implements ArticleService {
         for(String fileUrl : fileUrls){
             Image file = ImageMapper.toEntity(fileUrl, article);
             imageRepository.save(file);
+        }
+    }
+
+    private void deleteFile(List<Image> fileUrls) {
+        for(Image file : fileUrls){
+            s3FileService.deleteFile(file.getImageUrl());
         }
     }
 }

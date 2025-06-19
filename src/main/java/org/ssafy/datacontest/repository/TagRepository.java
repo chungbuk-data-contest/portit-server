@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
     List<Tag> findByArticle(Article article);
+    void deleteByArticle(Article article);
 }
