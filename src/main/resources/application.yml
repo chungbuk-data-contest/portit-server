@@ -13,5 +13,8 @@ spring:
             ddl-auto: update
         show-sql: true
 
+    jwt:
+        secret: ${JWT_SECRET}
+
 public-api:
     key: ${API_SERVICE_KEY}
