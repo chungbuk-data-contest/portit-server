@@ -2,19 +2,16 @@ package org.ssafy.datacontest.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Getter @Setter @Builder
+@Getter @Setter @SuperBuilder
 @NoArgsConstructor @AllArgsConstructor
-public class User {
+public class User extends BaseUser {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    private String email;
-    private String password;
     private String nickname;
-    private String phoneNum;
-    private String profileImage;
-    private String role;
 }
