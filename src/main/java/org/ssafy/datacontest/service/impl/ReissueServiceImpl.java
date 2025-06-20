@@ -1,15 +1,11 @@
 package org.ssafy.datacontest.service.impl;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.entity.Refresh;
-import org.ssafy.datacontest.enums.ErrorCode;
-import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.repository.RefreshRepository;
 import org.ssafy.datacontest.service.ReissueService;
@@ -36,14 +32,7 @@ public class ReissueServiceImpl implements ReissueService {
     @Override
     public void reissue(HttpServletRequest request, HttpServletResponse response) {
         // get refresh token
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-        }
-
+        String refresh = extractRefreshTokenFromCookies(request);
         refreshValidation.validateRefreshToken(refresh);
 
         String email = jwtUtil.getEmail(refresh);
@@ -59,6 +48,17 @@ public class ReissueServiceImpl implements ReissueService {
 
         response.setHeader("access", newAccess);
         response.addCookie(createCookie("refresh", newRefresh));
+    }
+
+    private String extractRefreshTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if(cookie.getName().equals("refresh")) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     private void addRefreshEntity(String email, String newRefresh, long expiredMs) {
