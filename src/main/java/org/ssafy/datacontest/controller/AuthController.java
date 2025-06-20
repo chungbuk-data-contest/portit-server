@@ -38,12 +38,4 @@ public class AuthController {
         authService.companySignUp(companyRegisterRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
-//    @Operation(summary = "로그인", description = "HTTP 반환값 200일 시 로그인 성공")
-//    @PostMapping("/login")
-//    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
-//        LoginResponse login = authService.login(loginRequest);
-//        return ResponseEntity.ok(login);
-//    }
-
 }
