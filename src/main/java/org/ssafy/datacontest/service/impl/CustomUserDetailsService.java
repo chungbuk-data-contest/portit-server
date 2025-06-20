@@ -1,4 +1,4 @@
-package org.ssafy.datacontest.service;
+package org.ssafy.datacontest.service.impl;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
