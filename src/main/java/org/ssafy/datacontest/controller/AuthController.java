@@ -1,0 +1,45 @@
+package org.ssafy.datacontest.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
+import org.ssafy.datacontest.dto.register.LoginRequest;
+import org.ssafy.datacontest.dto.register.UserRegisterRequest;
+import org.ssafy.datacontest.service.AuthService;
+
+@Tag(name = "Auth", description = "")
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @Operation(summary = "유저 회원가입", description = "")
+    @PostMapping("/register/user")
+    public ResponseEntity<Void> userSignUp(@RequestBody UserRegisterRequest userRegisterRequest){
+        authService.userSignUp(userRegisterRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = "기업 회원가입", description = "")
+    @PostMapping("/register/company")
+    public ResponseEntity<Void> companySignUp(@RequestBody CompanyRegisterRequest companyRegisterRequest){
+        authService.companySignUp(companyRegisterRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+}
