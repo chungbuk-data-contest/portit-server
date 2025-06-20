@@ -12,46 +12,30 @@ import org.ssafy.datacontest.repository.UserRepository;
 public class UserValidation {
 
     private final UserRepository userRepository;
+    private final RegisterCommonValidation registerCommonValidation;
 
     @Autowired
-    public UserValidation(UserRepository userRepository) {
+    public UserValidation(UserRepository userRepository,
+                          RegisterCommonValidation registerCommonValidation) {
         this.userRepository = userRepository;
+        this.registerCommonValidation = registerCommonValidation;
     }
 
     public void validateUser(UserRegisterRequest request) {
-        validateEmail(request.getEmail());
-        validatePassword(request.getPassword());
-        validateNickname(request.getNickname());
-        validatePhoneNum(request.getPhoneNum());
+        registerCommonValidation.userValidate(request);
+        emailDuplicateValidate(request);
+        nicknameDuplicateValidate(request);
     }
 
-    private void validateEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_EMAIL);
-        }
-        if (!email.contains("@")) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_EMAIL);
-        }
-        if (userRepository.existsByEmail(email)) {
+    private void emailDuplicateValidate(UserRegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_EMAIL);
         }
     }
 
-    private void validatePassword(String password) {
-        if (password == null || password.length() < 8) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_PASSWORD);
-        }
-    }
-
-    private void validateNickname(String nickname) {
-        if (nickname == null || nickname.isBlank()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_NICKNAME);
-        }
-    }
-
-    private void validatePhoneNum(String phoneNum) {
-        if (phoneNum == null || !phoneNum.matches("^\\d{10,11}$")) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_PHONE_NUMBER);
+    private void nicknameDuplicateValidate(UserRegisterRequest request) {
+        if(userRepository.existsByNickname(request.getNickname())) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_NICKNAME);
         }
     }
 }

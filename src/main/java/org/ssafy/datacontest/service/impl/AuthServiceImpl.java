@@ -46,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void companySignUp(CompanyRegisterRequest companyRegisterRequest) {
+        companyValidation.validateCompany(companyRegisterRequest);
         Company company = CompanyMapper.toEntity(companyRegisterRequest, passwordEncoder);
         companyRepository.save(company);
     }
