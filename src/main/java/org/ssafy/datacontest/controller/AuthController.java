@@ -27,14 +27,14 @@ public class AuthController {
 
     @Operation(summary = "유저 회원가입", description = "")
     @PostMapping("/register/user")
-    public ResponseEntity<Void> signUp(@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<Void> userSignUp(@RequestBody RegisterRequest registerRequest){
         authService.userSignUp(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "유저 회원가입", description = "")
+    @Operation(summary = "기업 회원가입", description = "")
     @PostMapping("/register/company")
-    public ResponseEntity<Void> signUp(@RequestBody CompanyRegisterRequest companyRegisterRequest){
+    public ResponseEntity<Void> companySignUp(@RequestBody CompanyRegisterRequest companyRegisterRequest){
         authService.companySignUp(companyRegisterRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
