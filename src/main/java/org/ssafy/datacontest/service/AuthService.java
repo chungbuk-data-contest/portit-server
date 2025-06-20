@@ -1,10 +1,10 @@
 package org.ssafy.datacontest.service;
 
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
-import org.ssafy.datacontest.dto.register.RegisterRequest;
+import org.ssafy.datacontest.dto.register.UserRegisterRequest;
 
 public interface AuthService {
-    void userSignUp(RegisterRequest registerRequest);
+    void userSignUp(UserRegisterRequest userRegisterRequest);
 
     void companySignUp(CompanyRegisterRequest companyRegisterRequest);
 }
