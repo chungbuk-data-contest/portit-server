@@ -25,6 +25,7 @@ spring:
         redis:
             host: ${REDIS_HOST}
             port: ${REDIS_PORT}
+
 cloud:
     aws:
         credentials:
@@ -37,6 +38,8 @@ cloud:
         stack:
             auto: false
 
-
 public-api:
     key: ${API_SERVICE_KEY}
+
+springdoc:
+    show-login-endpoint: true
