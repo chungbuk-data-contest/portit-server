@@ -15,8 +15,11 @@ public enum ErrorCode {
     EMPTY_TAG(HttpStatus.BAD_REQUEST, "004_EMPTY_TAG", "태그는 필수 선택 항목입니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "005_INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "006_ARTICLE_NOT_FOUND", "존재하지 않는 작품 번호입니다."),
-    FORBIDDEN_ARTICLE_ACCESS(HttpStatus.FORBIDDEN, "FORBIDDEN_ARTICLE_ACCESS", "해당 작품에 대한 권한이 없습니다.")
-
+    FORBIDDEN_ARTICLE_ACCESS(HttpStatus.FORBIDDEN, "FORBIDDEN_ARTICLE_ACCESS", "해당 작품에 대한 권한이 없습니다."),
+    REFRESH_TOKEN_NULL(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NULL", "Refresh Token이 존재하지 않습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_EXPIRED", "Refresh Token이 만료되었습니다."),
+    REFRESH_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_INVALID", "유효하지 않은 Refresh Token입니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NOT_FOUND", "서버에 존재하지 않는 Refresh Token입니다."),
     ;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,

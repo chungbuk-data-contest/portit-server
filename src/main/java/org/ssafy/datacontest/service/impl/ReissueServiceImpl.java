@@ -1,11 +1,15 @@
 package org.ssafy.datacontest.service.impl;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.entity.Refresh;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.repository.RefreshRepository;
 import org.ssafy.datacontest.service.ReissueService;
@@ -35,29 +39,25 @@ public class ReissueServiceImpl implements ReissueService {
             }
         }
 
-//        if(refresh == null){
-//            // response status code
-//            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
-//        }
-//
-//        // expired check
-//        try{
-//            jwtUtil.isExpired(refresh);
-//        } catch (ExpiredJwtException e){
-//            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
-//        }
-//
-//        // 토큰이 refresh인지 확인(발급시 페이로드에 명시)
-//        String category = jwtUtil.getCategory(refresh);
-//        if(!category.equals("refresh")){
-//            return new ResponseEntity<>("refresh token invalid", HttpStatus.BAD_REQUEST);
-//        }
-//
-//        // DB에 저장되어 있는지 확인
-//        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-//        if(!isExist){
-//            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
-//        }
+        if (refresh == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NULL);
+        }
+
+        try {
+            jwtUtil.isExpired(refresh);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        String category = jwtUtil.getCategory(refresh);
+        if (!category.equals("refresh")) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+
+        boolean isExist = refreshRepository.existsByRefresh(refresh);
+        if (!isExist) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
 
         String email = jwtUtil.getEmail(refresh);
         String role = jwtUtil.getRole(refresh);
