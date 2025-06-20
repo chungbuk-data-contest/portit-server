@@ -13,11 +13,19 @@ spring:
             ddl-auto: update # TODO: update 변경
         show-sql: true
 
+    jwt:
+        secret: ${JWT_SECRET}
+
     servlet:
         multipart:
             enabled: true
             max-file-size: 500MB      # 단일 파일 최대 크기
             max-request-size: 500MB   # 전체 요청의 최대 크기
+    data:
+        redis:
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+
 cloud:
     aws:
         credentials:
@@ -30,6 +38,8 @@ cloud:
         stack:
             auto: false
 
-
 public-api:
     key: ${API_SERVICE_KEY}
+
+springdoc:
+    show-login-endpoint: true

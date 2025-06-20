@@ -4,5 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.ssafy.datacontest.entity.Company;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
+    Company findByEmail(String email);
+
+    boolean existsByEmail(String email);
     // save(), saveAll(), findAll() 등 기본 제공
 }
