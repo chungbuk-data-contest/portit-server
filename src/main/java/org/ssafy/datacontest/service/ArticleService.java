@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.service;
 
+import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
 
 import java.util.List;
@@ -9,5 +10,5 @@ public interface ArticleService {
     Long updateArticle(ArticleRequestDto articleRequestDto);
     void deleteArticle(Long articleId);
     ArticleResponseDto getArticle(Long articleId);
-    List<ArticleResponseDto> getArticles();
+    SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
 }

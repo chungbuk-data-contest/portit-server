@@ -20,11 +20,14 @@ public class Article {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Category category;
 
     private String externalLink;
 
 //    private Long userId; // TODO: FK 연결
+
+    private Long likeCount = 0L;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

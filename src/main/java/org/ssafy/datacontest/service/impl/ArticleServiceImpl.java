@@ -3,15 +3,20 @@ package org.ssafy.datacontest.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.ssafy.datacontest.dto.article.ArticleRequestDto;
-import org.ssafy.datacontest.dto.article.ArticleResponseDto;
+import org.ssafy.datacontest.dto.SliceResponseDto;
+import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
 import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.enums.SortType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
@@ -25,6 +30,8 @@ import org.ssafy.datacontest.validation.ArticleValidation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -92,8 +99,44 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleResponseDto> getArticles() {
-        return List.of();
+    public SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+        Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequestDto);
+        List<Article> articleList = articles.getContent();
+
+        // articleId 리스트 추출
+        List<Long> articleIds = articleList.stream()
+                .map(Article::getArtId)
+                .toList();
+
+        // 썸네일 이미지 조회: articleId별로 첫 번째 이미지
+        List<Object[]> rawList = imageRepository.findFirstImageUrlsByArticleIds(articleIds);
+
+        Map<Long, String> thumbnailMap = rawList.stream()
+                .filter(row -> row[0] != null && row[1] != null)
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> (String) row[1]
+                ));
+
+        // 태그 조회: articleId별로 List<Tag>
+        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+
+        Map<Long, List<String>> tagMap = rawTagData.stream()
+                .collect(Collectors.groupingBy(
+                        row -> ((Number) row[0]).longValue(),
+                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
+                ));
+
+        // DTO 변환
+        List<ArticlesResponseDto> dtoList = articleList.stream()
+                .map(article -> ArticleMapper.toArticlesResponseDto(
+                        article,
+                        thumbnailMap.get(article.getArtId()),
+                        tagMap.getOrDefault(article.getArtId(), List.of())
+                ))
+                .toList();
+
+        return new SliceResponseDto<>(dtoList, articles.hasNext());
     }
 
     private String uploadFile(MultipartFile file) {
@@ -108,9 +151,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private void saveFile(List<String> fileUrls, Article article) {
+        int index = 0;
         for(String fileUrl : fileUrls){
-            Image file = ImageMapper.toEntity(fileUrl, article);
+            Image file = ImageMapper.toEntity(fileUrl, article, index);
             imageRepository.save(file);
+            index++;
         }
     }
 

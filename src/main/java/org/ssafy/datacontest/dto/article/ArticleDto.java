@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.dto.article;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import org.ssafy.datacontest.entity.Article;
@@ -17,23 +18,12 @@ public class ArticleDto {
     private String description;
     private String externalLink;
     private boolean visible;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+
     private Category category;
 
     private List<ImageDto> images;
     private List<TagDto> tags;
-
-    public static ArticleDto toDto(Article article, List<ImageDto> images, List<TagDto> tags) {
-
-        return ArticleDto.builder()
-                .articleId(article.getArtId())
-                .title(article.getTitle())
-                .description(article.getDescription())
-                .externalLink(article.getExternalLink())
-                .createdAt(article.getCreatedAt())
-                .category(article.getCategory())
-                .images(images)
-                .tags(tags)
-                .build();
-    }
 }

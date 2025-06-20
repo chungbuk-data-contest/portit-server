@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.controller;
 
+import com.amazonaws.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -8,8 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleResponseDto;
+import org.ssafy.datacontest.dto.article.ArticleScrollRequestDto;
+import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
+import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.service.ArticleService;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -39,6 +47,22 @@ public class ArticleController {
     public ResponseEntity<String> deleteArticle(@PathVariable("articleId") Long articleId) {
         articleService.deleteArticle(articleId);
         return ResponseEntity.status(HttpStatus.OK).body("작품이 정상적으로 삭제되었습니다.");
+    }
+
+    // 작품 번호, 이미지 썸네일, 제목, 작성자명, 태그List
+    @GetMapping("")
+    @Operation(
+            summary = "작품 조회",
+            description = "검색어, 카테고리, 정렬 방식, 페이지 번호 등의 파라미터를 통해 작품 목록을 조회합니다. \n" +
+                    "파라미터 없이 요청 시 전체 작품을 반환합니다."
+    )
+    // category 하나만 들어왔을 때 인식이 안 되는 문제 -> RequestParam 으로 받아서 직접 넣어주기
+    public ResponseEntity<SliceResponseDto<ArticlesResponseDto>> getArticles(
+            @RequestParam(required = false) List<Category> category,
+            @ModelAttribute ArticleScrollRequestDto request
+    ) {
+        request.setCategory(category);  // 수동으로 세팅
+        return ResponseEntity.ok(articleService.getArticlesByCursor(request));
     }
 
 }

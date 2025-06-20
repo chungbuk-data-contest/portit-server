@@ -10,7 +10,7 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
-            ddl-auto: update # TODO: update 변경
+            ddl-auto: update
         show-sql: true
 
     servlet:

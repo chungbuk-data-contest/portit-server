@@ -5,7 +5,7 @@ import lombok.*;
 
 
 @Entity
-@Table(name = "Image")
+@Table(name = "image")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {
@@ -19,11 +19,12 @@ public class Image {
 
     private String imageUrl;
 
+    private int imageIndex;
+
     @Builder
-    public Image(String imageUrl, Article article) {
+    public Image(String imageUrl, int imageIndex, Article article) {
         this.imageUrl = imageUrl;
         this.article = article;
+        this.imageIndex = imageIndex;
     }
-
-
 }
