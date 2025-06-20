@@ -1,6 +1,7 @@
 package org.ssafy.datacontest.validation;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,7 @@ import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.repository.RefreshRepository;
 
+@Slf4j
 @Component
 public class RefreshValidation {
 
@@ -50,7 +52,9 @@ public class RefreshValidation {
     }
 
     private void checkExistence(String refresh) {
-        boolean isExist = refreshRepository.existsByRefresh(refresh);
+        String email = jwtUtil.getEmail(refresh);
+        log.info("Check if email exists : {}", email);
+        boolean isExist = refreshRepository.existsById(email);
         if (!isExist) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }

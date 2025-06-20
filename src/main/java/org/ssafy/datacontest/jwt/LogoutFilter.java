@@ -75,7 +75,8 @@ public class LogoutFilter extends GenericFilterBean {
         }
 
         // DB에 저장되어 있는 지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        String email = jwtUtil.getEmail(refresh);
+        boolean isExist = refreshRepository.existsById(email);
         if(!isExist){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -83,7 +84,7 @@ public class LogoutFilter extends GenericFilterBean {
 
         // 로그아웃 진행
         // Refresh Token을 DB에서 제거
-        refreshRepository.deleteByRefresh(refresh);
+        refreshRepository.deleteById(email);
 
         // Refresh Token Cookie 값 0
         Cookie cookie = new Cookie("refresh", null);

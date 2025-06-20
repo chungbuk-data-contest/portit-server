@@ -1,12 +1,11 @@
 package org.ssafy.datacontest.repository;
 
-import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.ssafy.datacontest.entity.Refresh;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import org.ssafy.datacontest.entity.redis.Refresh;
 
-public interface RefreshRepository extends JpaRepository<Refresh, Long> {
-    Boolean existsByRefresh(String refresh);
-
-    @Transactional
-    void deleteByRefresh(String refresh);
+@Repository
+public interface RefreshRepository extends CrudRepository<Refresh, String> {
+    void deleteById(String email); // email 기반으로 바로 삭제 가능
+    boolean existsById(String email);
 }

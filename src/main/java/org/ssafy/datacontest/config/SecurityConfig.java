@@ -28,6 +28,7 @@ public class SecurityConfig {
 
     public SecurityConfig(RefreshRepository refreshRepository,
                           AuthenticationConfiguration authenticationConfiguration,
+                          RefreshRepository tokenRepository,
                           JwtUtil jwtUtil) {
         this.refreshRepository = refreshRepository;
         this.authenticationConfiguration = authenticationConfiguration;
@@ -48,7 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        LoginFilter loginFilter = new LoginFilter(refreshRepository, authenticationManager(authenticationConfiguration), jwtUtil);
+        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), refreshRepository, jwtUtil);
         loginFilter.setFilterProcessesUrl("/auth/login");
 
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);

@@ -17,13 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.util.StreamUtils;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.dto.register.LoginRequest;
-import org.ssafy.datacontest.entity.Refresh;
+import org.ssafy.datacontest.entity.redis.Refresh;
 import org.ssafy.datacontest.repository.RefreshRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -36,11 +35,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public LoginFilter(RefreshRepository refreshRepository,
-                       AuthenticationManager authenticationManager,
+    public LoginFilter(AuthenticationManager authenticationManager,
+                       RefreshRepository refreshRepository,
                        JwtUtil jwtUtil) {
-        this.refreshRepository = refreshRepository;
         this.authenticationManager = authenticationManager;
+        this.refreshRepository = refreshRepository;
         this.jwtUtil = jwtUtil;
     }
 
@@ -88,7 +87,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.generateToken("refresh", email, role, REFRESH_TOKEN_VALIDITY);
 
         // Refresh Token 저장
-        addRefreshEntity(email, refresh, 86400000L);
+//        addRefreshEntity(email, refresh, 86400000L);
+        Refresh redisRefresh = new Refresh(email, refresh, REFRESH_TOKEN_VALIDITY);
+        refreshRepository.deleteById(email);
+        refreshRepository.save(redisRefresh);
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
@@ -98,17 +100,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         logger.info("successful authentication");
     }
 
-    private void addRefreshEntity(String email, String refresh, Long expiredMs) {
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        Refresh refreshEntity = Refresh.builder()
-                .email(email)
-                .refresh(refresh)
-                .expiration(date.toString())
-                .build();
-
-        refreshRepository.save(refreshEntity);
-    }
+//    private void addRefreshEntity(String email, String refresh, Long expiredMs) {
+//        Date date = new Date(System.currentTimeMillis() + expiredMs);
+//
+//        Refresh refreshEntity = Refresh.builder()
+//                .email(email)
+//                .refresh(refresh)
+//                .expiration(date.toString())
+//                .build();
+//
+//        refreshRepository.save(refreshEntity);
+//    }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
