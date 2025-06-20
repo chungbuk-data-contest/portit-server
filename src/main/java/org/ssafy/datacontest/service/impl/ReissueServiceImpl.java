@@ -13,6 +13,7 @@ import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.repository.RefreshRepository;
 import org.ssafy.datacontest.service.ReissueService;
+import org.ssafy.datacontest.validation.RefreshValidation;
 
 import java.util.Date;
 
@@ -21,11 +22,15 @@ public class ReissueServiceImpl implements ReissueService {
 
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final RefreshValidation refreshValidation;
 
     @Autowired
-    public ReissueServiceImpl(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+    public ReissueServiceImpl(JwtUtil jwtUtil,
+                              RefreshRepository refreshRepository,
+                              RefreshValidation refreshValidation) {
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.refreshValidation = refreshValidation;
     }
 
     @Override
@@ -39,25 +44,7 @@ public class ReissueServiceImpl implements ReissueService {
             }
         }
 
-        if (refresh == null) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NULL);
-        }
-
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_EXPIRED);
-        }
-
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_INVALID);
-        }
-
-        boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if (!isExist) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NOT_FOUND);
-        }
+        refreshValidation.validateRefreshToken(refresh);
 
         String email = jwtUtil.getEmail(refresh);
         String role = jwtUtil.getRole(refresh);
