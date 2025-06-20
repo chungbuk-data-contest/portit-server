@@ -1,6 +1,5 @@
 package org.ssafy.datacontest.controller;
 
-import com.amazonaws.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,10 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
-import org.ssafy.datacontest.dto.article.ArticleResponseDto;
 import org.ssafy.datacontest.dto.article.ArticleScrollRequestDto;
 import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 import org.ssafy.datacontest.enums.Category;
+import org.ssafy.datacontest.enums.SortType;
 import org.ssafy.datacontest.service.ArticleService;
 
 import java.util.List;
@@ -49,7 +48,6 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.OK).body("작품이 정상적으로 삭제되었습니다.");
     }
 
-    // 작품 번호, 이미지 썸네일, 제목, 작성자명, 태그List
     @GetMapping("")
     @Operation(
             summary = "작품 조회",
@@ -62,6 +60,12 @@ public class ArticleController {
             @ModelAttribute ArticleScrollRequestDto request
     ) {
         request.setCategory(category);  // 수동으로 세팅
+
+        // 검색 시, 강제 최신순 정렬
+        if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+            request.setSortType(SortType.LATEST);
+        }
+
         return ResponseEntity.ok(articleService.getArticlesByCursor(request));
     }
 

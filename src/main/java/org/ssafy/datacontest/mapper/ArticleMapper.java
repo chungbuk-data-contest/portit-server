@@ -2,7 +2,6 @@ package org.ssafy.datacontest.mapper;
 
 import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.entity.Article;
-import org.ssafy.datacontest.entity.Tag;
 import org.ssafy.datacontest.enums.Category;
 
 import java.util.List;

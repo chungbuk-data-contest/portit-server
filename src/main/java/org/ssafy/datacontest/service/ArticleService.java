@@ -3,8 +3,6 @@ package org.ssafy.datacontest.service;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
 
-import java.util.List;
-
 public interface ArticleService {
     Long createArticle(ArticleRequestDto articleRequestDto);
     Long updateArticle(ArticleRequestDto articleRequestDto);

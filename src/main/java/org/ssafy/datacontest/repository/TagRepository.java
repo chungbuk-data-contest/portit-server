@@ -8,7 +8,6 @@ import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Tag;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
