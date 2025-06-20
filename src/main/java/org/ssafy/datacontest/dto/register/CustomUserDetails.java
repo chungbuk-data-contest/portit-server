@@ -2,6 +2,7 @@ package org.ssafy.datacontest.dto.register;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.ssafy.datacontest.entity.BaseUser;
 import org.ssafy.datacontest.entity.User;
 
 import java.util.ArrayList;
@@ -10,9 +11,9 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
 
     // UserEntity 객체 변수를 미리 만들어 둠
-    private final User user;
+    private final BaseUser user;
 
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(BaseUser user) {
         this.user = user;
     }
 

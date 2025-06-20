@@ -20,6 +20,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_EXPIRED", "Refresh Token이 만료되었습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_INVALID", "유효하지 않은 Refresh Token입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NOT_FOUND", "서버에 존재하지 않는 Refresh Token입니다."),
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST,"USER_NOT_FOUND","존재하지 않는 유저입니다.")
     ;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
