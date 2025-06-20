@@ -5,12 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 // DB 저장용
 @Entity
 @Table(name = "company")
-@Getter
-@Setter
+@Getter @Setter
+@SuperBuilder
 @NoArgsConstructor // 기본 생성자 자동 생성
 @AllArgsConstructor // 모든 필드를 인자로 받는 생성자를 자동 생성
 public class Company extends BaseUser{

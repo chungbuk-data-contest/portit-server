@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.dto.register.RegisterRequest;
 import org.ssafy.datacontest.service.AuthService;
 
@@ -24,10 +25,17 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @Operation(summary = "회원가입", description = "")
-    @PostMapping("/register")
+    @Operation(summary = "유저 회원가입", description = "")
+    @PostMapping("/register/user")
     public ResponseEntity<Void> signUp(@RequestBody RegisterRequest registerRequest){
-        authService.signUp(registerRequest);
+        authService.userSignUp(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = "유저 회원가입", description = "")
+    @PostMapping("/register/company")
+    public ResponseEntity<Void> signUp(@RequestBody CompanyRegisterRequest companyRegisterRequest){
+        authService.companySignUp(companyRegisterRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
