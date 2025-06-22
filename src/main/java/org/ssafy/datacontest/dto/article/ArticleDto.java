@@ -16,7 +16,6 @@ public class ArticleDto {
     private String title;
     private String description;
     private String externalLink;
-    private boolean visible;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;

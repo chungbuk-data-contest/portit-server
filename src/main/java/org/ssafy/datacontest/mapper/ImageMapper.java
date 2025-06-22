@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.mapper;
 
+import org.ssafy.datacontest.dto.article.ImageDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 
@@ -11,6 +12,14 @@ public class ImageMapper {
                 .imageUrl(fileUrl)
                 .article(article)
                 .imageIndex(index)
+                .build();
+    }
+
+    public static ImageDto toDto(Image image) {
+        return ImageDto.builder()
+                .imageId(image.getImageId())
+                .imageUrl(image.getImageUrl())
+                .imageIndex(image.getImageIndex())
                 .build();
     }
 }

@@ -76,12 +76,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void deleteArticle(Long articleId, String userName) {
-        // TODO: 유저 확인 / 권한 확인
+        // 유저 가져오기
         User user = userRepository.findByEmail(userName);
 
         // articleId 존재 여부 확인
-        Article article = articleRepository.findByArtId(articleId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+        Article article = getArticleOrThrow(articleId);
 
         // 권한 확인 ( ==, != 는 객체 주소(참조)로 비교하기에 다를 수 있음 )
         articleValidation.checkUserAuthorizationForArticle(user, article);
@@ -98,7 +97,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleResponseDto getArticle(Long articleId) {
-        return null;
+        Article article = getArticleOrThrow(articleId);
+        User user = article.getUser();
+
+        List<TagDto> tagDtos = getTagDto(article);
+        List<ImageDto> fileDtos = getImageDto(article);
+
+        return ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
     }
 
     @Override
@@ -166,5 +171,31 @@ public class ArticleServiceImpl implements ArticleService {
         for(Image file : fileUrls){
             s3FileService.deleteFile(file.getImageUrl());
         }
+    }
+
+    private Article getArticleOrThrow(Long articleId) {
+        Article article = articleRepository.findByArtId(articleId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        return article;
+    }
+
+    private List<TagDto> getTagDto(Article article) {
+        List<Tag> tagList = tagRepository.findByArticle(article);
+        List<TagDto> tagDtos = new ArrayList<>();
+        for(Tag tag : tagList){
+            tagDtos.add(TagMapper.toDto(tag));
+        }
+
+        return tagDtos;
+    }
+
+    private List<ImageDto> getImageDto(Article article) {
+        List<Image> fileList = imageRepository.findByArticle(article);
+        List<ImageDto> imageDtos = new ArrayList<>();
+        for(Image image : fileList){
+            imageDtos.add(ImageMapper.toDto(image));
+        }
+        return imageDtos;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleResponseDto;
 import org.ssafy.datacontest.dto.article.ArticleScrollRequestDto;
 import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
@@ -73,4 +74,12 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getArticlesByCursor(request));
     }
 
+    @GetMapping("/{articleId}")
+    @Operation(
+            summary = "작품 상세 조회",
+            description = "작품 ID를 통해 해당 작품의 상세 정보를 조회합니다."
+    )
+    public ResponseEntity<ArticleResponseDto> getArticle(@PathVariable("articleId") Long articleId) {
+        return ResponseEntity.ok(articleService.getArticle(articleId));
+    }
 }

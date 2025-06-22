@@ -19,16 +19,18 @@ public class ArticleMapper {
                 .build();
     }
 
-    public static ArticleDto toDto(Article article, List<ImageDto> images, List<TagDto> tags) {
-        return ArticleDto.builder()
+    public static ArticleResponseDto toArticleResponseDto(Article article, List<ImageDto> fileUrls, List<TagDto> tags, User user) {
+        return ArticleResponseDto.builder()
                 .articleId(article.getArtId())
                 .title(article.getTitle())
                 .description(article.getDescription())
                 .externalLink(article.getExternalLink())
                 .createdAt(article.getCreatedAt())
                 .category(article.getCategory())
-                .images(images)
-                .tags(tags)
+                .fileUrl(fileUrls)
+                .tagList(tags)
+                .userName(user.getNickname())
+                .userEmail(user.getEmail())
                 .build();
     }
 
