@@ -40,6 +40,7 @@ public class ArticleMapper {
                 .tagList(tagList)
                 .category(article.getCategory())
                 .createdAt(article.getCreatedAt())
+                .userName(article.getUser().getNickname())
                 .build();
     }
 }

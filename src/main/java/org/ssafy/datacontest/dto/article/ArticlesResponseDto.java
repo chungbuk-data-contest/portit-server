@@ -15,7 +15,7 @@ public class ArticlesResponseDto {
     // 작품 번호, 이미지 썸네일, 제목, 작성자명, 태그List, 카테고리, 만든 날짜
     private Long articleId;
     private String articleTitle;
-    // TODO : 작성자명
+    private String userName;
     private String imageUrl;
     private List<String> tagList;
     private Category category;

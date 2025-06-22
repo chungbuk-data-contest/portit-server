@@ -46,7 +46,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     @Override
     public Long createArticle(ArticleRequestDto articleRequestDto, String userName) {
-        // TODO: 유저 인증
         User user = userRepository.findByEmail(userName);
 
         articleValidation.isValidRequest(articleRequestDto); // null 여부 처리

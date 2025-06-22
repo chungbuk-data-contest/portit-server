@@ -61,6 +61,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         List<Article> result = queryFactory
                 .selectFrom(article)
+                .join(article.user).fetchJoin()
                 .where(builder)
                 .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
                 .limit(request.getSize() + 1)
