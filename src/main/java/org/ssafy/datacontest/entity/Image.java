@@ -27,4 +27,8 @@ public class Image {
         this.article = article;
         this.imageIndex = imageIndex;
     }
+
+    public void updateImageIndex(int imageIndex) {
+        this.imageIndex = imageIndex;
+    }
 }

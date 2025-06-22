@@ -42,4 +42,11 @@ public class Article {
         this.category = category;
         this.user = user;
     }
+
+    public void updateArticle(String title, String description, String externalLink, Category category) {
+        this.title = title;
+        this.description = description;
+        this.externalLink = externalLink;
+        this.category = category;
+    }
 }

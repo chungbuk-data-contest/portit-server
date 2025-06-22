@@ -14,6 +14,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     List<Tag> findByArticle(Article article);
     void deleteByArticle(Article article);
 
+
     @Query(value = """
     SELECT t.art_id, t.tag_name
     FROM tag t 
