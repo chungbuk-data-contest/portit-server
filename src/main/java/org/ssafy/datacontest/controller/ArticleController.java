@@ -1,5 +1,8 @@
 package org.ssafy.datacontest.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -9,11 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
-import org.ssafy.datacontest.dto.article.ArticleRequestDto;
-import org.ssafy.datacontest.dto.article.ArticleResponseDto;
-import org.ssafy.datacontest.dto.article.ArticleScrollRequestDto;
-import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
+import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.SortType;
@@ -30,6 +31,7 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("") // 객체 보내주기
     @Operation(
@@ -81,5 +83,31 @@ public class ArticleController {
     )
     public ResponseEntity<ArticleResponseDto> getArticle(@PathVariable("articleId") Long articleId) {
         return ResponseEntity.ok(articleService.getArticle(articleId));
+    }
+
+    @PutMapping("/{articleId}")
+    @Operation(
+            summary = "작품 수정",
+            description = "작품 ID를 이용해 해당 작품의 정보를 수정할 수 있습니다.\n\n" +
+                    "이미지 수정은 아래와 같은 방식으로 전달해주세요:\n" +
+                    "- imageList : 전체 이미지 순서를 담은 JSON 문자열\n\n" +
+                    "- 기존 이미지는 imageId 값을 포함해 보내고,\n\n" +
+                    "- 새로 추가하는 이미지는 imageId를 `null`로 설정해주세요.\n\n" +
+                    "- 새 이미지(imageId가 null인 경우)의 개수와 함께 보내는 이미지 파일(MultipartFile)의 개수는 같아야합니다!\n\n" +
+                    "- 이미지 순서를 바꾸고 싶다면, 전체 이미지를 새로운 순서대로 imageList에 담아 보내주시면 됩니다."
+    )
+    public ResponseEntity<Long> updateArticle(
+            @PathVariable("articleId") Long articleId,
+            @ModelAttribute ArticleUpdateRequestDto request,
+            @RequestPart("imageList") String imageListJson,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws JsonProcessingException {
+
+        // JSON 문자열 → List<ImageUpdateDto>
+        List<ImageUpdateDto> imageList = objectMapper.readValue(
+                imageListJson,
+                new TypeReference<>() {}
+        );
+
+        return ResponseEntity.ok(articleService.updateArticle(request, userDetails.getUsername(), articleId, imageList));
     }
 }

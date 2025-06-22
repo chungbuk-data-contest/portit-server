@@ -13,6 +13,7 @@ import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
 import org.ssafy.datacontest.entity.User;
+import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
@@ -26,9 +27,8 @@ import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -69,8 +69,35 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Long updateArticle(ArticleRequestDto articleRequestDto) {
-        return 0L;
+    @Transactional
+    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) {
+        User user = userRepository.findByEmail(userName);
+        Article article = getArticleOrThrow(articleId);
+        articleRequestDto.setImageIdList(imageIdList);
+
+        articleValidation.checkUserAuthorizationForArticle(user, article);
+        articleValidation.isValidRequest(articleRequestDto);
+
+        // 이미지 수정 혹은 순서 변경 반영
+        List<Image> existingFile = imageRepository.findByArticle(article);
+
+        // 삭제된 이미지 찾아서 삭제
+        deleteImagesNotInRequest(articleRequestDto, existingFile);
+
+        // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
+        updateImageOrder(articleRequestDto);
+
+        // 새로 추가한 이미지 db & s3 저장
+        saveNewFile(articleRequestDto, article);
+
+        // 태그 삭제
+        tagRepository.deleteByArticle(article);
+        saveTag(articleRequestDto.getTag(), article);
+
+        // 나머지 업데이트
+        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()));
+
+        return articleId;
     }
 
     @Override
@@ -197,5 +224,67 @@ public class ArticleServiceImpl implements ArticleService {
             imageDtos.add(ImageMapper.toDto(image));
         }
         return imageDtos;
+    }
+
+    private void deleteImagesNotInRequest(ArticleUpdateRequestDto articleRequestDto, List<Image> existingFile) {
+        // imageIdList에서 null이 아닌 id만 추출해서 Set으로 변환
+        Set<Long> incomingIds = articleRequestDto.getImageIdList().stream()
+                .map(ImageUpdateDto::getImageId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // 기존 이미지 중 요청에 포함되지 않은 이미지만 삭제 대상
+        List<Image> toDeleteImage = existingFile.stream()
+                .filter(img -> !incomingIds.contains(img.getImageId()))
+                .toList();
+
+        // 삭제
+        for (Image image : toDeleteImage) {
+            imageRepository.deleteByImageId(image.getImageId());
+        }
+        deleteFile(toDeleteImage);
+    }
+
+    private void updateImageOrder(ArticleUpdateRequestDto articleRequestDto) {
+        // 1. 유효한 imageId만 필터링해서 DB 조회
+        List<Image> existingImages = imageRepository.findByImageIdIn(
+                articleRequestDto.getImageIdList().stream()
+                        .filter(dto -> dto.getImageId() != null)  // imageId가 null이 아닌 경우만
+                        .map(ImageUpdateDto::getImageId)
+                        .toList()
+        );
+
+        // 2. imageId → Image 매핑
+        Map<Long, Image> imageMap = existingImages.stream()
+                .collect(Collectors.toMap(Image::getImageId, Function.identity()));
+
+        // 3. 순서 업데이트
+        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
+            Long imageId = articleRequestDto.getImageIdList().get(i).getImageId();
+
+            if (imageId == null) continue; // 새 이미지인 경우
+
+            Image image = imageMap.get(imageId);
+            if (image != null && image.getImageIndex() != i) {
+                image.updateImageIndex(i);
+            }
+        }
+    }
+
+    private void saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
+        List<MultipartFile> files = articleRequestDto.getFiles();
+
+        int fileIndex = 0; // 새 이미지만큼만 files에서 꺼내기
+
+        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
+            ImageUpdateDto dto = articleRequestDto.getImageIdList().get(i);
+
+            // 새 이미지인 경우 (imageId == null)
+            if (dto.getImageId() == null) {
+                String url = uploadFile(files.get(fileIndex++)); // 순서 주의
+                Image image = ImageMapper.toEntity(url, article, i); // 현재 위치 i가 index
+                imageRepository.save(image);
+            }
+        }
     }
 }

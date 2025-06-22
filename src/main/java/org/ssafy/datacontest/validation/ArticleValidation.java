@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
+import org.ssafy.datacontest.dto.article.ImageUpdateDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
@@ -21,12 +23,21 @@ public class ArticleValidation {
         }
     }
 
-    public void isValidRequest(ArticleRequestDto request) {
-        isValidTitle(request.getTitle());
-        isValidCategory(request.getCategory());
-        isValidCategoryName(request.getCategory());
-        isValidFile(request.getFiles());
-        isValidTag(request.getTag());
+    public void isValidRequest(Object request) {
+        if (request instanceof ArticleRequestDto dto) {
+            isValidTitle(dto.getTitle());
+            isValidCategory(dto.getCategory());
+            isValidCategoryName(dto.getCategory());
+            isValidFile(dto.getFiles());
+            isValidTag(dto.getTag());
+        } else if (request instanceof ArticleUpdateRequestDto dto) {
+            isValidTitle(dto.getTitle());
+            isValidCategory(dto.getCategory());
+            isValidCategoryName(dto.getCategory());
+            isValidFile(dto.getFiles());
+            isValidTag(dto.getTag());
+            validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
+        }
     }
 
     private void isValidTitle(String title){
@@ -67,4 +78,13 @@ public class ArticleValidation {
         }
     }
 
+    private void validateImageListAndFileSize(List<ImageUpdateDto> imageIdList, List<MultipartFile> fileIdList){
+        long newImageCount = imageIdList.stream()
+                .filter(dto -> dto.getImageId() == null)
+                .count();
+
+        if (newImageCount != fileIdList.size()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.MISMATCH_IMAGE_COUNT);
+        }
+    }
 }

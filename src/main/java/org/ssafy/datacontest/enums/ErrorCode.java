@@ -12,6 +12,7 @@ public enum ErrorCode {
     EMPTY_CATEGORY(HttpStatus.BAD_REQUEST, "EMPTY_CATEGORY", "카테고리는 필수 선택 항목입니다."),
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
     EMPTY_TAG(HttpStatus.BAD_REQUEST, "EMPTY_TAG", "태그는 필수 선택 항목입니다."),
+    EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
 
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE_NOT_FOUND", "존재하지 않는 작품 번호입니다."),
@@ -37,6 +38,7 @@ public enum ErrorCode {
     EMPTY_COMPANY_LOCATION(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_LOCATION", "지역은 필수 입력 항목입니다."),
     NULL_HIRING_STATUS(HttpStatus.BAD_REQUEST, "NULL_HIRING_STATUS", "채용 여부는 필수 항목입니다."),
 
+    MISMATCH_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "MISMATCH_IMAGE_COUNT", "이미지ID 리스트와 업로드된 파일 수가 일치하지 않습니다."),
     ;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
