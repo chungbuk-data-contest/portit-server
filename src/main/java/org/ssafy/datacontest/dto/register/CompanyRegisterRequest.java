@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class CompanyRegisterRequest {
-    private String email;
+    private String loginId;
     private String password;
     private String phoneNum;
     private String profileImage;

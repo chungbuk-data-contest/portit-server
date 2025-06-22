@@ -2,7 +2,6 @@ package org.ssafy.datacontest.validation;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.dto.register.UserRegisterRequest;
 import org.ssafy.datacontest.enums.ErrorCode;
@@ -12,18 +11,18 @@ import org.ssafy.datacontest.exception.CustomException;
 public class RegisterCommonValidation {
 
     public void userValidate(UserRegisterRequest request){
-        validateEmail(request.getEmail());
+        validateLoginId(request.getLoginId());
         validatePassword(request.getPassword());
         validateNickname(request.getNickname());
         validatePhoneNum(request.getPhoneNum());
     }
 
     public void companyValidate(CompanyRegisterRequest request){
-        validateEmail(request.getEmail());
+        validateLoginId(request.getLoginId());
         validatePassword(request.getPassword());
         validatePhoneNum(request.getPhoneNum());
     }
-    private void validateEmail(String email) {
+    private void validateLoginId(String email) {
         if (email == null || email.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_EMAIL);
         }

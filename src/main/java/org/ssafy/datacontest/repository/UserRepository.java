@@ -7,9 +7,9 @@ import org.ssafy.datacontest.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmail(String email);
+    User findByLoginId(String email);
 
-    boolean existsByEmail(String email);
+    boolean existsByLoginId(String email);
 
     boolean existsByNickname(String nickname);
 }

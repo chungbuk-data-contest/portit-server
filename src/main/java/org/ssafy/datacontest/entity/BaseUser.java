@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor @AllArgsConstructor
 public abstract class BaseUser {
-    protected String email;
+    protected String loginId;
     protected String password;
     protected String phoneNum;
     protected String profileImage;

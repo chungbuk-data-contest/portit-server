@@ -50,7 +50,7 @@ public class CompanyService {
                     company.setCompanyField(dto.getCompanyField());
 
                     // 랜덤 필드 생성
-                    company.setEmail(RandomUtil.email());
+                    company.setLoginId(RandomUtil.email());
                     company.setPassword("1234");
                     company.setPhoneNum(RandomUtil.phone());
                     company.setHiring(false);
@@ -66,7 +66,7 @@ public class CompanyService {
 
     // 필수 필드 체크
     public void validateCompany(Company company) {
-        validateEmail(company.getEmail());
+        validateEmail(company.getLoginId());
         validateName(company.getCompanyName());
         validateLoc(company.getCompanyLoc());
         validateField(company.getCompanyField());

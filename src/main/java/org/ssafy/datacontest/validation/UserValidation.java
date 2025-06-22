@@ -23,12 +23,12 @@ public class UserValidation {
 
     public void validateUser(UserRegisterRequest request) {
         registerCommonValidation.userValidate(request);
-        emailDuplicateValidate(request);
+        loginIdDuplicateValidate(request);
         nicknameDuplicateValidate(request);
     }
 
-    private void emailDuplicateValidate(UserRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+    private void loginIdDuplicateValidate(UserRegisterRequest request) {
+        if (userRepository.existsByLoginId(request.getLoginId())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_EMAIL);
         }
     }

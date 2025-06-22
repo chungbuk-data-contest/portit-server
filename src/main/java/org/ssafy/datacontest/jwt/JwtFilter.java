@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         // 헤더에서 access 키에 담긴 토큰을 꺼냄
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -61,11 +62,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // 토큰에서 사용자 정보 추출
-        String email = jwtUtil.getEmail(accessToken);
+        String loginId = jwtUtil.getLoginId(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
         User user = new User();
-        user.setEmail(email);
+        user.setLoginId(loginId);
         user.setRole(role);
         CustomUserDetails userDetails = new CustomUserDetails(user);
 

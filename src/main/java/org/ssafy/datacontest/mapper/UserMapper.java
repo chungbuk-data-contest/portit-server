@@ -7,7 +7,7 @@ import org.ssafy.datacontest.entity.User;
 public class UserMapper {
     public static User toEntity(UserRegisterRequest userRegisterRequest, PasswordEncoder passwordEncoder) {
         return User.builder()
-                .email(userRegisterRequest.getEmail())
+                .loginId(userRegisterRequest.getLoginId())
                 .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
                 .nickname(userRegisterRequest.getNickname())
                 .phoneNum(userRegisterRequest.getPhoneNum())

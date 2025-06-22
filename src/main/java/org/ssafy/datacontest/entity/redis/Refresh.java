@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.TimeToLive;
 @Getter
 public class Refresh {
     @Id
-    private String email;
+    private String loginId;
     private String refresh;
 
     @TimeToLive
