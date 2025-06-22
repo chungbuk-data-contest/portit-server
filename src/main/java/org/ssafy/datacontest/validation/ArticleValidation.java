@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
@@ -12,6 +14,12 @@ import java.util.List;
 
 @Component
 public class ArticleValidation {
+
+    public void checkUserAuthorizationForArticle(User user, Article article){
+        if(!article.getUser().getId().equals(user.getId())) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+    }
 
     public void isValidRequest(ArticleRequestDto request) {
         isValidTitle(request.getTitle());
