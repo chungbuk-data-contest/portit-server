@@ -6,7 +6,7 @@ import org.ssafy.datacontest.dto.article.*;
 public interface ArticleService {
     Long createArticle(ArticleRequestDto articleRequestDto, String userName);
     Long updateArticle(ArticleRequestDto articleRequestDto);
-    void deleteArticle(Long articleId);
+    void deleteArticle(Long articleId, String userName);
     ArticleResponseDto getArticle(Long articleId);
     SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
 }

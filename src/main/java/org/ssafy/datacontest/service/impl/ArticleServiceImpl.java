@@ -75,12 +75,16 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public void deleteArticle(Long articleId) {
+    public void deleteArticle(Long articleId, String userName) {
         // TODO: 유저 확인 / 권한 확인
+        User user = userRepository.findByEmail(userName);
 
         // articleId 존재 여부 확인
         Article article = articleRepository.findByArtId(articleId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        // 권한 확인 ( ==, != 는 객체 주소(참조)로 비교하기에 다를 수 있음 )
+        articleValidation.checkUserAuthorizationForArticle(user, article);
 
         // 파일 조회 => s3 삭제
         List<Image> images = imageRepository.findByArticle(article);

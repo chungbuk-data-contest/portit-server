@@ -47,8 +47,8 @@ public class ArticleController {
             summary = "작품 삭제",
             description = "작품 ID를 통해 해당 작품을 삭제합니다."
     )
-    public ResponseEntity<String> deleteArticle(@PathVariable("articleId") Long articleId) {
-        articleService.deleteArticle(articleId);
+    public ResponseEntity<String> deleteArticle(@PathVariable("articleId") Long articleId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        articleService.deleteArticle(articleId, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).body("작품이 정상적으로 삭제되었습니다.");
     }
 

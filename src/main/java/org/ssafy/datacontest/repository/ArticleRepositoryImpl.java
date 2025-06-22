@@ -37,7 +37,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         // 키워드 필터링 ( 제목 + 작성자명 )
         else {
             builder.and(article.title.containsIgnoreCase(request.getKeyword())
-                    .or(article.description.containsIgnoreCase(request.getKeyword())));
+                    .or(article.user.nickname.containsIgnoreCase(request.getKeyword())));
         }
 
         // 정렬 기준별 커서 조건 추가
