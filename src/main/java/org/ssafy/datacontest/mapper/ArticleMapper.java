@@ -32,7 +32,7 @@ public class ArticleMapper {
                 .fileUrl(fileUrls)
                 .tagList(tags)
                 .userName(user.getNickname())
-                .userEmail(user.getEmail())
+                .userLoginId(user.getLoginId())
                 .build();
     }
 

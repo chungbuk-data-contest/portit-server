@@ -27,9 +27,8 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NOT_FOUND", "서버에 존재하지 않는 Refresh Token입니다."),
 
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST,"USER_NOT_FOUND","존재하지 않는 유저입니다."),
-    EMPTY_EMAIL(HttpStatus.BAD_REQUEST, "EMPTY_EMAIL", "이메일은 필수 입력 항목입니다."),
-    INVALID_EMAIL(HttpStatus.BAD_REQUEST, "INVALID_EMAIL", "이메일 형식이 유효하지 않습니다."),
-    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "DUPLICATED_EMAIL", "이미 사용 중인 이메일입니다."),
+    EMPTY_EMAIL(HttpStatus.BAD_REQUEST, "EMPTY_EMAIL", "아이디는 필수 입력 항목입니다."),
+    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "DUPLICATED_EMAIL", "이미 사용 중인 아이디입니다."),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST,"DUPLICATED NICNAME", "이미 사용 중인 닉네임입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD", "비밀번호는 최소 8자 이상이어야 합니다."),
     EMPTY_NICKNAME(HttpStatus.BAD_REQUEST, "EMPTY_NICKNAME", "닉네임은 필수 입력 항목입니다."),

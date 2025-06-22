@@ -48,7 +48,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     @Override
     public Long createArticle(ArticleRequestDto articleRequestDto, String userName) {
-        User user = userRepository.findByEmail(userName);
+        User user = userRepository.findByLoginId(userName);
 
         articleValidation.isValidRequest(articleRequestDto); // null 여부 처리
 
@@ -73,7 +73,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) {
-        User user = userRepository.findByEmail(userName);
+        User user = userRepository.findByLoginId(userName);
         Article article = getArticleOrThrow(articleId);
         articleRequestDto.setImageIdList(imageIdList);
 
@@ -106,7 +106,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void deleteArticle(Long articleId, String userName) {
         // 유저 가져오기
-        User user = userRepository.findByEmail(userName);
+        User user = userRepository.findByLoginId(userName);
 
         // articleId 존재 여부 확인
         Article article = getArticleOrThrow(articleId);

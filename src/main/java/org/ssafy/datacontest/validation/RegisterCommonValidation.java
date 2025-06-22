@@ -22,12 +22,9 @@ public class RegisterCommonValidation {
         validatePassword(request.getPassword());
         validatePhoneNum(request.getPhoneNum());
     }
-    private void validateLoginId(String email) {
-        if (email == null || email.isBlank()) {
+    private void validateLoginId(String loginId) {
+        if (loginId == null || loginId.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_EMAIL);
-        }
-        if (!email.contains("@")) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_EMAIL);
         }
     }
 

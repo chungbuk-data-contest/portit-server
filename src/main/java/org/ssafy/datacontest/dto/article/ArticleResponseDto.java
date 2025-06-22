@@ -14,7 +14,7 @@ import java.util.List;
 public class ArticleResponseDto {
     // 유저 정보
     private String userName;
-    private String userEmail;
+    private String userLoginId;
 
     // 작품 정보
     private Long articleId;
@@ -29,9 +29,9 @@ public class ArticleResponseDto {
     private LocalDateTime createdAt;
 
     @Builder
-    public ArticleResponseDto(String userName, String userEmail, Long articleId, String title, String description, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt) {
+    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt) {
         this.userName = userName;
-        this.userEmail = userEmail;
+        this.userLoginId = userLoginId;
         this.articleId = articleId;
         this.title = title;
         this.description = description;
