@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
-import org.ssafy.datacontest.dto.register.UserRegisterRequest;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.CompanyRepository;
-import org.ssafy.datacontest.repository.UserRepository;
 
 @Component
 public class CompanyValidation {
@@ -25,15 +23,15 @@ public class CompanyValidation {
 
     public void validateCompany(CompanyRegisterRequest request) {
         registerCommonValidation.companyValidate(request);
-        emailDuplicateValidate(request);
+        loginIdDuplicateValidate(request);
         validateCompanyName(request);
         validateCompanyField(request);
         validateCompanyLocation(request);
         validateHiringStatus(request);
     }
 
-    private void emailDuplicateValidate(CompanyRegisterRequest request) {
-        if (companyRepository.existsByEmail(request.getEmail())) {
+    private void loginIdDuplicateValidate(CompanyRegisterRequest request) {
+        if (companyRepository.existsByLoginId(request.getLoginId())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_EMAIL);
         }
     }

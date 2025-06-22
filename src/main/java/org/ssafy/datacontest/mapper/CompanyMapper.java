@@ -8,7 +8,7 @@ public class CompanyMapper {
 
     public static Company toEntity(CompanyRegisterRequest request, PasswordEncoder passwordEncoder) {
         return Company.builder()
-                .email(request.getEmail())
+                .loginId(request.getLoginId())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNum(request.getPhoneNum())
                 .profileImage(request.getProfileImage())

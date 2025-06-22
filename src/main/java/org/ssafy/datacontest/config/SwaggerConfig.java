@@ -78,7 +78,7 @@ public class SwaggerConfig {
 
                 if (loginFilter.isPresent()) {
                     Schema<?> schema = new ObjectSchema()
-                            .addProperties("email", new StringSchema())
+                            .addProperties("loginId", new StringSchema())
                             .addProperties("password", new StringSchema());
 
                     RequestBody requestBody = new RequestBody().content(
@@ -89,7 +89,7 @@ public class SwaggerConfig {
 
                     Operation operation = new Operation()
                             .summary("로그인")
-                            .description("JWT를 발급받기 위한 로그인 API. email/password 입력 필요")
+                            .description("JWT를 발급받기 위한 로그인 API. loginId/password 입력 필요")
                             .requestBody(requestBody)
                             .responses(new ApiResponses()
                                     .addApiResponse("200", new ApiResponse().description("성공"))

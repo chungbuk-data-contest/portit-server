@@ -75,7 +75,7 @@ public class LogoutFilter extends GenericFilterBean {
         }
 
         // DB에 저장되어 있는 지 확인
-        String email = jwtUtil.getEmail(refresh);
+        String email = jwtUtil.getLoginId(refresh);
         boolean isExist = refreshRepository.existsById(email);
         if(!isExist){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

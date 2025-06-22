@@ -33,16 +33,16 @@ public class ReissueServiceImpl implements ReissueService {
         String refresh = extractRefreshTokenFromCookies(request);
         refreshValidation.validateRefreshToken(refresh);
 
-        String email = jwtUtil.getEmail(refresh);
+        String loginId = jwtUtil.getLoginId(refresh);
         String role = jwtUtil.getRole(refresh);
 
         // make new JWT
-        String newAccess = jwtUtil.generateToken("access", email, role, 600000L);
-        String newRefresh = jwtUtil.generateToken("refresh", email, role, 86400000L);
+        String newAccess = jwtUtil.generateToken("access", loginId, role, 600000L);
+        String newRefresh = jwtUtil.generateToken("refresh", loginId, role, 86400000L);
 
         // Refresh Token 저장 DB에 기존의 Refresh Token 삭제 후 새 Refresh Token 저장
-        refreshRepository.deleteById(email);
-        addRefreshEntity(email, newRefresh, 86400000L);
+        refreshRepository.deleteById(loginId);
+        addRefreshEntity(loginId, newRefresh, 86400000L);
 
         response.setHeader("access", newAccess);
         response.addCookie(createCookie("refresh", newRefresh));
@@ -59,8 +59,8 @@ public class ReissueServiceImpl implements ReissueService {
         return null;
     }
 
-    private void addRefreshEntity(String email, String newRefresh, long expiredMs) {
-        Refresh refresh = new Refresh(email, newRefresh, expiredMs);
+    private void addRefreshEntity(String loginId, String newRefresh, long expiredMs) {
+        Refresh refresh = new Refresh(loginId, newRefresh, expiredMs);
         refreshRepository.save(refresh);
 //        TTL 설정을 통해 자동으로 Refresh 토큰이 삭제되면 무방하지만 계속해서 토큰이 쌓일 경우 용량 문제가 발생할 수 있다.
 //        따라서 스케줄 작업을 통해 만료시간이 지난 토큰은 주기적으로 삭제하는 것이 올바르다.

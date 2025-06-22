@@ -17,7 +17,6 @@ public class RefreshValidation {
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
-    // TODO : Bearer 존재하게 하도록 반환
     @Autowired
     public RefreshValidation(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
         this.jwtUtil = jwtUtil;
@@ -26,9 +25,15 @@ public class RefreshValidation {
 
     public void validateRefreshToken(String refresh) {
         checkNull(refresh);
+        checkBearerFormat(refresh);
+        refresh = removeBearer(refresh);
         checkExpired(refresh);
         checkCategory(refresh);
         checkExistence(refresh);
+    }
+
+    private String removeBearer(String refresh) {
+        return refresh.substring(7);
     }
 
     private void checkNull(String refresh) {
@@ -53,11 +58,19 @@ public class RefreshValidation {
     }
 
     private void checkExistence(String refresh) {
-        String email = jwtUtil.getEmail(refresh);
-        log.info("Check if email exists : {}", email);
-        boolean isExist = refreshRepository.existsById(email);
+        String loginId = jwtUtil.getLoginId(refresh);
+        log.info("Check if loginId exists : {}", loginId);
+        boolean isExist = refreshRepository.existsById(loginId);
         if (!isExist) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
     }
+
+    private void checkBearerFormat(String refresh) {
+        if (!refresh.startsWith("Bearer ")) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+    }
+
+
 }

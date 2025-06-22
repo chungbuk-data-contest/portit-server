@@ -58,14 +58,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throw new RuntimeException(e);
         }
 
-        String email = loginRequest.getEmail();
+        String loginId = loginRequest.getLoginId();
         String password = loginRequest.getPassword();
 
 //        String username = obtainUsername(request);
 //        String password = obtainPassword(request);
 
         // 스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(loginId, password, null);
 
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
@@ -75,7 +75,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        String email = userDetails.getUsername();
+        String loginId = userDetails.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -83,13 +83,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
         //토큰 생성
-        String access = jwtUtil.generateToken("access", email, role, ACCESS_TOKEN_VALIDITY);
-        String refresh = jwtUtil.generateToken("refresh", email, role, REFRESH_TOKEN_VALIDITY);
+        String access = jwtUtil.generateToken("access", loginId, role, ACCESS_TOKEN_VALIDITY);
+        String refresh = jwtUtil.generateToken("refresh", loginId, role, REFRESH_TOKEN_VALIDITY);
 
         // Refresh Token 저장
-//        addRefreshEntity(email, refresh, 86400000L);
-        Refresh redisRefresh = new Refresh(email, refresh, REFRESH_TOKEN_VALIDITY);
-        refreshRepository.deleteById(email);
+//        addRefreshEntity(loginId, refresh, 86400000L);
+        Refresh redisRefresh = new Refresh(loginId, refresh, REFRESH_TOKEN_VALIDITY);
+        refreshRepository.deleteById(loginId);
         refreshRepository.save(redisRefresh);
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
