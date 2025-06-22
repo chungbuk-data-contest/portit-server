@@ -14,4 +14,5 @@ public class User extends BaseUser {
     private Long id;
 
     private String nickname;
+    private boolean isStudent;
 }
