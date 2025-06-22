@@ -12,14 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.SortType;
 import org.ssafy.datacontest.service.ArticleService;
-import org.ssafy.datacontest.service.impl.CustomUserDetailsService;
 
 import java.util.List;
 

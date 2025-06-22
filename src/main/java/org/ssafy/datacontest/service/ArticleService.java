@@ -2,6 +2,7 @@ package org.ssafy.datacontest.service;
 
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 
 import java.util.List;
 

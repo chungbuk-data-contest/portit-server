@@ -1,6 +1,6 @@
 package org.ssafy.datacontest.mapper;
 
-import org.ssafy.datacontest.dto.article.ImageDto;
+import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 

@@ -3,10 +3,13 @@ package org.ssafy.datacontest.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Company;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.util.RandomUtil;
 
@@ -73,38 +76,37 @@ public class CompanyService {
 
     public void validateEmail(String email){
         if(email == null || email.isEmpty()) {
-            // TODO : CustomError 관리
-            throw new IllegalArgumentException("이메일은 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_EMAIL);
         }
     }
 
     public void validatePassword(String password){
         if(password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("비밀번호는 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_PASSWORD);
         }
     }
 
     public void validatePhoneNum(String phoneNum){
         if(phoneNum == null || phoneNum.isEmpty()) {
-            throw new IllegalArgumentException("전화번호는 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_PHONE_NUMBER);
         }
     }
 
     public void validateName(String companyName){
         if(companyName == null || companyName.isEmpty()) {
-            throw new IllegalArgumentException("기업명은 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_NAME);
         }
     }
 
     public void validateLoc(String companyLoc){
         if(companyLoc == null || companyLoc.isEmpty()) {
-            throw new IllegalArgumentException("지역은 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_LOCATION);
         }
     }
 
     public void validateField(String companyField){
         if(companyField == null || companyField.isEmpty()) {
-            throw new IllegalArgumentException("업종분류는 필수입니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_FIELD);
         }
     }
 

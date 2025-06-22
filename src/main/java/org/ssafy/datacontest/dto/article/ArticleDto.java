@@ -3,6 +3,8 @@ package org.ssafy.datacontest.dto.article;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+import org.ssafy.datacontest.dto.image.ImageDto;
+import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.enums.Category;
 
 import java.time.LocalDateTime;

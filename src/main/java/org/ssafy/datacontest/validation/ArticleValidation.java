@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
 import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
-import org.ssafy.datacontest.dto.article.ImageUpdateDto;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
@@ -29,14 +29,32 @@ public class ArticleValidation {
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
+            validateTagCount(dto.getTag());
             isValidTag(dto.getTag());
         } else if (request instanceof ArticleUpdateRequestDto dto) {
             isValidTitle(dto.getTitle());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
+            validateTagCount(dto.getTag());
             isValidTag(dto.getTag());
             validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
+        }
+    }
+
+    private void validateTagCount(List<String> tagList) {
+        if(tagList.size() > 2) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
+        }
+    }
+
+    private void isValidTag(List<String> tagList){
+        if (tagList == null || tagList.isEmpty()) return;
+
+        for (String tag : tagList) {
+            if (tag.length() != 4) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_LENGTH);
+            }
         }
     }
 
@@ -57,12 +75,6 @@ public class ArticleValidation {
             Category.valueOf(category);
         } catch (IllegalArgumentException e){
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_CATEGORY);
-        }
-    }
-
-    private void isValidTag(List<String> tag){
-        if(tag == null || tag.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TAG);
         }
     }
 

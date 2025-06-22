@@ -1,6 +1,8 @@
 package org.ssafy.datacontest.mapper;
 
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.image.ImageDto;
+import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;

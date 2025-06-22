@@ -2,6 +2,7 @@ package org.ssafy.datacontest.dto.article;
 
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 
 import java.util.ArrayList;
 import java.util.List;
