@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
 import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
-import org.ssafy.datacontest.dto.article.ImageUpdateDto;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;

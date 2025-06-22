@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.image.ImageDto;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
+import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
@@ -217,9 +220,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private List<ImageDto> getImageDto(Article article) {
-        List<Image> fileList = imageRepository.findByArticle(article);
+        List<Image> fileList = imageRepository.findByArticle(article)
+                .stream()
+                .sorted(Comparator.comparingInt(Image::getImageIndex))
+                .toList();
+
         List<ImageDto> imageDtos = new ArrayList<>();
-        for(Image image : fileList){
+        for (Image image : fileList) {
             imageDtos.add(ImageMapper.toDto(image));
         }
         return imageDtos;

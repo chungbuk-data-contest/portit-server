@@ -1,6 +1,6 @@
 package org.ssafy.datacontest.mapper;
 
-import org.ssafy.datacontest.dto.article.TagDto;
+import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Tag;
 

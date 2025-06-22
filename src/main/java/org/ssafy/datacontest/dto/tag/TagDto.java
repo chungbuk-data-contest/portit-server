@@ -1,8 +1,7 @@
-package org.ssafy.datacontest.dto.article;
+package org.ssafy.datacontest.dto.tag;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.ssafy.datacontest.entity.Tag;
 
 @Getter
 @Builder
