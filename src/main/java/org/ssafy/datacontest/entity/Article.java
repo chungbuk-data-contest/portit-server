@@ -25,7 +25,9 @@ public class Article {
 
     private String externalLink;
 
-//    private Long userId; // TODO: FK 연결
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private Long likeCount = 0L;
 
@@ -33,10 +35,11 @@ public class Article {
     private LocalDateTime createdAt;
 
     @Builder
-    public Article(String title, String description, String externalLink, Category category) {
+    public Article(String title, String description, String externalLink, Category category, User user) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
         this.category = category;
+        this.user = user;
     }
 }

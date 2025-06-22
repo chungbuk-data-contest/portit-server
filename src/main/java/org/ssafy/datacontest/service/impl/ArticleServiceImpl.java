@@ -12,6 +12,7 @@ import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
 import org.ssafy.datacontest.entity.Tag;
+import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
@@ -20,6 +21,7 @@ import org.ssafy.datacontest.mapper.TagMapper;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.ImageRepository;
 import org.ssafy.datacontest.repository.TagRepository;
+import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
@@ -36,14 +38,16 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
     private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
 
     @Transactional
     @Override
-    public Long createArticle(ArticleRequestDto articleRequestDto) {
+    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) {
         // TODO: 유저 인증
+        User user = userRepository.findByEmail(userName);
 
         articleValidation.isValidRequest(articleRequestDto); // null 여부 처리
 
@@ -55,7 +59,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 글 DB 등록
-        Article article = ArticleMapper.toEntity(articleRequestDto);
+        Article article = ArticleMapper.toEntity(articleRequestDto, user);
         articleRepository.save(article);
 
         // List들 DB 등록

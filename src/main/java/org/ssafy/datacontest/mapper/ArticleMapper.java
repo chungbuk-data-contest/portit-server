@@ -2,18 +2,20 @@ package org.ssafy.datacontest.mapper;
 
 import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
 
 import java.util.List;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto){
+    public static Article toEntity(ArticleRequestDto dto, User user){
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .externalLink(dto.getExternalLink())
                 .category(Category.valueOf(dto.getCategory()))
+                .user(user)
                 .build();
     }
 
