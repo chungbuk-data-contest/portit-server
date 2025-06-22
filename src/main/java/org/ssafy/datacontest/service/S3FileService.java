@@ -7,8 +7,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,8 +39,7 @@ public class S3FileService {
             amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }catch(IOException e){
-            log.error(e.getMessage());
-            // TODO: ERROR 작성해주기
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.S3_UPLOAD_FAILED);
         }
 
         return amazonS3.getUrl(bucket, fileName).toString();

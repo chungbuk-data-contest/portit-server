@@ -4,6 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.article.ArticleRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
+import org.ssafy.datacontest.dto.image.ImageUpdateDto;
+import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
@@ -13,12 +17,45 @@ import java.util.List;
 @Component
 public class ArticleValidation {
 
-    public void isValidRequest(ArticleRequestDto request) {
-        isValidTitle(request.getTitle());
-        isValidCategory(request.getCategory());
-        isValidCategoryName(request.getCategory());
-        isValidFile(request.getFiles());
-        isValidTag(request.getTag());
+    public void checkUserAuthorizationForArticle(User user, Article article){
+        if(!article.getUser().getId().equals(user.getId())) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+    }
+
+    public void isValidRequest(Object request) {
+        if (request instanceof ArticleRequestDto dto) {
+            isValidTitle(dto.getTitle());
+            isValidCategory(dto.getCategory());
+            isValidCategoryName(dto.getCategory());
+            isValidFile(dto.getFiles());
+            validateTagCount(dto.getTag());
+            isValidTag(dto.getTag());
+        } else if (request instanceof ArticleUpdateRequestDto dto) {
+            isValidTitle(dto.getTitle());
+            isValidCategory(dto.getCategory());
+            isValidCategoryName(dto.getCategory());
+            isValidFile(dto.getFiles());
+            validateTagCount(dto.getTag());
+            isValidTag(dto.getTag());
+            validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
+        }
+    }
+
+    private void validateTagCount(List<String> tagList) {
+        if(tagList.size() > 2) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
+        }
+    }
+
+    private void isValidTag(List<String> tagList){
+        if (tagList == null || tagList.isEmpty()) return;
+
+        for (String tag : tagList) {
+            if (tag.length() != 4) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_LENGTH);
+            }
+        }
     }
 
     private void isValidTitle(String title){
@@ -41,12 +78,6 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidTag(List<String> tag){
-        if(tag == null || tag.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TAG);
-        }
-    }
-
     private void isValidFile(List<MultipartFile> file){
         if(file == null || file.isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_FILE);
@@ -59,4 +90,13 @@ public class ArticleValidation {
         }
     }
 
+    private void validateImageListAndFileSize(List<ImageUpdateDto> imageIdList, List<MultipartFile> fileIdList){
+        long newImageCount = imageIdList.stream()
+                .filter(dto -> dto.getImageId() == null)
+                .count();
+
+        if (newImageCount != fileIdList.size()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.MISMATCH_IMAGE_COUNT);
+        }
+    }
 }

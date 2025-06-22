@@ -8,17 +8,24 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-    EMPTY_TITLE(HttpStatus.BAD_REQUEST, "001_EMPTY_TITLE", "제목은 필수 입력 항목입니다."),
-    EMPTY_CATEGORY(HttpStatus.BAD_REQUEST, "002_EMPTY_CATEGORY", "카테고리는 필수 선택 항목입니다."),
-    EMPTY_FILE(HttpStatus.BAD_REQUEST, "003_EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
-    EMPTY_TAG(HttpStatus.BAD_REQUEST, "004_EMPTY_TAG", "태그는 필수 선택 항목입니다."),
-    INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "005_INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
-    ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "006_ARTICLE_NOT_FOUND", "존재하지 않는 작품 번호입니다."),
+    EMPTY_TITLE(HttpStatus.BAD_REQUEST, "EMPTY_TITLE", "제목은 필수 입력 항목입니다."),
+    EMPTY_CATEGORY(HttpStatus.BAD_REQUEST, "EMPTY_CATEGORY", "카테고리는 필수 선택 항목입니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
+    EMPTY_TAG(HttpStatus.BAD_REQUEST, "EMPTY_TAG", "태그는 필수 선택 항목입니다."),
+    EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),
+    INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
+    INVALID_TAG(HttpStatus.BAD_REQUEST, "INVALID_TAG", "태그는 2개를 초과할 수 없습니다."),
+    INVALID_TAG_LENGTH(HttpStatus.BAD_REQUEST, "INVALID_TAG_LENGTH", "태그는 반드시 4자여야 합니다."),
+
+    ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE_NOT_FOUND", "존재하지 않는 작품 번호입니다."),
     FORBIDDEN_ARTICLE_ACCESS(HttpStatus.FORBIDDEN, "FORBIDDEN_ARTICLE_ACCESS", "해당 작품에 대한 권한이 없습니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_USER", "해당 작업에 대한 권한이 없습니다."),
+
     REFRESH_TOKEN_NULL(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NULL", "Refresh Token이 존재하지 않습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_EXPIRED", "Refresh Token이 만료되었습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_INVALID", "유효하지 않은 Refresh Token입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "REFRESH_TOKEN_NOT_FOUND", "서버에 존재하지 않는 Refresh Token입니다."),
+
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST,"USER_NOT_FOUND","존재하지 않는 유저입니다."),
     EMPTY_EMAIL(HttpStatus.BAD_REQUEST, "EMPTY_EMAIL", "이메일은 필수 입력 항목입니다."),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "INVALID_EMAIL", "이메일 형식이 유효하지 않습니다."),
@@ -27,10 +34,17 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD", "비밀번호는 최소 8자 이상이어야 합니다."),
     EMPTY_NICKNAME(HttpStatus.BAD_REQUEST, "EMPTY_NICKNAME", "닉네임은 필수 입력 항목입니다."),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "INVALID_PHONE_NUMBER", "전화번호 형식이 올바르지 않습니다."),
+
+    EMPTY_COMPANY_PASSWORD(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_PASSWORD", "비밀번호는 필수 입력 항목입니다."),
+    EMPTY_COMPANY_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_PHONE_NUMBER", "전화번호는 필수 입력 항목입니다."),
     EMPTY_COMPANY_NAME(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_NAME", "업체명은 필수 입력 항목입니다."),
     EMPTY_COMPANY_FIELD(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_FIELD", "업종명은 필수 입력 항목입니다."),
     EMPTY_COMPANY_LOCATION(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_LOCATION", "지역은 필수 입력 항목입니다."),
     NULL_HIRING_STATUS(HttpStatus.BAD_REQUEST, "NULL_HIRING_STATUS", "채용 여부는 필수 항목입니다."),
+
+    MISMATCH_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "MISMATCH_IMAGE_COUNT", "이미지ID 리스트와 업로드된 파일 수가 일치하지 않습니다."),
+
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_UPLOAD_FAILED", "S3에 파일 업로드 중 오류가 발생했습니다.")
     ;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,

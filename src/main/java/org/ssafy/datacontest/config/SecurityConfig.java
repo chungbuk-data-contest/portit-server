@@ -2,6 +2,7 @@ package org.ssafy.datacontest.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -72,8 +73,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login", "/", "/auth/register/**", "/reissue", "/ws/**", "/ws/chat/**",
                                 "/sms/**",
-                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**"
-                        ).permitAll()
+                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/article", "/article/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
