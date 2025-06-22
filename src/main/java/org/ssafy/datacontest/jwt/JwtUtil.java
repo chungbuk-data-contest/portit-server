@@ -23,7 +23,7 @@ public class JwtUtil {
     }
 
     public String getLoginId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("loginId", String.class);
     }
 
     public String getRole(String token) {

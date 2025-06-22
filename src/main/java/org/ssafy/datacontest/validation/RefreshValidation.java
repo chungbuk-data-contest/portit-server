@@ -25,15 +25,11 @@ public class RefreshValidation {
 
     public void validateRefreshToken(String refresh) {
         checkNull(refresh);
-        checkBearerFormat(refresh);
-        refresh = removeBearer(refresh);
+//        checkBearerFormat(refresh);
+//        refresh = removeBearer(refresh);
         checkExpired(refresh);
         checkCategory(refresh);
         checkExistence(refresh);
-    }
-
-    private String removeBearer(String refresh) {
-        return refresh.substring(7);
     }
 
     private void checkNull(String refresh) {
@@ -66,11 +62,15 @@ public class RefreshValidation {
         }
     }
 
-    private void checkBearerFormat(String refresh) {
-        if (!refresh.startsWith("Bearer ")) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_INVALID);
-        }
-    }
+//    private void checkBearerFormat(String refresh) {
+//        if (!refresh.startsWith("Bearer ")) {
+//            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.REFRESH_TOKEN_INVALID);
+//        }
+//    }
+//
+//    private String removeBearer(String refresh) {
+//        return refresh.substring(7);
+//    }
 
 
 }
