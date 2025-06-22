@@ -17,6 +17,7 @@ public class RefreshValidation {
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
+    // TODO : Bearer 존재하게 하도록 반환
     @Autowired
     public RefreshValidation(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
         this.jwtUtil = jwtUtil;
