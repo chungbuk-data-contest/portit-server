@@ -15,6 +15,7 @@ public enum ErrorCode {
     EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
     INVALID_TAG(HttpStatus.BAD_REQUEST, "INVALID_TAG", "태그는 2개를 초과할 수 없습니다."),
+    INVALID_TAG_LENGTH(HttpStatus.BAD_REQUEST, "INVALID_TAG_LENGTH", "태그는 반드시 4자여야 합니다."),
 
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE_NOT_FOUND", "존재하지 않는 작품 번호입니다."),
     FORBIDDEN_ARTICLE_ACCESS(HttpStatus.FORBIDDEN, "FORBIDDEN_ARTICLE_ACCESS", "해당 작품에 대한 권한이 없습니다."),

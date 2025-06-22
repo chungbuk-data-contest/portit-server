@@ -30,12 +30,14 @@ public class ArticleValidation {
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
             validateTagCount(dto.getTag());
+            isValidTag(dto.getTag());
         } else if (request instanceof ArticleUpdateRequestDto dto) {
             isValidTitle(dto.getTitle());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
             validateTagCount(dto.getTag());
+            isValidTag(dto.getTag());
             validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
         }
     }
@@ -43,6 +45,16 @@ public class ArticleValidation {
     private void validateTagCount(List<String> tagList) {
         if(tagList.size() > 2) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
+        }
+    }
+
+    private void isValidTag(List<String> tagList){
+        if (tagList == null || tagList.isEmpty()) return;
+
+        for (String tag : tagList) {
+            if (tag.length() != 4) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_LENGTH);
+            }
         }
     }
 
