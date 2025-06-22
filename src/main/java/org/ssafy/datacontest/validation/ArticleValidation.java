@@ -29,14 +29,20 @@ public class ArticleValidation {
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
-            isValidTag(dto.getTag());
+            validateTagCount(dto.getTag());
         } else if (request instanceof ArticleUpdateRequestDto dto) {
             isValidTitle(dto.getTitle());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
-            isValidTag(dto.getTag());
+            validateTagCount(dto.getTag());
             validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
+        }
+    }
+
+    private void validateTagCount(List<String> tagList) {
+        if(tagList.size() > 2) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
         }
     }
 
@@ -57,12 +63,6 @@ public class ArticleValidation {
             Category.valueOf(category);
         } catch (IllegalArgumentException e){
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_CATEGORY);
-        }
-    }
-
-    private void isValidTag(List<String> tag){
-        if(tag == null || tag.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TAG);
         }
     }
 
