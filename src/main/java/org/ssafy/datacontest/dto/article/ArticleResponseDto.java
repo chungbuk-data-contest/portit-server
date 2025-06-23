@@ -20,6 +20,7 @@ public class ArticleResponseDto {
     private Long articleId;
     private String title;
     private String description;
+    private String thumbnailUrl;
     private List<ImageDto> fileUrl;
     private List<TagDto> tagList;
     private Category category;
@@ -29,12 +30,13 @@ public class ArticleResponseDto {
     private LocalDateTime createdAt;
 
     @Builder
-    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt) {
+    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, String thumbnailUrl, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt) {
         this.userName = userName;
         this.userLoginId = userLoginId;
         this.articleId = articleId;
         this.title = title;
         this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
         this.fileUrl = fileUrl;
         this.tagList = tagList;
         this.category = category;

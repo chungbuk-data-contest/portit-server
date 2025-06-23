@@ -30,6 +30,7 @@ import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
 
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,20 +48,37 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) {
+    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
         User user = userRepository.findByLoginId(userName);
 
         articleValidation.isValidRequest(articleRequestDto); // null 여부 처리
 
+        List<MultipartFile> files = articleRequestDto.getFiles();
+        MultipartFile thumbnail = articleRequestDto.getThumbnail();
+
+        // 썸네일 파일과 파일 리스트 - 해시값 비교 => 다를 경우에만 S3 저장 필요
+        int index = isDuplicateThumbnail(thumbnail, files);
+
+        String thumbnailUrl = "";
+        if(index == -1) { // 썸네일 따로 저장 필요
+            thumbnailUrl = uploadFile(thumbnail);
+        }
+
         // 이미지, 영상 업로드
         List<String> fileUrls = new ArrayList<>();
-        for(MultipartFile file : articleRequestDto.getFiles()){
+
+        int loop = 0;
+        for(MultipartFile file : files){
             String fileUrl = uploadFile(file);
+            if(index != -1 && loop == index) {
+                thumbnailUrl = fileUrl;
+            }
             fileUrls.add(fileUrl);
+            loop++;
         }
 
         // 글 DB 등록
-        Article article = ArticleMapper.toEntity(articleRequestDto, user);
+        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl);
         articleRepository.save(article);
 
         // List들 DB 등록
@@ -72,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) {
+    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception {
         User user = userRepository.findByLoginId(userName);
         Article article = getArticleOrThrow(articleId);
         articleRequestDto.setImageIdList(imageIdList);
@@ -89,15 +107,33 @@ public class ArticleServiceImpl implements ArticleService {
         // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
         updateImageOrder(articleRequestDto);
 
+
         // 새로 추가한 이미지 db & s3 저장
-        saveNewFile(articleRequestDto, article);
+        List<String> newFiles = saveNewFile(articleRequestDto, article);
+
+        MultipartFile thumbnailFile = articleRequestDto.getNewThumbnailImage();
+
+        String thumbnailUrl = "";
+        if (thumbnailFile != null) { // 썸네일사진 - 파일들 중복 확인
+            int index = isDuplicateThumbnail(thumbnailFile, articleRequestDto.getFiles());
+
+            if (index == -1) { // 중복 X -> S3 업로드
+                thumbnailUrl = uploadFile(thumbnailFile);
+            } else { // 파일들에서 가져오기
+                thumbnailUrl = newFiles.get(index); // newFiles도 null 체크 되어야 안전
+            }
+        } else if (articleRequestDto.getThumbnailUrl() != null) { // 기존 사진일 경우
+            thumbnailUrl = articleRequestDto.getThumbnailUrl();
+        }
+
+        log.info("Thumbnail url is {}", thumbnailUrl);
 
         // 태그 삭제
         tagRepository.deleteByArticle(article);
         saveTag(articleRequestDto.getTag(), article);
 
         // 나머지 업데이트
-        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()));
+        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()), thumbnailUrl);
 
         return articleId;
     }
@@ -121,6 +157,8 @@ public class ArticleServiceImpl implements ArticleService {
         imageRepository.deleteByArticle(article);
         tagRepository.deleteByArticle(article);
 
+        // 썸네일 s3 존재할 경우 삭제
+        deleteImageUrl(article.getThumbnailUrl());
         articleRepository.deleteById(articleId); // 글 삭제
     }
 
@@ -145,16 +183,6 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(Article::getArtId)
                 .toList();
 
-        // 썸네일 이미지 조회: articleId별로 첫 번째 이미지
-        List<Object[]> rawList = imageRepository.findFirstImageUrlsByArticleIds(articleIds);
-
-        Map<Long, String> thumbnailMap = rawList.stream()
-                .filter(row -> row[0] != null && row[1] != null)
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> (String) row[1]
-                ));
-
         // 태그 조회: articleId별로 List<Tag>
         List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
 
@@ -168,7 +196,6 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticlesResponseDto> dtoList = articleList.stream()
                 .map(article -> ArticleMapper.toArticlesResponseDto(
                         article,
-                        thumbnailMap.get(article.getArtId()),
                         tagMap.getOrDefault(article.getArtId(), List.of())
                 ))
                 .toList();
@@ -200,6 +227,10 @@ public class ArticleServiceImpl implements ArticleService {
         for(Image file : fileUrls){
             s3FileService.deleteFile(file.getImageUrl());
         }
+    }
+
+    private void deleteImageUrl(String fileUrl) {
+        s3FileService.deleteFile(fileUrl);
     }
 
     private Article getArticleOrThrow(Long articleId) {
@@ -277,20 +308,52 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    private void saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
+    private List<String> saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
         List<MultipartFile> files = articleRequestDto.getFiles();
+        List<String> uploadedUrls = new ArrayList<>();
 
-        int fileIndex = 0; // 새 이미지만큼만 files에서 꺼내기
+        int fileIndex = 0;
 
         for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
             ImageUpdateDto dto = articleRequestDto.getImageIdList().get(i);
 
-            // 새 이미지인 경우 (imageId == null)
-            if (dto.getImageId() == null) {
-                String url = uploadFile(files.get(fileIndex++)); // 순서 주의
-                Image image = ImageMapper.toEntity(url, article, i); // 현재 위치 i가 index
+            if (dto.getImageId() == null) { // 새 이미지
+                String url = uploadFile(files.get(fileIndex++));
+                uploadedUrls.add(url);
+                Image image = ImageMapper.toEntity(url, article, i);
                 imageRepository.save(image);
             }
         }
+
+        return uploadedUrls;
     }
+
+    private String getHash(MultipartFile file) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = file.getBytes();
+        byte[] hash = digest.digest(bytes);
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+
+    private int isDuplicateThumbnail(MultipartFile thumbnail, List<MultipartFile> files) throws Exception {
+        if (thumbnail == null || files == null || files.isEmpty()) {
+            return -1;
+        }
+
+        String thumbnailHash = getHash(thumbnail);
+
+        for (int i = 0; i < files.size(); i++) {
+            String fileHash = getHash(files.get(i));
+            if (fileHash.equals(thumbnailHash)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 }

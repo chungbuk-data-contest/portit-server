@@ -11,13 +11,14 @@ import java.util.List;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto, User user){
+    public static Article toEntity(ArticleRequestDto dto, User user, String thumbnailUrl) {
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .externalLink(dto.getExternalLink())
                 .category(Category.valueOf(dto.getCategory()))
                 .user(user)
+                .thumbnailUrl(thumbnailUrl)
                 .build();
     }
 
@@ -29,18 +30,20 @@ public class ArticleMapper {
                 .externalLink(article.getExternalLink())
                 .createdAt(article.getCreatedAt())
                 .category(article.getCategory())
+                .thumbnailUrl(article.getThumbnailUrl())
                 .fileUrl(fileUrls)
                 .tagList(tags)
+                .likeCount(article.getLikeCount())
                 .userName(user.getNickname())
                 .userLoginId(user.getLoginId())
                 .build();
     }
 
-    public static ArticlesResponseDto toArticlesResponseDto(Article article, String imageUrl, List<String> tagList){
+    public static ArticlesResponseDto toArticlesResponseDto(Article article, List<String> tagList){
         return ArticlesResponseDto.builder()
                 .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
-                .imageUrl(imageUrl)
+                .imageUrl(article.getThumbnailUrl())
                 .tagList(tagList)
                 .category(article.getCategory())
                 .createdAt(article.getCreatedAt())

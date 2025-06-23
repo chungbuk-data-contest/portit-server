@@ -34,19 +34,23 @@ public class Article {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    private String thumbnailUrl;
+
     @Builder
-    public Article(String title, String description, String externalLink, Category category, User user) {
+    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
         this.category = category;
         this.user = user;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
-    public void updateArticle(String title, String description, String externalLink, Category category) {
+    public void updateArticle(String title, String description, String externalLink, Category category, String thumbnailUrl) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
         this.category = category;
+        this.thumbnailUrl = thumbnailUrl;
     }
 }

@@ -19,8 +19,6 @@ public class ArticleUpdateRequestDto {
     private List<MultipartFile> files = new ArrayList<>();
     @Setter
     private List<ImageUpdateDto> imageIdList = new ArrayList<>();
-
-//    public void updateImageIdList(List<ImageUpdateDto> imageIdList) {
-//        this.imageIdList = imageIdList;
-//    }
+    private MultipartFile newThumbnailImage; // 새로 생성된 썸네일이 있을 경우 (새로 등록된 사진도)
+    private String thumbnailUrl; // 기존 사진일 경우 url
 }
