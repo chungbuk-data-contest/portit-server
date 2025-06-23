@@ -1,5 +1,7 @@
 package org.ssafy.datacontest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +14,8 @@ import org.ssafy.datacontest.dto.fcm.FcmTokenRequest;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.service.FcmService;
 
+
+@Tag(name = "FCM")
 @RestController
 @RequestMapping("/fcm")
 public class FcmController {
@@ -23,6 +27,18 @@ public class FcmController {
         this.fcmService = fcmService;
     }
 
+    @Operation(
+            summary = "FCM 토큰 등록",
+            description = """
+        로그인 후 클라이언트에서 발급받은 **FCM 토큰을 서버에 등록**하는 API.  
+        `Authorization` 헤더에 **AccessToken**이 있어야 하며,  
+        등록한 토큰은 추후 **알림 전송 시 사용됩니다**.
+
+        ✅ 요청 전제조건  
+        - 클라이언트가 Firebase에서 FCM 토큰을 발급받아야 함.  
+        - 로그인 후 발급된 AccessToken을 Authorization 헤더에 담아야 함.
+        """
+    )
     @PostMapping("/token")
     public ResponseEntity<Void> registerFcmToken(@RequestBody FcmTokenRequest fcmTokenRequest,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
