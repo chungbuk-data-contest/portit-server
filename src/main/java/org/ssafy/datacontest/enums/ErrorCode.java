@@ -47,8 +47,8 @@ public enum ErrorCode {
 
     MISMATCH_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "MISMATCH_IMAGE_COUNT", "이미지ID 리스트와 업로드된 파일 수가 일치하지 않습니다."),
 
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_UPLOAD_FAILED", "S3에 파일 업로드 중 오류가 발생했습니다.")
-    ;
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_UPLOAD_FAILED", "S3에 파일 업로드 중 오류가 발생했습니다."),
+    COMPANY_NOT_FOUND(HttpStatus.BAD_REQUEST,"COMPANY_NOT_FOUND" ,"기업이 존재하지 않습니다.");
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
     // code를 지정해주어서 클라이언트 측에서 디테일한 핸들링을 하도록 하는 것이 좋다.
