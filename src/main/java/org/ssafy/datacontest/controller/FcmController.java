@@ -32,7 +32,7 @@ public class FcmController {
             description = """
         로그인 후 클라이언트에서 발급받은 **FCM 토큰을 서버에 등록**하는 API.  
         `Authorization` 헤더에 **AccessToken**이 있어야 하며,  
-        등록한 토큰은 추후 **알림 전송 시 사용됩니다**.
+        등록한 토큰은 **알림 전송 시 사용됨**.
 
         ✅ 요청 전제조건  
         - 클라이언트가 Firebase에서 FCM 토큰을 발급받아야 함.  
