@@ -90,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) {
+    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception {
         User user = userRepository.findByLoginId(userName);
         Article article = getArticleOrThrow(articleId);
         articleRequestDto.setImageIdList(imageIdList);
@@ -107,15 +107,33 @@ public class ArticleServiceImpl implements ArticleService {
         // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
         updateImageOrder(articleRequestDto);
 
+
         // 새로 추가한 이미지 db & s3 저장
-        saveNewFile(articleRequestDto, article);
+        List<String> newFiles = saveNewFile(articleRequestDto, article);
+
+        MultipartFile thumbnailFile = articleRequestDto.getNewThumbnailImage();
+
+        String thumbnailUrl = "";
+        if (thumbnailFile != null) { // 썸네일사진 - 파일들 중복 확인
+            int index = isDuplicateThumbnail(thumbnailFile, articleRequestDto.getFiles());
+
+            if (index == -1) { // 중복 X -> S3 업로드
+                thumbnailUrl = uploadFile(thumbnailFile);
+            } else { // 파일들에서 가져오기
+                thumbnailUrl = newFiles.get(index); // newFiles도 null 체크 되어야 안전
+            }
+        } else if (articleRequestDto.getThumbnailUrl() != null) { // 기존 사진일 경우
+            thumbnailUrl = articleRequestDto.getThumbnailUrl();
+        }
+
+        log.info("Thumbnail url is {}", thumbnailUrl);
 
         // 태그 삭제
         tagRepository.deleteByArticle(article);
         saveTag(articleRequestDto.getTag(), article);
 
         // 나머지 업데이트
-        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()));
+        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()), thumbnailUrl);
 
         return articleId;
     }
@@ -139,6 +157,8 @@ public class ArticleServiceImpl implements ArticleService {
         imageRepository.deleteByArticle(article);
         tagRepository.deleteByArticle(article);
 
+        // 썸네일 s3 존재할 경우 삭제
+        deleteImageUrl(article.getThumbnailUrl());
         articleRepository.deleteById(articleId); // 글 삭제
     }
 
@@ -207,6 +227,10 @@ public class ArticleServiceImpl implements ArticleService {
         for(Image file : fileUrls){
             s3FileService.deleteFile(file.getImageUrl());
         }
+    }
+
+    private void deleteImageUrl(String fileUrl) {
+        s3FileService.deleteFile(fileUrl);
     }
 
     private Article getArticleOrThrow(Long articleId) {
@@ -284,21 +308,24 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    private void saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
+    private List<String> saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
         List<MultipartFile> files = articleRequestDto.getFiles();
+        List<String> uploadedUrls = new ArrayList<>();
 
-        int fileIndex = 0; // 새 이미지만큼만 files에서 꺼내기
+        int fileIndex = 0;
 
         for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
             ImageUpdateDto dto = articleRequestDto.getImageIdList().get(i);
 
-            // 새 이미지인 경우 (imageId == null)
-            if (dto.getImageId() == null) {
-                String url = uploadFile(files.get(fileIndex++)); // 순서 주의
-                Image image = ImageMapper.toEntity(url, article, i); // 현재 위치 i가 index
+            if (dto.getImageId() == null) { // 새 이미지
+                String url = uploadFile(files.get(fileIndex++));
+                uploadedUrls.add(url);
+                Image image = ImageMapper.toEntity(url, article, i);
                 imageRepository.save(image);
             }
         }
+
+        return uploadedUrls;
     }
 
     private String getHash(MultipartFile file) throws Exception {
@@ -313,6 +340,10 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private int isDuplicateThumbnail(MultipartFile thumbnail, List<MultipartFile> files) throws Exception {
+        if (thumbnail == null || files == null || files.isEmpty()) {
+            return -1;
+        }
+
         String thumbnailHash = getHash(thumbnail);
 
         for (int i = 0; i < files.size(); i++) {

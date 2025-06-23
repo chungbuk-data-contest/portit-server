@@ -36,10 +36,10 @@ public class ArticleValidation {
             isValidTitle(dto.getTitle());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
-            isValidFile(dto.getFiles());
             validateTagCount(dto.getTag());
             isValidTag(dto.getTag());
             validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
+            isValidNewOrExistingThumbnail(dto.getNewThumbnailImage(), dto.getThumbnailUrl());
         }
     }
 
@@ -49,7 +49,7 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidTag(List<String> tagList){
+    private void isValidTag(List<String> tagList) {
         if (tagList == null || tagList.isEmpty()) return;
 
         for (String tag : tagList) {
@@ -102,8 +102,16 @@ public class ArticleValidation {
                 .filter(dto -> dto.getImageId() == null)
                 .count();
 
-        if (newImageCount != fileIdList.size()) {
+        long fileCount = (fileIdList == null) ? 0 : fileIdList.size();
+
+        if (newImageCount != fileCount) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.MISMATCH_IMAGE_COUNT);
+        }
+    }
+
+    private void isValidNewOrExistingThumbnail(MultipartFile newThumbnailImage, String newThumbnailUrl) {
+        if( (newThumbnailImage == null || newThumbnailImage.isEmpty()) && (newThumbnailUrl == null || newThumbnailUrl.isEmpty()) ) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_THUMBNAIL);
         }
     }
 }
