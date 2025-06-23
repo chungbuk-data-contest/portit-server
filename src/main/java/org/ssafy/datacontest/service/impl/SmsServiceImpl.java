@@ -2,8 +2,8 @@ package org.ssafy.datacontest.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ssafy.datacontest.dto.sms.SmsRequestDto;
-import org.ssafy.datacontest.dto.sms.SmsVerifyDto;
+import org.ssafy.datacontest.dto.sms.SmsRequest;
+import org.ssafy.datacontest.dto.sms.SmsVerify;
 import org.ssafy.datacontest.repository.SmsRepository;
 import org.ssafy.datacontest.service.SmsService;
 import org.ssafy.datacontest.util.SmsCertificationUtil;
@@ -21,17 +21,17 @@ public class SmsServiceImpl implements SmsService {
     }
 
     @Override // SmsService 인터페이스 메서드 구현
-    public void sendSms(SmsRequestDto smsRequestDto) {
-        String phoneNum = smsRequestDto.getPhoneNum(); // SmsrequestDto에서 전화번호를 가져온다.
+    public void sendSms(SmsRequest smsRequest) {
+        String phoneNum = smsRequest.getPhoneNum(); // SmsrequestDto에서 전화번호를 가져온다.
         String certificationCode = Integer.toString((int)(Math.random() * (999999 - 100000 + 1)) + 100000); // 6자리 인증 코드를 랜덤으로 생성
         smsCertificationUtil.sendSMS(phoneNum, certificationCode); // SMS 인증 유틸리티를 사용하여 SMS 발송
         smsRepository.createSmsCertification(phoneNum, certificationCode); // 인증 코드를 Redis에 저장
     }
 
     @Override // SmsService 인터페이스의 메서드를 구현
-    public boolean verifyCode(SmsVerifyDto smsVerifyDto) {
-        if (isVerify(smsVerifyDto.getPhoneNum(), smsVerifyDto.getCertificationCode())) { // 인증 코드 검증
-            smsRepository.deleteSmsCertification(smsVerifyDto.getPhoneNum()); // 검증이 성공하면 Redis에서 인증 코드 삭제
+    public boolean verifyCode(SmsVerify smsVerify) {
+        if (isVerify(smsVerify.getPhoneNum(), smsVerify.getCertificationCode())) { // 인증 코드 검증
+            smsRepository.deleteSmsCertification(smsVerify.getPhoneNum()); // 검증이 성공하면 Redis에서 인증 코드 삭제
             return true; // 인증 성공 반환
         } else {
             return false; // 인증 실패 반환

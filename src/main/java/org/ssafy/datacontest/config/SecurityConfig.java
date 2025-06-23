@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
                                 "/login", "/", "/auth/**", "/reissue", "/ws/**", "/ws/chat/**",
-                                "/sms/**",
+                                "/sms/**", "/email/**",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/article", "/article/**").permitAll()

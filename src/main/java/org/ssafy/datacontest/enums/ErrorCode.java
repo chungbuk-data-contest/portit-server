@@ -41,6 +41,8 @@ public enum ErrorCode {
     EMPTY_COMPANY_LOCATION(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_LOCATION", "지역은 필수 입력 항목입니다."),
     NULL_HIRING_STATUS(HttpStatus.BAD_REQUEST, "NULL_HIRING_STATUS", "채용 여부는 필수 항목입니다."),
 
+    INVALID_EMAIL_DOMAIN(HttpStatus.BAD_REQUEST, "INVALID_EMAIL_DOMAIN", "ac.kr 도메인의 학교 이메일만 허용됩니다."),
+
     MISMATCH_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "MISMATCH_IMAGE_COUNT", "이미지ID 리스트와 업로드된 파일 수가 일치하지 않습니다."),
 
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_UPLOAD_FAILED", "S3에 파일 업로드 중 오류가 발생했습니다.")

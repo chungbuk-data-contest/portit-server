@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsVerifyDto {
+public class SmsVerify {
     private String phoneNum;
     private String certificationCode;
 }
