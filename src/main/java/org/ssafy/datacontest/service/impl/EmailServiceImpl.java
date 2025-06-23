@@ -12,7 +12,6 @@ import org.ssafy.datacontest.dto.email.EmailVerify;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.EmailRepository;
-import org.ssafy.datacontest.repository.SmsRepository;
 import org.ssafy.datacontest.service.EmailService;
 
 @Slf4j
