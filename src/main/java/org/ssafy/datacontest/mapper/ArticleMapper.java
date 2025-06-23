@@ -33,6 +33,7 @@ public class ArticleMapper {
                 .thumbnailUrl(article.getThumbnailUrl())
                 .fileUrl(fileUrls)
                 .tagList(tags)
+                .likeCount(article.getLikeCount())
                 .userName(user.getNickname())
                 .userLoginId(user.getLoginId())
                 .build();
