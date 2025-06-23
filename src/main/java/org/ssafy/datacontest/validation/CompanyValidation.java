@@ -5,8 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.CompanyRepository;
+
+import java.util.Arrays;
 
 @Component
 public class CompanyValidation {
@@ -47,6 +50,16 @@ public class CompanyValidation {
         String companyField = request.getCompanyField();
         if (companyField == null || companyField.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_FIELD);
+        }
+
+        boolean isValid = Arrays.stream(IndustryType.values())
+                .anyMatch(type ->
+                        type.getLabel().equalsIgnoreCase(companyField.trim()) ||
+                                type.getAliases().contains(companyField.trim())
+                );
+
+        if (!isValid) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_COMPANY_FIELD);
         }
     }
 
