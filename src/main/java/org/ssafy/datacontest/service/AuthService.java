@@ -7,4 +7,8 @@ public interface AuthService {
     void userSignUp(UserRegisterRequest userRegisterRequest);
 
     void companySignUp(CompanyRegisterRequest companyRegisterRequest);
+
+    void checkUserLoginId(String loginId);
+
+    void checkUserNickname(String nickname);
 }

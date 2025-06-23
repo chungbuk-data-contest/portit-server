@@ -8,13 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.dto.register.LoginRequest;
 import org.ssafy.datacontest.dto.register.UserRegisterRequest;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.service.AuthService;
 
 @Tag(name = "Auth", description = "")
@@ -42,4 +41,19 @@ public class AuthController {
         authService.companySignUp(companyRegisterRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @Operation(summary = "유저 loginId 중복 검사", description = "User, Company 모두 존재하지 않는 Id만 가능")
+    @GetMapping("/check/user/loginId")
+    public ResponseEntity<Void> checkUserLoginId(@RequestParam String loginId) {
+        authService.checkUserLoginId(loginId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "유저 nickname 중복 검사", description = "User 전용")
+    @GetMapping("/check/user/nickname")
+    public ResponseEntity<Void> checkUserNickname(@RequestParam String nickname) {
+        authService.checkUserNickname(nickname);
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -32,7 +32,7 @@ public class CompanyValidation {
 
     private void loginIdDuplicateValidate(CompanyRegisterRequest request) {
         if (companyRepository.existsByLoginId(request.getLoginId())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_EMAIL);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_ID);
         }
     }
 

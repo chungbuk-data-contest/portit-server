@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.ssafy.datacontest.dto.register.UserRegisterRequest;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
+import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 
 @Component
@@ -29,7 +30,7 @@ public class UserValidation {
 
     private void loginIdDuplicateValidate(UserRegisterRequest request) {
         if (userRepository.existsByLoginId(request.getLoginId())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_EMAIL);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_ID);
         }
     }
 
