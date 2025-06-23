@@ -21,4 +21,7 @@ public class PublicCompanyDto {
 
     @JsonProperty("업종분류(기보)")
     private String companyField;
+
+    @JsonProperty("간략주소")
+    private String simpleAddress;
 }
