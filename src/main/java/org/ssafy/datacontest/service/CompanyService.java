@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
@@ -23,6 +24,7 @@ import java.util.List;
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final PublicApiClient publicApiClient;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional // 중간에 하나라도 실패하면 전부 롤백
     public void fetchAndSaveCompanies() {
@@ -30,7 +32,7 @@ public class CompanyService {
         List<PublicCompanyDto> publicCompany = publicApiClient.fetchData();
 
         // random 값으로 나머지 필드 채우기
-        List<Company> companies = maapingCompanies(publicCompany);
+        List<Company> companies = maapingCompanies(publicCompany, passwordEncoder);
 
         // 필수 필드 체크 후 DB 저장
         for (Company company : companies) {
@@ -42,7 +44,7 @@ public class CompanyService {
     }
 
     // 매핑
-    public List<Company> maapingCompanies(List<PublicCompanyDto> publicCompanyList) {
+    public List<Company> maapingCompanies(List<PublicCompanyDto> publicCompanyList, PasswordEncoder passwordEncoder) {
         List<Company> companies = publicCompanyList.stream()
                 .map(dto -> {
                     Company company = new Company();
@@ -53,9 +55,9 @@ public class CompanyService {
 
                     // 랜덤 필드 생성
                     company.setLoginId(RandomUtil.email());
-                    company.setPassword("1234");
+                    company.setPassword(passwordEncoder.encode("1234"));
                     company.setPhoneNum(RandomUtil.phone());
-                    company.setHiring(false);
+                    company.setHiring(true);
                     company.setProfileImage(null);   // 없으면 null 가능
                     company.setCompanyLink(null);    // 필요시 기본값 설정
                     company.setRole("ROLE_COMPANY");

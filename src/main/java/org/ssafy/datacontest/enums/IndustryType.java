@@ -26,13 +26,11 @@ public enum IndustryType {
         this.aliases = aliases;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
     public static IndustryType fromAlias(String input) {
+        String trimmedInput = input.trim();
+
         for (IndustryType type : values()) {
-            if (type.aliases.contains(input.trim())) {
+            if (type.label.equalsIgnoreCase(trimmedInput) || type.aliases.contains(trimmedInput)) {
                 return type;
             }
         }
