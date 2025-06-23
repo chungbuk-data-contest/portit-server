@@ -4,10 +4,13 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.email.EmailVerify;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.EmailRepository;
 import org.ssafy.datacontest.repository.SmsRepository;
 import org.ssafy.datacontest.service.EmailService;
@@ -18,18 +21,17 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
     private final EmailRepository emailRepository;
-    private final SmsRepository smsRepository;
 
     @Autowired
     public EmailServiceImpl(JavaMailSender javaMailSender,
-                            EmailRepository emailRepository, SmsRepository smsRepository) {
+                            EmailRepository emailRepository) {
         this.javaMailSender = javaMailSender;
         this.emailRepository = emailRepository;
-        this.smsRepository = smsRepository;
     }
 
     @Override
     public void sendEmail(String email) {
+//        validateStudentEmail(email);
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             String certificationCode = Integer.toString((int)(Math.random() * (999999 - 100000 + 1)) + 100000); // 6자리 인증 코드를 랜덤으로 생성
@@ -65,4 +67,11 @@ public class EmailServiceImpl implements EmailService {
         return emailRepository.hasKey(email)
                 && emailRepository.getEmailCertification(email).equals(certificationCode);
     }
+
+    private void validateStudentEmail(String email) {
+        if (!email.toLowerCase().endsWith(".ac.kr")) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_EMAIL_DOMAIN);
+        }
+    }
+
 }
