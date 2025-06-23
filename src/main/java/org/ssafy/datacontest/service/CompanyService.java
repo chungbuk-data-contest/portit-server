@@ -9,10 +9,12 @@ import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.util.RandomUtil;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -47,7 +49,7 @@ public class CompanyService {
                     company.setCompanyName(dto.getCompanyName());
                     company.setCompanyDescription(dto.getCompanyDescription());
                     company.setCompanyLoc(dto.getCompanyLoc());
-                    company.setCompanyField(dto.getCompanyField());
+                    company.setCompanyField(IndustryType.fromAlias(dto.getCompanyField()));
 
                     // 랜덤 필드 생성
                     company.setLoginId(RandomUtil.email());
@@ -56,6 +58,7 @@ public class CompanyService {
                     company.setHiring(false);
                     company.setProfileImage(null);   // 없으면 null 가능
                     company.setCompanyLink(null);    // 필요시 기본값 설정
+                    company.setRole("ROLE_COMPANY");
 
                     return company;
                 })
@@ -104,9 +107,16 @@ public class CompanyService {
         }
     }
 
-    public void validateField(String companyField){
-        if(companyField == null || companyField.isEmpty()) {
+    public void validateField(IndustryType companyField) {
+        if (companyField == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_FIELD);
+        }
+
+        boolean isValid = Arrays.stream(IndustryType.values())
+                .anyMatch(type -> type == companyField);
+
+        if (!isValid) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_COMPANY_FIELD);
         }
     }
 

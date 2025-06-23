@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.ssafy.datacontest.enums.IndustryType;
 
 // DB 저장용
 @Entity
@@ -22,7 +23,11 @@ public class Company extends BaseUser{
     // 공공데이터에서 받은 값들
     private String companyName;         // 업체명
     private String companyDescription;  // 설명 or 주생산품
-    private String companyField;        // 업종명
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "company_field")
+    private IndustryType companyField;  // 업종명
+
     private String companyLoc;          // 지역
     private Boolean hiring;
     private String companyLink;
