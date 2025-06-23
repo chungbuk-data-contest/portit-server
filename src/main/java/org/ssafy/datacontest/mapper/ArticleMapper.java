@@ -30,6 +30,7 @@ public class ArticleMapper {
                 .externalLink(article.getExternalLink())
                 .createdAt(article.getCreatedAt())
                 .category(article.getCategory())
+                .thumbnailUrl(article.getThumbnailUrl())
                 .fileUrl(fileUrls)
                 .tagList(tags)
                 .userName(user.getNickname())
@@ -37,11 +38,11 @@ public class ArticleMapper {
                 .build();
     }
 
-    public static ArticlesResponseDto toArticlesResponseDto(Article article, String imageUrl, List<String> tagList){
+    public static ArticlesResponseDto toArticlesResponseDto(Article article, List<String> tagList){
         return ArticlesResponseDto.builder()
                 .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
-                .imageUrl(imageUrl)
+                .imageUrl(article.getThumbnailUrl())
                 .tagList(tagList)
                 .category(article.getCategory())
                 .createdAt(article.getCreatedAt())

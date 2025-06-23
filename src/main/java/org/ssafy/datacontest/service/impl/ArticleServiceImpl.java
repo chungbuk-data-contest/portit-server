@@ -163,16 +163,6 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(Article::getArtId)
                 .toList();
 
-        // 썸네일 이미지 조회: articleId별로 첫 번째 이미지
-        List<Object[]> rawList = imageRepository.findFirstImageUrlsByArticleIds(articleIds);
-
-        Map<Long, String> thumbnailMap = rawList.stream()
-                .filter(row -> row[0] != null && row[1] != null)
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> (String) row[1]
-                ));
-
         // 태그 조회: articleId별로 List<Tag>
         List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
 
@@ -186,7 +176,6 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticlesResponseDto> dtoList = articleList.stream()
                 .map(article -> ArticleMapper.toArticlesResponseDto(
                         article,
-                        thumbnailMap.get(article.getArtId()),
                         tagMap.getOrDefault(article.getArtId(), List.of())
                 ))
                 .toList();
