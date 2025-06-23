@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.ssafy.datacontest.enums.IndustryType;
+import org.ssafy.datacontest.enums.RegionType;
 
 // DB 저장용
 @Entity
@@ -28,7 +29,10 @@ public class Company extends BaseUser{
     @Column(name = "company_field")
     private IndustryType companyField;  // 업종명
 
-    private String companyLoc;          // 지역
+    @Enumerated(EnumType.STRING)
+    @Column(name = "company_loc")
+    private RegionType companyLoc;      // 지역
+    private String simpleAddress;       // 간단 주소
     private Boolean hiring;
     private String companyLink;
 }

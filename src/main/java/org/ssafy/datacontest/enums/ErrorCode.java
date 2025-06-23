@@ -43,6 +43,7 @@ public enum ErrorCode {
     EMPTY_COMPANY_LOCATION(HttpStatus.BAD_REQUEST, "EMPTY_COMPANY_LOCATION", "지역은 필수 입력 항목입니다."),
     NULL_HIRING_STATUS(HttpStatus.BAD_REQUEST, "NULL_HIRING_STATUS", "채용 여부는 필수 항목입니다."),
     INVALID_COMPANY_FIELD(HttpStatus.BAD_REQUEST, "INVALID_COMPANY_FIELD", "존재하지 않는 업종명입니다."),
+    INVALID_COMPANY_LOCATION(HttpStatus.BAD_REQUEST, "INVALID_COMPANY_LOCATION", "존재하지 않는 지역명입니다."),
 
     INVALID_EMAIL_DOMAIN(HttpStatus.BAD_REQUEST, "INVALID_EMAIL_DOMAIN", "ac.kr 도메인의 학교 이메일만 허용됩니다."),
 

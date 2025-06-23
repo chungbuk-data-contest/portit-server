@@ -1,12 +1,17 @@
 package org.ssafy.datacontest.enums;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.ssafy.datacontest.exception.CustomException;
 
+import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Getter
 public enum IndustryType {
-    IT_SOFTWARE("IT/소프트웨어", List.of("정보처리S/W")),
+    IT_SOFTWARE("IT/소프트웨어", List.of("정보처리S/W", "연구개발서비스")),
     DESIGN_CONTENTS("디자인/콘텐츠", List.of()),
     MEDIA("영상/방송/미디어", List.of()),
     EDUCATION_EDUTECH("교육/에듀테크", List.of()),
@@ -29,11 +34,12 @@ public enum IndustryType {
     public static IndustryType fromAlias(String input) {
         String trimmedInput = input.trim();
 
-        for (IndustryType type : values()) {
-            if (type.label.equalsIgnoreCase(trimmedInput) || type.aliases.contains(trimmedInput)) {
-                return type;
-            }
-        }
-        return IT_SOFTWARE; // 매칭 안 되면 기본값 처리
+        return Arrays.stream(values())
+                .filter(type -> type.label.equalsIgnoreCase(trimmedInput) || type.aliases.contains(trimmedInput))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.info(input);
+                    return new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_COMPANY_FIELD);
+                });
     }
 }
