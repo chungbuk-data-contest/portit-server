@@ -17,4 +17,5 @@ public abstract class BaseUser {
     protected String phoneNum;
     protected String profileImage;
     protected String role;
+    protected String fcmToken;
 }
