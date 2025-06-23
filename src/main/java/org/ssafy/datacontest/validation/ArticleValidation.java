@@ -31,6 +31,7 @@ public class ArticleValidation {
             isValidFile(dto.getFiles());
             validateTagCount(dto.getTag());
             isValidTag(dto.getTag());
+            isValidThumbnail(dto.getThumbnail());
         } else if (request instanceof ArticleUpdateRequestDto dto) {
             isValidTitle(dto.getTitle());
             isValidCategory(dto.getCategory());
@@ -67,6 +68,12 @@ public class ArticleValidation {
     private void isValidCategory(String category){
         if(category == null || category.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_CATEGORY);
+        }
+    }
+
+    private void isValidThumbnail(MultipartFile multipartFile){
+        if(multipartFile == null || multipartFile.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_THUMBNAIL);
         }
     }
 

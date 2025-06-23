@@ -37,7 +37,7 @@ public class ArticleController {
             summary = "작품 등록",
             description = "작품을 등록하고 작품 번호를 리턴합니다."
     )
-    public ResponseEntity<?> registerArticle(@ModelAttribute @Valid ArticleRequestDto request, @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<?> registerArticle(@ModelAttribute @Valid ArticleRequestDto request, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         String userName = userDetails.getUsername();
         Long articleId = articleService.createArticle(request, userName);
 

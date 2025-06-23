@@ -7,7 +7,7 @@ import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import java.util.List;
 
 public interface ArticleService {
-    Long createArticle(ArticleRequestDto articleRequestDto, String userName);
+    Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception;
     Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList);
     void deleteArticle(Long articleId, String userName);
     ArticleResponseDto getArticle(Long articleId);

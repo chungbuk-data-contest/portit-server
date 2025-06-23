@@ -30,6 +30,7 @@ import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
 
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,20 +48,37 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) {
+    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
         User user = userRepository.findByLoginId(userName);
 
         articleValidation.isValidRequest(articleRequestDto); // null 여부 처리
 
+        List<MultipartFile> files = articleRequestDto.getFiles();
+        MultipartFile thumbnail = articleRequestDto.getThumbnail();
+
+        // 썸네일 파일과 파일 리스트 - 해시값 비교 => 다를 경우에만 S3 저장 필요
+        int index = isDuplicateThumbnail(thumbnail, files);
+
+        String thumbnailUrl = "";
+        if(index == -1) { // 썸네일 따로 저장 필요
+            thumbnailUrl = uploadFile(thumbnail);
+        }
+
         // 이미지, 영상 업로드
         List<String> fileUrls = new ArrayList<>();
-        for(MultipartFile file : articleRequestDto.getFiles()){
+
+        int loop = 0;
+        for(MultipartFile file : files){
             String fileUrl = uploadFile(file);
+            if(index != -1 && loop == index) {
+                thumbnailUrl = fileUrl;
+            }
             fileUrls.add(fileUrl);
+            loop++;
         }
 
         // 글 DB 등록
-        Article article = ArticleMapper.toEntity(articleRequestDto, user);
+        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl);
         articleRepository.save(article);
 
         // List들 DB 등록
@@ -293,4 +311,29 @@ public class ArticleServiceImpl implements ArticleService {
             }
         }
     }
+
+    private String getHash(MultipartFile file) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = file.getBytes();
+        byte[] hash = digest.digest(bytes);
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+
+    private int isDuplicateThumbnail(MultipartFile thumbnail, List<MultipartFile> files) throws Exception {
+        String thumbnailHash = getHash(thumbnail);
+
+        for (int i = 0; i < files.size(); i++) {
+            String fileHash = getHash(files.get(i));
+            if (fileHash.equals(thumbnailHash)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 }

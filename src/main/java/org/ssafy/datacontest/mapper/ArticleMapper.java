@@ -11,13 +11,14 @@ import java.util.List;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto, User user){
+    public static Article toEntity(ArticleRequestDto dto, User user, String thumbnailUrl) {
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .externalLink(dto.getExternalLink())
                 .category(Category.valueOf(dto.getCategory()))
                 .user(user)
+                .thumbnailUrl(thumbnailUrl)
                 .build();
     }
 

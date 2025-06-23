@@ -13,6 +13,7 @@ public enum ErrorCode {
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
     EMPTY_TAG(HttpStatus.BAD_REQUEST, "EMPTY_TAG", "태그는 필수 선택 항목입니다."),
     EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),
+    EMPTY_THUMBNAIL(HttpStatus.BAD_REQUEST, "EMPTY_THUMBNAIL", "썸네일은 필수 전달 항목입니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
     INVALID_TAG(HttpStatus.BAD_REQUEST, "INVALID_TAG", "태그는 2개를 초과할 수 없습니다."),
     INVALID_TAG_LENGTH(HttpStatus.BAD_REQUEST, "INVALID_TAG_LENGTH", "태그는 반드시 4자여야 합니다."),
