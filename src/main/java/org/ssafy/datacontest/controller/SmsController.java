@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.ssafy.datacontest.dto.sms.SmsRequestDto;
-import org.ssafy.datacontest.dto.sms.SmsVerifyDto;
+import org.ssafy.datacontest.dto.sms.SmsRequest;
+import org.ssafy.datacontest.dto.sms.SmsVerify;
 import org.ssafy.datacontest.service.SmsService;
 
 @Tag(name = "SMS", description = "휴대폰 번호로 인증번호를 전송하고, 인증번호 검증 수행.")
@@ -29,8 +29,8 @@ public class SmsController {
             description = "사용자의 휴대폰 번호로 인증번호 전송."
     )
     @PostMapping("/send")
-    public ResponseEntity<?> SendSMS(@RequestBody SmsRequestDto smsRequestDto){
-        smsService.sendSms(smsRequestDto);
+    public ResponseEntity<?> SendSMS(@RequestBody SmsRequest smsRequest){
+        smsService.sendSms(smsRequest);
         return ResponseEntity.ok("문자를 전송했습니다.");
     }
 
@@ -39,8 +39,8 @@ public class SmsController {
             description = "사용자가 입력한 인증번호 검증."
     )
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyCode(@RequestBody SmsVerifyDto smsVerifyDto){
-        boolean verify = smsService.verifyCode(smsVerifyDto);
+    public ResponseEntity<?> verifyCode(@RequestBody SmsVerify smsVerify){
+        boolean verify = smsService.verifyCode(smsVerify);
         if (verify) {
             return ResponseEntity.ok("인증이 되었습니다.");
         } else {

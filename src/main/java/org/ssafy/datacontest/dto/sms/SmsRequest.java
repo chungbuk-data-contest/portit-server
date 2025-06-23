@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsRequestDto {
+public class SmsRequest {
     private String phoneNum;
 }
