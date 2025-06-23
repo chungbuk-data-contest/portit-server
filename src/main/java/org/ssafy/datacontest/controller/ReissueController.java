@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ssafy.datacontest.service.ReissueService;
 
-@Tag(name = "토큰 재발급", description = "액세스 토큰 만료 시 리프레시 토큰으로 재발급.")
+@Tag(name = "Reissue", description = "액세스 토큰 만료 시 리프레시 토큰으로 재발급.")
 @RestController
 @RequestMapping("/reissue")
 public class ReissueController {

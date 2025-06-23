@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/chat")
+@Tag(name = "Chatting", description = "웹소켓 기반 채팅 API, 개발 중")
 public class ChatController {
 
     private final ChatService chatService;

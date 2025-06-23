@@ -13,7 +13,7 @@ import org.ssafy.datacontest.dto.sms.SmsRequestDto;
 import org.ssafy.datacontest.dto.sms.SmsVerifyDto;
 import org.ssafy.datacontest.service.SmsService;
 
-@Tag(name = "SMS 인증", description = "휴대폰 번호로 인증번호를 전송하고, 인증번호 검증 수행.")
+@Tag(name = "SMS", description = "휴대폰 번호로 인증번호를 전송하고, 인증번호 검증 수행.")
 @RestController
 @RequestMapping("/sms")
 public class SmsController {
