@@ -12,6 +12,7 @@ import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 import org.ssafy.datacontest.service.CompanyService;
+import retrofit2.http.Path;
 
 import javax.swing.plaf.synth.Region;
 import java.util.List;
@@ -57,19 +58,19 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getCompaniesByCursor(companyScrollRequest));
     }
 
-    @GetMapping("/my-page")
+    @GetMapping("/{companyId}")
     @Operation(
             summary = "기업 마이페이지 조회"
     )
-    public ResponseEntity<CompanyResponse>  getMyCompanies(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
+    public ResponseEntity<CompanyResponse> getCompany(@PathVariable("companyId") Long companyId, @AuthenticationPrincipal CustomUserDetails userDetails){
+        return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername(), companyId));
     }
 
-    @PatchMapping("")
+    @PatchMapping("/{companyId}")
     @Operation(
             summary = "기업 마이페이지 일부 수정"
     )
-    public ResponseEntity<Long> updateCompany(@RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(companyService.updatCompany(companyUpdateRequest, userDetails.getUsername()));
+    public ResponseEntity<Long> updateCompany(@PathVariable("companyId") Long companyId, @RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(companyService.updatCompany(companyUpdateRequest, userDetails.getUsername(), companyId));
     }
 }

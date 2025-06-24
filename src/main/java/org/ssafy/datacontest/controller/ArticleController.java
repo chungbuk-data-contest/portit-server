@@ -1,6 +1,5 @@
 package org.ssafy.datacontest.controller;
 
-import com.amazonaws.Response;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;

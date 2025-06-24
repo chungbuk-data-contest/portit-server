@@ -1,0 +1,28 @@
+package org.ssafy.datacontest.controller;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.ssafy.datacontest.dto.register.CustomUserDetails;
+import org.ssafy.datacontest.dto.user.UserResponse;
+import org.ssafy.datacontest.service.UserService;
+
+@RestController
+@Tag(name="User", description = "유저 관련 API")
+@RequestMapping("/user")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable("userId") Long userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.getUser(userDetails.getUsername(), userId));
+    }
+}

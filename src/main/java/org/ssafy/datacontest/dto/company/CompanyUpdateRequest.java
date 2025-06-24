@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CompanyUpdateRequest {
-    private Long companyId;
     private String companyName;
     private Boolean hiring;
 }
