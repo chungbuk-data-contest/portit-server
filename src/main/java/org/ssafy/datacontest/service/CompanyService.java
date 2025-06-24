@@ -8,6 +8,6 @@ public interface CompanyService {
     void fetchAndSaveCompanies();
     ArticleLikeResponse toggleLike(Long articleId, String companyName);
     SliceResponseDto<CompanyScrollResponse> getCompaniesByCursor(CompanyScrollRequest companyScrollRequest);
-    CompanyResponse getCompany(String companyName);
-    Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName);
+    CompanyResponse getCompany(String companyName, Long companyId);
+    Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId);
 }

@@ -91,10 +91,14 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyResponse getCompany(String companyName) {
+    public CompanyResponse getCompany(String companyName, Long companyId) {
         Company company = companyRepository.findByLoginId(companyName);
 
-        List<Like> likedArticles = articleLikeRepository.findByCompany_CompanyId(company.getCompanyId());
+        if(company.getCompanyId() != companyId) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+
+        List<Like> likedArticles = articleLikeRepository.findByCompany_CompanyId(companyId);
 
         List<LikedArticleResponse> likedArticleResponses = new ArrayList<>();
         if (!likedArticles.isEmpty()) {
@@ -117,14 +121,14 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName) {
+    public Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId) {
         Company company = companyRepository.findByLoginId(companyName);
 
-        if(company.getCompanyId() != companyUpdateRequest.getCompanyId()) {
+        if(company.getCompanyId() != companyId) {
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
         }
 
         company.updateCompany(companyUpdateRequest.getCompanyName(), companyUpdateRequest.getHiring());
-        return company.getCompanyId();
+        return companyId;
     }
 }

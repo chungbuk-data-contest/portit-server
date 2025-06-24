@@ -15,4 +15,8 @@ public class User extends BaseUser {
 
     private String nickname;
     private boolean isStudent;
+
+    public void updateUser(String nickname) {
+        this.nickname = nickname;
+    }
 }
