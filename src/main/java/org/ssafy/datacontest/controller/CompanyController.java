@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.SliceResponseDto;
-import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
-import org.ssafy.datacontest.dto.company.CompanyResponse;
-import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
-import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
+import org.ssafy.datacontest.dto.company.*;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
@@ -61,7 +58,18 @@ public class CompanyController {
     }
 
     @GetMapping("/my-page")
+    @Operation(
+            summary = "기업 마이페이지 조회"
+    )
     public ResponseEntity<CompanyResponse>  getMyCompanies(@AuthenticationPrincipal CustomUserDetails userDetails){
         return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
+    }
+
+    @PatchMapping("")
+    @Operation(
+            summary = "기업 마이페이지 일부 수정"
+    )
+    public ResponseEntity<Long> updateCompany(@RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(companyService.updatCompany(companyUpdateRequest, userDetails.getUsername()));
     }
 }

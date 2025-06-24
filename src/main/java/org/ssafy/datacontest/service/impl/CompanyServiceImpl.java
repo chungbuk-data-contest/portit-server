@@ -114,4 +114,17 @@ public class CompanyServiceImpl implements CompanyService {
 
         return CompanyMapper.toCompanyResponse(company, likedArticleResponses);
     }
+
+    @Override
+    @Transactional
+    public Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName) {
+        Company company = companyRepository.findByLoginId(companyName);
+
+        if(company.getCompanyId() != companyUpdateRequest.getCompanyId()) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+
+        company.updateCompany(companyUpdateRequest.getCompanyName(), companyUpdateRequest.getHiring());
+        return company.getCompanyId();
+    }
 }
