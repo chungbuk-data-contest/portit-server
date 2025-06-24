@@ -48,6 +48,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleValidation articleValidation;
     private final CompanyRepository companyRepository;
     private final GptUtil gptUtil;
+    private final ArticleLikeRepository articleLikeRepository;
 
     @Transactional
     @Override
@@ -168,9 +169,21 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleDetailResponse getArticle(Long articleId) {
+    public ArticleDetailResponse getArticle(Long articleId, String userName) {
         Article article = getArticleOrThrow(articleId);
         User user = article.getUser();
+
+        boolean liked = false;
+
+        if (userName != null && !userName.isBlank()) {
+            Company company = companyRepository.findByLoginId(userName);
+
+            if (company != null) {
+                liked = articleLikeRepository
+                        .findByCompany_CompanyIdAndArticle_ArtId(company.getCompanyId(), articleId)
+                        .isPresent();
+            }
+        }
 
         List<TagDto> tagDtos = getTagDto(article);
         List<ImageDto> fileDtos = getImageDto(article);
@@ -180,7 +193,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<CompanyRecommendDto> companyDtoList = companies.stream()
                 .map(CompanyMapper::toCompanyRecommendDto)
                 .toList();
-        return ArticleDetailResponse.builder().article(articleDto).companies(companyDtoList).build();
+        return ArticleDetailResponse.builder().article(articleDto).companies(companyDtoList).liked(liked).build();
     }
 
     @Override
