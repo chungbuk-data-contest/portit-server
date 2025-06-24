@@ -189,7 +189,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ImageDto> fileDtos = getImageDto(article);
 
         ArticleResponseDto articleDto = ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
-        List<Company> companies = companyRepository.findRandomCompany(3);
+        List<Company> companies = companyRepository.findRandomCompany(article.getIndustryType());
         List<CompanyRecommendDto> companyDtoList = companies.stream()
                 .map(CompanyMapper::toCompanyRecommendDto)
                 .toList();
