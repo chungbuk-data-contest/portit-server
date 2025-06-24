@@ -1,7 +1,7 @@
 package org.ssafy.datacontest.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.ssafy.datacontest.entity.ChatMessage;
+import org.ssafy.datacontest.entity.mongo.ChatMessage;
 
 import java.util.List;
 

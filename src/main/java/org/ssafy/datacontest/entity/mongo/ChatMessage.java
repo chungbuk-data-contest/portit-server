@@ -1,4 +1,4 @@
-package org.ssafy.datacontest.entity;
+package org.ssafy.datacontest.entity.mongo;
 
 import jakarta.persistence.Id;
 import lombok.*;

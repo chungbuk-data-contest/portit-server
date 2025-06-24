@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
 import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
-import org.ssafy.datacontest.entity.ChatMessage;
+import org.ssafy.datacontest.entity.mongo.ChatMessage;
 import org.ssafy.datacontest.repository.ChatMessageRepository;
 import org.ssafy.datacontest.service.ChatService;
 
