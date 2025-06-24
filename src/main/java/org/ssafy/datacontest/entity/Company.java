@@ -9,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 
-// DB 저장용
 @Entity
 @Table(name = "company")
 @Getter @Setter

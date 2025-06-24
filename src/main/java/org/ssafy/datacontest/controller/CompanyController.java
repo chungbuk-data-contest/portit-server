@@ -11,7 +11,6 @@ import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
 import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
 import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
-import org.ssafy.datacontest.entity.Like;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 import org.ssafy.datacontest.service.CompanyService;
