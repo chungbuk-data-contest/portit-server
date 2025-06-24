@@ -18,6 +18,7 @@ public class ArticleMapper {
                 .externalLink(dto.getExternalLink())
                 .category(Category.valueOf(dto.getCategory()))
                 .user(user)
+                .premium(false)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }
@@ -35,6 +36,7 @@ public class ArticleMapper {
                 .tagList(tags)
                 .likeCount(article.getLikeCount())
                 .userName(user.getNickname())
+                .premium(article.isPremium())
                 .userLoginId(user.getLoginId())
                 .build();
     }

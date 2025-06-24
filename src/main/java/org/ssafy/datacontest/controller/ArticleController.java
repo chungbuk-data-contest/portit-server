@@ -60,7 +60,7 @@ public class ArticleController {
                     "파라미터 없이 요청 시 전체 작품을 반환합니다."
     )
     // category 하나만 들어왔을 때 인식이 안 되는 문제 -> RequestParam 으로 받아서 직접 넣어주기
-    public ResponseEntity<SliceResponseDto<ArticlesResponseDto>> getArticles(
+    public ResponseEntity<SliceResponseDto<ArticlesScrollResponse>> getArticles(
             @RequestParam(required = false) List<Category> category,
             @ModelAttribute ArticleScrollRequestDto request
     ) {

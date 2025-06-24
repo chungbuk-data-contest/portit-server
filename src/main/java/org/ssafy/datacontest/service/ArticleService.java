@@ -11,5 +11,5 @@ public interface ArticleService {
     Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception;
     void deleteArticle(Long articleId, String userName);
     ArticleResponseDto getArticle(Long articleId);
-    SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
+    SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
 }
