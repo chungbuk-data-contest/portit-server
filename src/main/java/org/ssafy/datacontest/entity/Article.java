@@ -35,15 +35,18 @@ public class Article {
     private LocalDateTime createdAt;
 
     private String thumbnailUrl;
+    @Setter
+    private boolean premium;
 
     @Builder
-    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl) {
+    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
         this.category = category;
         this.user = user;
         this.thumbnailUrl = thumbnailUrl;
+        this.premium = premium;
     }
 
     public void updateArticle(String title, String description, String externalLink, Category category, String thumbnailUrl) {
@@ -60,5 +63,9 @@ public class Article {
 
     public void increaseLikeCount() {
         this.likeCount++;
+    }
+
+    public void updatePremium(boolean premium) {
+        this.premium = premium;
     }
 }

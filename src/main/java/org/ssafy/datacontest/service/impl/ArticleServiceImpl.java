@@ -9,26 +9,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.company.CompanyRecommendDto;
 import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.dto.tag.TagDto;
-import org.ssafy.datacontest.entity.Article;
-import org.ssafy.datacontest.entity.Image;
-import org.ssafy.datacontest.entity.Tag;
-import org.ssafy.datacontest.entity.User;
+import org.ssafy.datacontest.entity.*;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
+import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
 import org.ssafy.datacontest.mapper.TagMapper;
-import org.ssafy.datacontest.repository.ArticleRepository;
-import org.ssafy.datacontest.repository.ImageRepository;
-import org.ssafy.datacontest.repository.TagRepository;
-import org.ssafy.datacontest.repository.UserRepository;
+import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
+import org.ssafy.datacontest.validation.PremiumValidation;
 
 import java.security.MessageDigest;
 import java.util.*;
@@ -43,8 +40,10 @@ public class ArticleServiceImpl implements ArticleService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final PremiumRepository premiumRepository;
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
+    private final CompanyRepository companyRepository;
 
     @Transactional
     @Override
@@ -154,6 +153,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<Image> images = imageRepository.findByArticle(article);
         deleteFile(images);
 
+        premiumRepository.deleteByArticle_ArtId(article.getArtId());
         imageRepository.deleteByArticle(article);
         tagRepository.deleteByArticle(article);
 
@@ -163,44 +163,71 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleResponseDto getArticle(Long articleId) {
+    public ArticleDetailResponse getArticle(Long articleId) {
         Article article = getArticleOrThrow(articleId);
         User user = article.getUser();
 
         List<TagDto> tagDtos = getTagDto(article);
         List<ImageDto> fileDtos = getImageDto(article);
 
-        return ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
+        ArticleResponseDto articleDto = ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
+        List<Company> companies = companyRepository.findRandomCompany(3);
+        List<CompanyRecommendDto> companyDtoList = companies.stream()
+                .map(CompanyMapper::toCompanyRecommendDto)
+                .toList();
+        return ArticleDetailResponse.builder().article(articleDto).companies(companyDtoList).build();
     }
 
     @Override
-    public SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+    public SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+        // 일반 게시글 처리
         Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequestDto);
         List<Article> articleList = articles.getContent();
 
-        // articleId 리스트 추출
         List<Long> articleIds = articleList.stream()
                 .map(Article::getArtId)
                 .toList();
 
-        // 태그 조회: articleId별로 List<Tag>
-        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+        Map<Long, List<String>> tagMap = getTagMapByArticleIds(articleIds);
+        List<ArticlesResponseDto> dtoList = mapArticlesToDtoList(articleList, tagMap);
 
-        Map<Long, List<String>> tagMap = rawTagData.stream()
-                .collect(Collectors.groupingBy(
-                        row -> ((Number) row[0]).longValue(),
-                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
-                ));
+        // 프리미엄 게시글 처리
+        List<ArticlesResponseDto> premiumDtoList = List.of();
+        if (Boolean.TRUE.equals(articleScrollRequestDto.getIsFirstPage())) {
+            List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
+            List<Long> premiumIds = premiumArticles.stream()
+                    .map(Article::getArtId)
+                    .toList();
 
-        // DTO 변환
-        List<ArticlesResponseDto> dtoList = articleList.stream()
+            Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
+            premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
+        }
+
+        ArticlesScrollResponse articlesScrollResponse = ArticlesScrollResponse.builder()
+                .premiumArticles(premiumDtoList)
+                .articles(dtoList)
+                .build();
+
+        return new SliceResponseDto<>(List.of(articlesScrollResponse), articles.hasNext());
+    }
+
+    private List<ArticlesResponseDto> mapArticlesToDtoList(List<Article> articles, Map<Long, List<String>> tagMap) {
+        return articles.stream()
                 .map(article -> ArticleMapper.toArticlesResponseDto(
                         article,
                         tagMap.getOrDefault(article.getArtId(), List.of())
                 ))
                 .toList();
+    }
 
-        return new SliceResponseDto<>(dtoList, articles.hasNext());
+    private Map<Long, List<String>> getTagMapByArticleIds(List<Long> articleIds) {
+        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+
+        return rawTagData.stream()
+                .collect(Collectors.groupingBy(
+                        row -> ((Number) row[0]).longValue(),
+                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
+                ));
     }
 
     private String uploadFile(MultipartFile file) {
@@ -224,13 +251,18 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private void deleteFile(List<Image> fileUrls) {
-        for(Image file : fileUrls){
-            s3FileService.deleteFile(file.getImageUrl());
+        for (Image file : fileUrls) {
+            String fileUrl = file.getImageUrl();
+            if (fileUrl != null && !fileUrl.isBlank()) {
+                s3FileService.deleteFile(fileUrl);
+            }
         }
     }
 
     private void deleteImageUrl(String fileUrl) {
-        s3FileService.deleteFile(fileUrl);
+        if(fileUrl != null && !fileUrl.isBlank()) {
+            s3FileService.deleteFile(fileUrl);
+        }
     }
 
     private Article getArticleOrThrow(Long articleId) {

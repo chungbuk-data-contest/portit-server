@@ -3,6 +3,7 @@ package org.ssafy.datacontest.repository.custom;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -70,6 +71,18 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         if (hasNext) result.remove(result.size() - 1);
 
         return new SliceImpl<>(result, PageRequest.of(0, request.getSize()), hasNext);
+    }
+
+    @Override
+    public List<Article> findRandomPremiumArticles(int count) {
+        QArticle article = QArticle.article;
+
+        return queryFactory
+                .selectFrom(article)
+                .where(article.premium.eq(true))
+                .orderBy(Expressions.numberTemplate(Double.class, "function('rand')").asc())
+                .limit(count)
+                .fetch();
     }
 
     private List<OrderSpecifier<?>> getArticleOrderSpecifiers(QArticle article, SortType sortType) {

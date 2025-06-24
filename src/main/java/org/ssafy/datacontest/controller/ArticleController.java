@@ -60,7 +60,7 @@ public class ArticleController {
                     "파라미터 없이 요청 시 전체 작품을 반환합니다."
     )
     // category 하나만 들어왔을 때 인식이 안 되는 문제 -> RequestParam 으로 받아서 직접 넣어주기
-    public ResponseEntity<SliceResponseDto<ArticlesResponseDto>> getArticles(
+    public ResponseEntity<SliceResponseDto<ArticlesScrollResponse>> getArticles(
             @RequestParam(required = false) List<Category> category,
             @ModelAttribute ArticleScrollRequestDto request
     ) {
@@ -79,7 +79,7 @@ public class ArticleController {
             summary = "작품 상세 조회",
             description = "작품 ID를 통해 해당 작품의 상세 정보를 조회합니다."
     )
-    public ResponseEntity<ArticleResponseDto> getArticle(@PathVariable("articleId") Long articleId) {
+    public ResponseEntity<ArticleDetailResponse> getArticle(@PathVariable("articleId") Long articleId) {
         return ResponseEntity.ok(articleService.getArticle(articleId));
     }
 

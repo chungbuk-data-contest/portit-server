@@ -15,17 +15,4 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByImageIdIn(List<Long> imageIdList);
     void deleteByArticle(Article article);
     void deleteByImageId(Long imageId);
-
-    @Query(value = """
-    SELECT i.art_id, i.image_url
-    FROM image i
-    INNER JOIN (
-        SELECT art_id, MIN(`image_index`) AS min_index
-        FROM image
-        WHERE art_id IN (:articleIds)
-        GROUP BY art_id
-    ) first ON i.art_id = first.art_id AND i.image_index = first.min_index
-    """, nativeQuery = true)
-    List<Object []> findFirstImageUrlsByArticleIds(@Param("articleIds") List<Long> articleIds);
-
 }
