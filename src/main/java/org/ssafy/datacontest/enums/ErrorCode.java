@@ -10,6 +10,7 @@ public enum ErrorCode {
 
     EMPTY_TITLE(HttpStatus.BAD_REQUEST, "EMPTY_TITLE", "제목은 필수 입력 항목입니다."),
     EMPTY_CATEGORY(HttpStatus.BAD_REQUEST, "EMPTY_CATEGORY", "카테고리는 필수 선택 항목입니다."),
+    EMPTY_DESCRIPTION(HttpStatus.BAD_REQUEST, "EMPTY_DESCRIPTION", "작품 설명란은 필수 입력 항목입니다."),
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "EMPTY_FILE", "이미지/영상 파일은 필수 입력 항목입니다."),
     EMPTY_TAG(HttpStatus.BAD_REQUEST, "EMPTY_TAG", "태그는 필수 선택 항목입니다."),
     EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),

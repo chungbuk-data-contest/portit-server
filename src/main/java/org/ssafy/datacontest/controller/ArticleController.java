@@ -90,7 +90,12 @@ public class ArticleController {
             description = "작품 ID를 통해 해당 작품의 상세 정보를 조회합니다."
     )
     public ResponseEntity<ArticleDetailResponse> getArticle(@PathVariable("articleId") Long articleId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(articleService.getArticle(articleId, userDetails.getUsername()));
+        String userName = "";
+        if(userDetails != null) {
+            userName = userDetails.getUsername();
+        }
+
+        return ResponseEntity.ok(articleService.getArticle(articleId, userName));
     }
 
     @PutMapping("/{articleId}")

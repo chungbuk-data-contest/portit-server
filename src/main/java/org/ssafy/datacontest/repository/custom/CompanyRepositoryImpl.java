@@ -14,6 +14,7 @@ import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.QArticle;
 import org.ssafy.datacontest.entity.QCompany;
+import org.ssafy.datacontest.enums.IndustryType;
 
 import java.util.List;
 
@@ -61,13 +62,20 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
     }
 
     @Override
-    public List<Company> findRandomCompany(int count) {
+    public List<Company> findRandomCompany(IndustryType industryType) {
         QCompany company = QCompany.company;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(industryType != null) {
+            builder.and(company.companyField.eq(industryType));
+        }
 
         return queryFactory
                 .selectFrom(company)
+                .where(builder)
                 .orderBy(Expressions.numberTemplate(Double.class, "function('rand')").asc())
-                .limit(count)
+                .limit(3)
                 .fetch();
     }
 

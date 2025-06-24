@@ -121,7 +121,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId) {
+    public Long updateCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId) {
         Company company = companyRepository.findByLoginId(companyName);
 
         if(company.getCompanyId() != companyId) {

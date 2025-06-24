@@ -26,6 +26,7 @@ public class ArticleValidation {
     public void isValidRequest(Object request) {
         if (request instanceof ArticleRequestDto dto) {
             isValidTitle(dto.getTitle());
+            isValidDescription(dto.getDescription());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             isValidFile(dto.getFiles());
@@ -34,6 +35,7 @@ public class ArticleValidation {
             isValidThumbnail(dto.getThumbnail());
         } else if (request instanceof ArticleUpdateRequestDto dto) {
             isValidTitle(dto.getTitle());
+            isValidDescription(dto.getDescription());
             isValidCategory(dto.getCategory());
             isValidCategoryName(dto.getCategory());
             validateTagCount(dto.getTag());
@@ -62,6 +64,12 @@ public class ArticleValidation {
     private void isValidTitle(String title){
         if(title == null || title.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TITLE);
+        }
+    }
+
+    private void isValidDescription(String description){
+        if(description == null || description.isBlank()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_DESCRIPTION);
         }
     }
 
