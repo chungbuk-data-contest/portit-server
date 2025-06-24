@@ -30,7 +30,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void saveMessage(Long roomId, ChatMessageRequest request) {
+    public ChatMessage saveMessage(Long roomId, ChatMessageRequest request) {
         ChatMessage message = ChatMessage.builder()
                 .roomId(roomId)
                 .sender(request.getSender())
@@ -39,7 +39,7 @@ public class ChatServiceImpl implements ChatService {
                 .read(false)
                 .build();
 
-        chatMessageRepository.save(message);
+        return chatMessageRepository.save(message);
     }
 
     @Override

@@ -31,10 +31,12 @@ public class ChatController {
     }
 
     @MessageMapping("/{roomId}")
-    @SendTo("/topic/{roomId}")
     public void sendMessage(@DestinationVariable Long roomId, ChatMessageRequest request) {
         // 1. MongoDB에 저장
         chatService.saveMessage(roomId, request);
+
+        ChatMessage savedMessage = chatService.saveMessage(roomId, request);
+        messagingTemplate.convertAndSend("/topic/" + roomId, savedMessage);
     }
 
     @GetMapping("/rooms")
