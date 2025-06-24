@@ -9,5 +9,5 @@ public interface CompanyService {
     ArticleLikeResponse toggleLike(Long articleId, String companyName);
     SliceResponseDto<CompanyScrollResponse> getCompaniesByCursor(CompanyScrollRequest companyScrollRequest);
     CompanyResponse getCompany(String companyName, Long companyId);
-    Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId);
+    Long updateCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId);
 }

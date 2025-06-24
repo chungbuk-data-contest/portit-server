@@ -71,6 +71,6 @@ public class CompanyController {
             summary = "기업 마이페이지 일부 수정"
     )
     public ResponseEntity<Long> updateCompany(@PathVariable("companyId") Long companyId, @RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(companyService.updatCompany(companyUpdateRequest, userDetails.getUsername(), companyId));
+        return ResponseEntity.ok(companyService.updateCompany(companyUpdateRequest, userDetails.getUsername(), companyId));
     }
 }
