@@ -25,6 +25,7 @@ import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
+import org.ssafy.datacontest.validation.PremiumValidation;
 
 import java.security.MessageDigest;
 import java.util.*;
@@ -39,6 +40,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final PremiumRepository premiumRepository;
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
     private final CompanyRepository companyRepository;
@@ -151,6 +153,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<Image> images = imageRepository.findByArticle(article);
         deleteFile(images);
 
+        premiumRepository.deleteByArticle_ArtId(article.getArtId());
         imageRepository.deleteByArticle(article);
         tagRepository.deleteByArticle(article);
 
@@ -248,13 +251,18 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private void deleteFile(List<Image> fileUrls) {
-        for(Image file : fileUrls){
-            s3FileService.deleteFile(file.getImageUrl());
+        for (Image file : fileUrls) {
+            String fileUrl = file.getImageUrl();
+            if (fileUrl != null && !fileUrl.isBlank()) {
+                s3FileService.deleteFile(fileUrl);
+            }
         }
     }
 
     private void deleteImageUrl(String fileUrl) {
-        s3FileService.deleteFile(fileUrl);
+        if(fileUrl != null && !fileUrl.isBlank()) {
+            s3FileService.deleteFile(fileUrl);
+        }
     }
 
     private Article getArticleOrThrow(Long articleId) {
