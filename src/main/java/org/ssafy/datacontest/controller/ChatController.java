@@ -4,19 +4,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
 import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
 import org.ssafy.datacontest.entity.ChatMessage;
 import org.ssafy.datacontest.service.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/chat")
 @Tag(name = "Chatting", description = "웹소켓 기반 채팅 API, 개발 중")
