@@ -21,7 +21,6 @@ public class Company extends BaseUser{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long companyId;
 
-    // 공공데이터에서 받은 값들
     private String companyName;         // 업체명
     private String companyDescription;  // 설명 or 주생산품
 

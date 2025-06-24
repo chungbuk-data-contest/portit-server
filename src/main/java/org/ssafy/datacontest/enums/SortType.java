@@ -16,7 +16,7 @@ public enum SortType {
     LATEST(Sort.by(
             Sort.Order.desc("createdAt"),
             Sort.Order.asc("title")
-    ))
+    )),
     ;
 
 

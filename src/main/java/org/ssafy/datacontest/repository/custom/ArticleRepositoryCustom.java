@@ -1,6 +1,5 @@
-package org.ssafy.datacontest.repository;
+package org.ssafy.datacontest.repository.custom;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.ssafy.datacontest.dto.article.ArticleScrollRequestDto;
 import org.ssafy.datacontest.entity.Article;

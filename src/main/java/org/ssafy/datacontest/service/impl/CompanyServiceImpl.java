@@ -3,11 +3,15 @@ package org.ssafy.datacontest.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
+import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
+import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
+import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
@@ -71,5 +75,18 @@ public class CompanyServiceImpl implements CompanyService {
         articleRepository.save(article);
 
         return ArticleLikeMapper.toResponse(!like.isPresent(), article);
+    }
+
+    @Override
+    public SliceResponseDto<CompanyScrollResponse> getCompaniesByCursor(CompanyScrollRequest companyScrollRequest) {
+        Slice<Company> companies = companyRepository.findNextPageByCompanyName(companyScrollRequest);
+        List<Company> companyList = companies.getContent();
+
+        List<CompanyScrollResponse> dtoList = companyList.stream()
+                .map(company -> CompanyMapper.toCompanyScrollResponse(
+                        company
+                )).toList();
+
+        return new SliceResponseDto<>(dtoList, companies.hasNext());
     }
 }
