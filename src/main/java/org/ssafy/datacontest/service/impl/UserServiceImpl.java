@@ -1,9 +1,12 @@
 package org.ssafy.datacontest.service.impl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.company.LikedArticleResponse;
 import org.ssafy.datacontest.dto.user.UserResponse;
+import org.ssafy.datacontest.dto.user.UserUpdateRequest;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Like;
 import org.ssafy.datacontest.entity.User;
@@ -47,5 +50,18 @@ public class UserServiceImpl implements UserService {
         }
 
         return UserMapper.toResponse(user, likedArticleResponses);
+    }
+
+    @Override
+    @Transactional
+    public Long updateUser(UserUpdateRequest userUpdateRequest, String userName, Long userId) {
+        User user = userRepository.findByLoginId(userName);
+
+        if(user.getId() != userId){
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+
+        user.updateUser(userUpdateRequest.getUserNickname());
+        return userId;
     }
 }
