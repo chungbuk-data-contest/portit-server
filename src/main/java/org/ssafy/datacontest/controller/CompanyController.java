@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
+import org.ssafy.datacontest.dto.company.CompanyResponse;
 import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
 import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
@@ -57,5 +58,10 @@ public class CompanyController {
         companyScrollRequest.setCompanyLoc(companyLoc);
 
         return ResponseEntity.ok(companyService.getCompaniesByCursor(companyScrollRequest));
+    }
+
+    @GetMapping("/my-page")
+    public ResponseEntity<CompanyResponse>  getMyCompanies(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
     }
 }

@@ -9,10 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.SliceResponseDto;
-import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
-import org.ssafy.datacontest.dto.company.CompanyResponse;
-import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
-import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
+import org.ssafy.datacontest.dto.company.*;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
@@ -28,7 +25,9 @@ import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.service.CompanyService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -95,8 +94,24 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponse getCompany(String companyName) {
         Company company = companyRepository.findByLoginId(companyName);
 
+        List<Like> likedArticles = articleLikeRepository.findByCompany_CompanyId(company.getCompanyId());
 
+        List<LikedArticleResponse> likedArticleResponses = new ArrayList<>();
+        if (!likedArticles.isEmpty()) {
+            likedArticleResponses = likedArticles.stream()
+                    .map(like -> {
+                        Article article = articleRepository.findByArtId(like.getArticle().getArtId())
+                                .orElse(null);
+                        if (article != null) {
+                            return ArticleLikeMapper.toLikedArticleResponse(article);
+                        } else {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+        }
 
-        return null;
+        return CompanyMapper.toCompanyResponse(company, likedArticleResponses);
     }
 }
