@@ -174,33 +174,55 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+    public SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+        // 일반 게시글 처리
         Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequestDto);
         List<Article> articleList = articles.getContent();
 
-        // articleId 리스트 추출
         List<Long> articleIds = articleList.stream()
                 .map(Article::getArtId)
                 .toList();
 
-        // 태그 조회: articleId별로 List<Tag>
-        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+        Map<Long, List<String>> tagMap = getTagMapByArticleIds(articleIds);
+        List<ArticlesResponseDto> dtoList = mapArticlesToDtoList(articleList, tagMap);
 
-        Map<Long, List<String>> tagMap = rawTagData.stream()
-                .collect(Collectors.groupingBy(
-                        row -> ((Number) row[0]).longValue(),
-                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
-                ));
+        // 프리미엄 게시글 처리
+        List<ArticlesResponseDto> premiumDtoList = List.of();
+        if (Boolean.TRUE.equals(articleScrollRequestDto.getIsFirstPage())) {
+            List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
+            List<Long> premiumIds = premiumArticles.stream()
+                    .map(Article::getArtId)
+                    .toList();
 
-        // DTO 변환
-        List<ArticlesResponseDto> dtoList = articleList.stream()
+            Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
+            premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
+        }
+
+        ArticlesScrollResponse articlesScrollResponse = ArticlesScrollResponse.builder()
+                .premiumArticles(premiumDtoList)
+                .articles(dtoList)
+                .build();
+
+        return new SliceResponseDto<>(List.of(articlesScrollResponse), articles.hasNext());
+    }
+
+    private List<ArticlesResponseDto> mapArticlesToDtoList(List<Article> articles, Map<Long, List<String>> tagMap) {
+        return articles.stream()
                 .map(article -> ArticleMapper.toArticlesResponseDto(
                         article,
                         tagMap.getOrDefault(article.getArtId(), List.of())
                 ))
                 .toList();
+    }
 
-        return new SliceResponseDto<>(dtoList, articles.hasNext());
+    private Map<Long, List<String>> getTagMapByArticleIds(List<Long> articleIds) {
+        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+
+        return rawTagData.stream()
+                .collect(Collectors.groupingBy(
+                        row -> ((Number) row[0]).longValue(),
+                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
+                ));
     }
 
     private String uploadFile(MultipartFile file) {

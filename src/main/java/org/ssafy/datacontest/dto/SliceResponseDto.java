@@ -2,6 +2,7 @@ package org.ssafy.datacontest.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 
 import java.util.List;
 
