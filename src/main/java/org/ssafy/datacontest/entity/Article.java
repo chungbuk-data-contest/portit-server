@@ -53,4 +53,12 @@ public class Article {
         this.category = category;
         this.thumbnailUrl = thumbnailUrl;
     }
+
+    public void decreaseLikeCount() {
+        this.likeCount--;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
 }
