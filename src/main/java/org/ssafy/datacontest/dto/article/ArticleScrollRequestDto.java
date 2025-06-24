@@ -27,5 +27,4 @@ public class ArticleScrollRequestDto {
 
     private List<Category> category;
     private String keyword;
-    private Boolean isFirstPage = false;
 }
