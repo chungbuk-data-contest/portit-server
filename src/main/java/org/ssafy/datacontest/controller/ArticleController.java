@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.gpt.GptRequest;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.Category;
@@ -107,5 +108,12 @@ public class ArticleController {
         );
 
         return ResponseEntity.ok(articleService.updateArticle(request, userDetails.getUsername(), articleId, imageList));
+    }
+
+    @Operation(summary = "작품 기반 태그 생성", description = "작품 설명을 기반으로 2개의 태그를 생성")
+    @PostMapping("/tags")
+    public ResponseEntity<List<String>> generateTags(@RequestBody GptRequest gptRequest) {
+        List<String> tags = articleService.generateTags(gptRequest);
+        return ResponseEntity.ok(tags);
     }
 }

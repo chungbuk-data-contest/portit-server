@@ -6,12 +6,13 @@ import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
+import org.ssafy.datacontest.enums.IndustryType;
 
 import java.util.List;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto, User user, String thumbnailUrl) {
+    public static Article toEntity(ArticleRequestDto dto, User user, String thumbnailUrl, IndustryType industryType) {
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -20,6 +21,7 @@ public class ArticleMapper {
                 .user(user)
                 .premium(false)
                 .thumbnailUrl(thumbnailUrl)
+                .industryType(industryType)
                 .build();
     }
 
