@@ -12,7 +12,7 @@ public interface ArticleService {
     Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception;
     void deleteArticle(Long articleId, String userName);
     ArticleDetailResponse getArticle(Long articleId);
-    SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
-
+    SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
+    List<ArticlesResponseDto> getPremiumArticles();
     List<String> generateTags(GptRequest gptRequest);
 }

@@ -51,6 +51,7 @@ public class ArticleMapper {
                 .tagList(tagList)
                 .category(article.getCategory())
                 .createdAt(article.getCreatedAt())
+                .likeCount(article.getLikeCount())
                 .userName(article.getUser().getNickname())
                 .build();
     }

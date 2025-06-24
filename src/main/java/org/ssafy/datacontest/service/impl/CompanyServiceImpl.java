@@ -9,9 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.SliceResponseDto;
-import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
-import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
-import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
+import org.ssafy.datacontest.dto.company.*;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
@@ -27,7 +25,9 @@ import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.service.CompanyService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -88,5 +88,47 @@ public class CompanyServiceImpl implements CompanyService {
                 )).toList();
 
         return new SliceResponseDto<>(dtoList, companies.hasNext());
+    }
+
+    @Override
+    public CompanyResponse getCompany(String companyName, Long companyId) {
+        Company company = companyRepository.findByLoginId(companyName);
+
+        if(company.getCompanyId() != companyId) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+
+        List<Like> likedArticles = articleLikeRepository.findByCompany_CompanyId(companyId);
+
+        List<LikedArticleResponse> likedArticleResponses = new ArrayList<>();
+        if (!likedArticles.isEmpty()) {
+            likedArticleResponses = likedArticles.stream()
+                    .map(like -> {
+                        Article article = articleRepository.findByArtId(like.getArticle().getArtId())
+                                .orElse(null);
+                        if (article != null) {
+                            return ArticleLikeMapper.toLikedArticleResponse(article);
+                        } else {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+        }
+
+        return CompanyMapper.toCompanyResponse(company, likedArticleResponses);
+    }
+
+    @Override
+    @Transactional
+    public Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId) {
+        Company company = companyRepository.findByLoginId(companyName);
+
+        if(company.getCompanyId() != companyId) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+
+        company.updateCompany(companyUpdateRequest.getCompanyName(), companyUpdateRequest.getHiring());
+        return companyId;
     }
 }

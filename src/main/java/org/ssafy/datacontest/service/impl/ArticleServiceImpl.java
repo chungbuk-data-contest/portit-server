@@ -184,7 +184,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
+    public SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
         // 일반 게시글 처리
         Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequestDto);
         List<Article> articleList = articles.getContent();
@@ -196,24 +196,20 @@ public class ArticleServiceImpl implements ArticleService {
         Map<Long, List<String>> tagMap = getTagMapByArticleIds(articleIds);
         List<ArticlesResponseDto> dtoList = mapArticlesToDtoList(articleList, tagMap);
 
-        // 프리미엄 게시글 처리
-        List<ArticlesResponseDto> premiumDtoList = List.of();
-        if (Boolean.TRUE.equals(articleScrollRequestDto.getIsFirstPage())) {
-            List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
-            List<Long> premiumIds = premiumArticles.stream()
-                    .map(Article::getArtId)
-                    .toList();
+        return new SliceResponseDto<>(dtoList, articles.hasNext());
+    }
 
-            Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
-            premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
-        }
+    @Override
+    public List<ArticlesResponseDto> getPremiumArticles() {
+        List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
+        List<Long> premiumIds = premiumArticles.stream()
+                .map(Article::getArtId)
+                .toList();
 
-        ArticlesScrollResponse articlesScrollResponse = ArticlesScrollResponse.builder()
-                .premiumArticles(premiumDtoList)
-                .articles(dtoList)
-                .build();
+        Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
+        List<ArticlesResponseDto> premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
 
-        return new SliceResponseDto<>(List.of(articlesScrollResponse), articles.hasNext());
+        return premiumDtoList;
     }
 
     @Override

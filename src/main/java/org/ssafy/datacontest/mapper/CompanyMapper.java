@@ -2,7 +2,9 @@ package org.ssafy.datacontest.mapper;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.ssafy.datacontest.dto.company.CompanyRecommendDto;
+import org.ssafy.datacontest.dto.company.CompanyResponse;
 import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
+import org.ssafy.datacontest.dto.company.LikedArticleResponse;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.entity.Company;
@@ -75,6 +77,17 @@ public class CompanyMapper {
                 .companyField(company.getCompanyField())
                 .companyLink(company.getCompanyLink())
                 .companyName(company.getCompanyName())
+                .build();
+    }
+
+    public static CompanyResponse toCompanyResponse(Company company, List<LikedArticleResponse> likedArticle) {
+        return CompanyResponse.builder()
+                .companyId(company.getCompanyId())
+                .companyName(company.getCompanyName())
+                .companyDescription(company.getCompanyDescription())
+                .companyLoginId(company.getLoginId())
+                .likedArticle(likedArticle)
+                .hiring(company.getHiring())
                 .build();
     }
 }

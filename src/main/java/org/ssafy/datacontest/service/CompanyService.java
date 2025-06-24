@@ -2,12 +2,12 @@ package org.ssafy.datacontest.service;
 
 
 import org.ssafy.datacontest.dto.SliceResponseDto;
-import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
-import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
-import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
+import org.ssafy.datacontest.dto.company.*;
 
 public interface CompanyService {
     void fetchAndSaveCompanies();
     ArticleLikeResponse toggleLike(Long articleId, String companyName);
     SliceResponseDto<CompanyScrollResponse> getCompaniesByCursor(CompanyScrollRequest companyScrollRequest);
+    CompanyResponse getCompany(String companyName, Long companyId);
+    Long updatCompany(CompanyUpdateRequest companyUpdateRequest, String companyName, Long companyId);
 }
