@@ -1,6 +1,7 @@
 package org.ssafy.datacontest.repository.custom;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
+import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
+import org.ssafy.datacontest.entity.QArticle;
 import org.ssafy.datacontest.entity.QCompany;
 
 import java.util.List;
@@ -55,6 +58,17 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         if (hasNext) result.remove(result.size() - 1);
 
         return new SliceImpl<>(result, PageRequest.of(0, req.getSize()), hasNext);
+    }
+
+    @Override
+    public List<Company> findRandomCompany(int count) {
+        QCompany company = QCompany.company;
+
+        return queryFactory
+                .selectFrom(company)
+                .orderBy(Expressions.numberTemplate(Double.class, "function('rand')").asc())
+                .limit(count)
+                .fetch();
     }
 
 }

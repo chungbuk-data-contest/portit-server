@@ -9,23 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.company.CompanyRecommendDto;
 import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.dto.tag.TagDto;
-import org.ssafy.datacontest.entity.Article;
-import org.ssafy.datacontest.entity.Image;
-import org.ssafy.datacontest.entity.Tag;
-import org.ssafy.datacontest.entity.User;
+import org.ssafy.datacontest.entity.*;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
+import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
 import org.ssafy.datacontest.mapper.TagMapper;
-import org.ssafy.datacontest.repository.ArticleRepository;
-import org.ssafy.datacontest.repository.ImageRepository;
-import org.ssafy.datacontest.repository.TagRepository;
-import org.ssafy.datacontest.repository.UserRepository;
+import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.validation.ArticleValidation;
@@ -45,6 +41,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final TagRepository tagRepository;
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
+    private final CompanyRepository companyRepository;
 
     @Transactional
     @Override
@@ -163,14 +160,19 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleResponseDto getArticle(Long articleId) {
+    public ArticleDetailResponse getArticle(Long articleId) {
         Article article = getArticleOrThrow(articleId);
         User user = article.getUser();
 
         List<TagDto> tagDtos = getTagDto(article);
         List<ImageDto> fileDtos = getImageDto(article);
 
-        return ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
+        ArticleResponseDto articleDto = ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
+        List<Company> companies = companyRepository.findRandomCompany(3);
+        List<CompanyRecommendDto> companyDtoList = companies.stream()
+                .map(CompanyMapper::toCompanyRecommendDto)
+                .toList();
+        return ArticleDetailResponse.builder().article(articleDto).companies(companyDtoList).build();
     }
 
     @Override
