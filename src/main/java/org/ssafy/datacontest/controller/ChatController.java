@@ -3,6 +3,8 @@ package org.ssafy.datacontest.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
 import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
@@ -28,12 +30,11 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
-
-
-    @MessageMapping("/send")
-    public void sendMessage(ChatMessageRequest request) {
+    @MessageMapping("/{roomId}")
+    @SendTo("/topic/{roomId}")
+    public void sendMessage(@DestinationVariable Long roomId, ChatMessageRequest request) {
         // 1. MongoDB에 저장
-        chatService.saveMessage(request);
+        chatService.saveMessage(roomId, request);
     }
 
     @GetMapping("/rooms")

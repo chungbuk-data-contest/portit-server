@@ -7,7 +7,7 @@ import org.ssafy.datacontest.entity.mongo.ChatMessage;
 import java.util.List;
 
 public interface ChatService {
-    void saveMessage(ChatMessageRequest request);
+    void saveMessage(Long roomId, ChatMessageRequest request);
 
     List<ChatMessageResponse> getChatRoomsByUserEmail(String email);
 
