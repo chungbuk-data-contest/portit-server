@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class ChatRoomResponse {
-    private String roomId;
+    private Long roomId;
     private String lastMessage;
     private LocalDateTime sentAt;
     private String partnerName; // 필요 시

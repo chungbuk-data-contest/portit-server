@@ -32,12 +32,6 @@ public class ChatController {
     public void sendMessage(ChatMessageRequest request) {
         // 1. MongoDB에 저장
         chatService.saveMessage(request);
-
-        // 2. 수신자에게 실시간 전송
-        messagingTemplate.convertAndSend(
-                "/queue/" + request.getReceiverEmail(),  // 수신자 전용 채널
-                request
-        );
     }
 
     @GetMapping("/rooms")
@@ -46,7 +40,7 @@ public class ChatController {
     }
 
     @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> getRoomMessages(@RequestParam String roomId) {
+    public ResponseEntity<List<ChatMessage>> getRoomMessages(@RequestParam Long roomId) {
         return ResponseEntity.ok(chatService.getMessagesInRoom(roomId));
     }
 }

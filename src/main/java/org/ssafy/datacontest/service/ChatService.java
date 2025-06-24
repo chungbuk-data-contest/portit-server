@@ -11,5 +11,5 @@ public interface ChatService {
 
     List<ChatRoomResponse> getChatRoomsByUserEmail(String email);
 
-    List<ChatMessage> getMessagesInRoom(String roomId);
+    List<ChatMessage> getMessagesInRoom(Long roomId);
 }
