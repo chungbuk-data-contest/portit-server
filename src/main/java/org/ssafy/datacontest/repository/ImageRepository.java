@@ -12,11 +12,9 @@ import java.util.List;
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByArticle(Article article);
-    Image findByImageId(Long imageId);
     List<Image> findByImageIdIn(List<Long> imageIdList);
     void deleteByArticle(Article article);
     void deleteByImageId(Long imageId);
-
 
     @Query(value = """
     SELECT i.art_id, i.image_url

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ssafy.datacontest.enums.IndustryType;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +21,7 @@ public class PublicCompanyDto {
 
     @JsonProperty("업종분류(기보)")
     private String companyField;
+
+    @JsonProperty("간략주소")
+    private String simpleAddress;
 }
