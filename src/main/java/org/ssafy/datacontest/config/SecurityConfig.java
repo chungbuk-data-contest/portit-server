@@ -16,7 +16,9 @@ import org.ssafy.datacontest.jwt.JwtFilter;
 import org.ssafy.datacontest.jwt.JwtUtil;
 import org.ssafy.datacontest.jwt.LoginFilter;
 import org.ssafy.datacontest.jwt.LogoutFilter;
+import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.RefreshRepository;
+import org.ssafy.datacontest.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity // Security를 위한 Config기 때문에
@@ -24,14 +26,20 @@ public class SecurityConfig {
 
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
     private final RefreshRepository refreshRepository;
+    private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(RefreshRepository refreshRepository,
+                          UserRepository userRepository,
+                          CompanyRepository companyRepository,
                           AuthenticationConfiguration authenticationConfiguration,
                           RefreshRepository tokenRepository,
                           JwtUtil jwtUtil) {
         this.refreshRepository = refreshRepository;
+        this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
     }
@@ -86,7 +94,7 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
-                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), org.springframework.security.web.authentication.logout.LogoutFilter.class);
+                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository, userRepository, companyRepository), org.springframework.security.web.authentication.logout.LogoutFilter.class);
 
         http
                 .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class);
