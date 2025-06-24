@@ -10,5 +10,6 @@ import java.util.List;
 @Builder
 public class ArticleDetailResponse {
     ArticleResponseDto article;
+    boolean liked;
     List<CompanyRecommendDto> companies;
 }
