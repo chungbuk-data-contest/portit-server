@@ -99,6 +99,17 @@ public class SwaggerConfig {
                     openAPI.getPaths().addPathItem("/auth/login", new PathItem().post(operation));
                 }
             }
+
+            // ✅ 로그아웃 엔드포인트 수동 등록
+            Operation logoutOperation = new Operation()
+                    .summary("로그아웃")
+                    .description("Refresh 쿠키를 삭제하고 Redis에서 Refresh 제거 및 DB에서 FCM 토큰 제거.")
+                    .responses(new ApiResponses()
+                            .addApiResponse("200", new ApiResponse().description("성공적으로 로그아웃됨"))
+                            .addApiResponse("400", new ApiResponse().description("유효하지 않은 요청")))
+                    .addTagsItem("Auth");
+
+            openAPI.getPaths().addPathItem("/auth/logout", new PathItem().post(logoutOperation));
         };
     }
 

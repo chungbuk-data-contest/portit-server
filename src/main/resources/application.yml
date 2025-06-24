@@ -61,3 +61,7 @@ coolsms:
     apikey: ${SMS_API_KEY}
     apisecret: ${SMS_SECRET_KEY}
     fromnumber: ${SMS_FROM_NUMBER}
+
+gpt:
+    api:
+        key: ${GPT_API_KEY}
