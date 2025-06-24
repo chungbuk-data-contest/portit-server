@@ -33,5 +33,4 @@ public class Premium {
         this.startAt = LocalDateTime.now();
         this.endAt = this.startAt.plusDays(14); // 프리미엄 2주
     }
-
 }

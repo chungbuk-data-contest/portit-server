@@ -26,11 +26,13 @@ public class ArticleResponseDto {
     private Category category;
     private String externalLink;
     private Long likeCount;
+    private boolean premium;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
+
     @Builder
-    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, String thumbnailUrl, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt) {
+    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, String thumbnailUrl, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt, boolean premium) {
         this.userName = userName;
         this.userLoginId = userLoginId;
         this.articleId = articleId;
@@ -43,5 +45,6 @@ public class ArticleResponseDto {
         this.likeCount = likeCount;
         this.createdAt = createdAt;
         this.externalLink = externalLink;
+        this.premium = premium;
     }
 }

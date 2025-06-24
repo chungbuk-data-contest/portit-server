@@ -48,6 +48,7 @@ public class PremiumServiceImpl implements PremiumService {
         // 결제 로직
 
         // DB 등록
+        article.updatePremium(true);
         Premium premium = premiumRepository.save(PremiumMapper.toEntity(article));
 
         return PremiumMapper.toResponse(premium);
