@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.client.PublicApiClient;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.company.ArticleLikeResponse;
+import org.ssafy.datacontest.dto.company.CompanyResponse;
 import org.ssafy.datacontest.dto.company.CompanyScrollRequest;
 import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
@@ -88,5 +89,14 @@ public class CompanyServiceImpl implements CompanyService {
                 )).toList();
 
         return new SliceResponseDto<>(dtoList, companies.hasNext());
+    }
+
+    @Override
+    public CompanyResponse getCompany(String companyName) {
+        Company company = companyRepository.findByLoginId(companyName);
+
+
+
+        return null;
     }
 }

@@ -19,6 +19,7 @@ public class ArticlesResponseDto {
     private String imageUrl;
     private List<String> tagList;
     private Category category;
+    private Long likeCount;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 }
