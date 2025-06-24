@@ -1,9 +1,11 @@
 package org.ssafy.datacontest.service;
 
+import org.ssafy.datacontest.dto.gpt.GptRequest;
+
 import java.util.List;
 
 public interface GptService {
-    List<String> generateTags(String articleDescription);
+    List<String> generateTags(GptRequest gptRequest);
 
-    String generateIndustry(String articleDescription);
+    String generateIndustry(GptRequest gptRequest);
 }

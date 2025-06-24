@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.ssafy.datacontest.dto.gpt.GptRequest;
 import org.ssafy.datacontest.service.GptService;
 
 import java.util.Arrays;
@@ -28,12 +29,12 @@ public class GptServiceImpl implements GptService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public List<String> generateTags(String articleDescription) {
+    public List<String> generateTags(GptRequest gptRequest) {
         String prompt = String.format("""
             다음 작품 설명을 기반으로 2~4글자의 태그 2개를 생성해줘. 해시태그 기호 없이, 콤마로 구분해서 응답해줘.
             작품 설명: %s
             결과 예시: 혁신,인공지능
-            """, articleDescription);
+            """, gptRequest.getDescription());
 
         String response = callGptApi(prompt);
         return Arrays.stream(response.split(","))
@@ -42,12 +43,12 @@ public class GptServiceImpl implements GptService {
     }
 
     @Override
-    public String generateIndustry(String articleDescription) {
+    public String generateIndustry(GptRequest gptRequest) {
         String prompt = String.format("""
             다음 작품 설명을 기반으로 가장 관련 있는 산업 분야 하나만 간단하게 말해줘.
             기업 산업분야는 다음과 같음 : IT/소프트웨어,디자인/콘텐츠,영상/방송/미디어,교육/에듀테크,의료/헬스케어,제조/기계/전자,유통/커머스,건설/부동산,문화/예술/공연,환경/에너지,공공기관/비영리/행정
             작품 설명: %s
-            """, articleDescription);
+            """, gptRequest.getDescription());
 
         return callGptApi(prompt).trim();
     }
