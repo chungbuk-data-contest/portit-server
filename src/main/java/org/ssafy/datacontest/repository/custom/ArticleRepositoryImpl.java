@@ -1,4 +1,4 @@
-package org.ssafy.datacontest.repository;
+package org.ssafy.datacontest.repository.custom;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -6,7 +6,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
@@ -57,7 +56,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         }
 
         // 정렬 순서 정의
-        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(article, request.getSortType());
+        List<OrderSpecifier<?>> orderSpecifiers = getArticleOrderSpecifiers(article, request.getSortType());
 
         List<Article> result = queryFactory
                 .selectFrom(article)
@@ -73,7 +72,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return new SliceImpl<>(result, PageRequest.of(0, request.getSize()), hasNext);
     }
 
-    private List<OrderSpecifier<?>> getOrderSpecifiers(QArticle article, SortType sortType) {
+    private List<OrderSpecifier<?>> getArticleOrderSpecifiers(QArticle article, SortType sortType) {
         return switch (sortType) {
             case POPULAR -> List.of(
                     new OrderSpecifier<>(Order.DESC, article.likeCount),
@@ -85,4 +84,5 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
             );
         };
     }
+
 }
