@@ -2,6 +2,7 @@ package org.ssafy.datacontest.service;
 
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
+import org.ssafy.datacontest.dto.gpt.GptRequest;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface ArticleService {
     void deleteArticle(Long articleId, String userName);
     ArticleDetailResponse getArticle(Long articleId);
     SliceResponseDto<ArticlesScrollResponse> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
+
+    List<String> generateTags(GptRequest gptRequest);
 }

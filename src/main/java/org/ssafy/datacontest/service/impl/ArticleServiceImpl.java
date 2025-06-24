@@ -10,12 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
 import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.dto.company.CompanyRecommendDto;
+import org.ssafy.datacontest.dto.gpt.GptRequest;
 import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.*;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.CompanyMapper;
@@ -24,6 +26,7 @@ import org.ssafy.datacontest.mapper.TagMapper;
 import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
+import org.ssafy.datacontest.util.GptUtil;
 import org.ssafy.datacontest.validation.ArticleValidation;
 import org.ssafy.datacontest.validation.PremiumValidation;
 
@@ -44,6 +47,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
     private final CompanyRepository companyRepository;
+    private final GptUtil gptUtil;
 
     @Transactional
     @Override
@@ -77,7 +81,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 글 DB 등록
-        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl);
+        String industry = generateIndustry(new GptRequest(articleRequestDto.getDescription()));
+        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl, IndustryType.valueOf(industry));
         articleRepository.save(article);
 
         // List들 DB 등록
@@ -209,6 +214,43 @@ public class ArticleServiceImpl implements ArticleService {
                 .build();
 
         return new SliceResponseDto<>(List.of(articlesScrollResponse), articles.hasNext());
+    }
+
+    @Override
+    public List<String> generateTags(GptRequest gptRequest) {
+        String prompt = String.format("""
+            다음 작품 설명을 기반으로 4글자의 태그 2개를 생성해줘. 해시태그 기호 없이, 콤마로 구분해서 응답해줘.
+            작품 설명: %s
+            """, gptRequest.getDescription());
+
+        String response = gptUtil.callGpt(prompt);
+        return Arrays.stream(response.split(","))
+                .map(String::trim)
+                .toList();
+    }
+
+    private String generateIndustry(GptRequest gptRequest) {
+        String prompt = String.format("""
+        다음 작품 설명을 기반으로 가장 관련 있는 산업 분야 하나를 골라줘.
+        응답은 반드시 아래 enum 중 하나의 **영문 이름(대문자)**만 리턴해줘.
+        
+        산업 분야(enum 이름):
+        - IT_SOFTWARE
+        - DESIGN_CONTENTS
+        - MEDIA
+        - EDUCATION_EDUTECH
+        - MEDICAL_HEALTH
+        - MANUFACTURING_ELECTRONICS
+        - COMMERCE
+        - CONSTRUCTION_REAL_ESTATE
+        - CULTURE_ART
+        - ENVIRONMENT_ENERGY
+        - PUBLIC_ORGANIZATION
+        
+        작품 설명: %s
+        """, gptRequest.getDescription());
+
+        return gptUtil.callGpt(prompt).trim();
     }
 
     private List<ArticlesResponseDto> mapArticlesToDtoList(List<Article> articles, Map<Long, List<String>> tagMap) {

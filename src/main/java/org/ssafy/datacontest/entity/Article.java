@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.ssafy.datacontest.enums.Category;
+import org.ssafy.datacontest.enums.IndustryType;
 
 import java.time.LocalDateTime;
 
@@ -38,8 +39,11 @@ public class Article {
     @Setter
     private boolean premium;
 
+    @Enumerated(EnumType.STRING)
+    private IndustryType industryType;
+
     @Builder
-    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium) {
+    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium, IndustryType industryType) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
@@ -47,6 +51,7 @@ public class Article {
         this.user = user;
         this.thumbnailUrl = thumbnailUrl;
         this.premium = premium;
+        this.industryType = industryType;
     }
 
     public void updateArticle(String title, String description, String externalLink, Category category, String thumbnailUrl) {
