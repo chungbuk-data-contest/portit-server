@@ -3,7 +3,7 @@ package org.ssafy.datacontest.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
-import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
+import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
 import org.ssafy.datacontest.entity.ChatRoom;
 import org.ssafy.datacontest.entity.mongo.ChatMessage;
 import org.ssafy.datacontest.repository.ChatMessageRepository;
@@ -45,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatRoomResponse> getChatRoomsByUserEmail(String email) {
+    public List<ChatMessageResponse> getChatRoomsByUserEmail(String email) {
         List<ChatMessage> rooms = chatMessageRepository.findBySender(email); // 이 부분도 리팩터링 필요
 
         // 메시지 목록 기준 roomId별 최신 메시지 뽑기
@@ -75,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
                             ? room.getCompany().getLoginId()
                             : room.getUser().getLoginId();
 
-                    return ChatRoomResponse.builder()
+                    return ChatMessageResponse.builder()
                             .roomId(msg.getRoomId())
                             .lastMessage(msg.getContent())
                             .sentAt(msg.getSentAt())
@@ -83,7 +83,7 @@ public class ChatServiceImpl implements ChatService {
                             .read(!msg.isRead() && !msg.getSender().equals(email))
                             .build();
                 })
-                .sorted(Comparator.comparing(ChatRoomResponse::getSentAt).reversed())
+                .sorted(Comparator.comparing(ChatMessageResponse::getSentAt).reversed())
                 .toList();
     }
 

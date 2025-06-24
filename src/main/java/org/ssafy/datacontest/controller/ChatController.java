@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
-import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
+import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
 import org.ssafy.datacontest.entity.mongo.ChatMessage;
 import org.ssafy.datacontest.service.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -28,6 +28,8 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
+
+
     @MessageMapping("/send")
     public void sendMessage(ChatMessageRequest request) {
         // 1. MongoDB에 저장
@@ -35,7 +37,7 @@ public class ChatController {
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@RequestParam String email) {
+    public ResponseEntity<List<ChatMessageResponse>> getUserChatRooms(@RequestParam String email) {
         return ResponseEntity.ok(chatService.getChatRoomsByUserEmail(email));
     }
 

@@ -1,15 +1,15 @@
 package org.ssafy.datacontest.dto.chatting;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ChatRoomResponse {
+public class ChatMessageResponse {
     private Long roomId;
     private String lastMessage;
     private LocalDateTime sentAt;
