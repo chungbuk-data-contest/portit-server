@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class LikedArticleResponse {
     private Long articleId;
-    private String articleName;
+    private String articleTitle;
     private Long likeCount;
+    private String thumbnailUrl;
 }

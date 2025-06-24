@@ -33,4 +33,9 @@ public class Company extends BaseUser{
     private String simpleAddress;       // 간단 주소
     private Boolean hiring;
     private String companyLink;
+
+    public void updateCompany(String companyName, Boolean hiring) {
+        this.companyName = companyName;
+        this.hiring = hiring;
+    }
 }
