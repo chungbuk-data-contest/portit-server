@@ -1,6 +1,7 @@
 package org.ssafy.datacontest.dto.chatting;
 
 import lombok.*;
+import org.ssafy.datacontest.dto.chatroom.ChatRoomResponse;
 
 import java.time.LocalDateTime;
 
