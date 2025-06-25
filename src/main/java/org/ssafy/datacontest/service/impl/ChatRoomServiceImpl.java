@@ -53,15 +53,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         Company company = null;
         if(role.equals("ROLE_USER")){
             user = userRepository.findByLoginId(loginId);
+            if(user == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+            }
             company = companyRepository.findById(chatRoomCreateRequest.getReceiverId())
                     .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND));
         }
         else if(role.equals("ROLE_COMPANY")){
             company = companyRepository.findByLoginId(loginId);
+            if(company == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
+            }
             user = userRepository.findById(chatRoomCreateRequest.getReceiverId())
                     .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND));
         }
+        ChatRoom existingRoom = chatRoomRepository.findByUserIdAndCompanyCompanyIdAndArticleArtId(user.getId(), company.getCompanyId(), article.getArtId());
+        if (existingRoom != null) {
+            return ChatRoomMapper.toDto(existingRoom, article);
+        }
         ChatRoom chatRoom = ChatRoomMapper.toEntity(user, company, article);
+
         chatRoomRepository.save(chatRoom);
         return ChatRoomMapper.toDto(chatRoom, article);
     }
