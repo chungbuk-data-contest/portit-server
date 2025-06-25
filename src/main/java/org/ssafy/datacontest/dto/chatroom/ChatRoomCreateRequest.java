@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRoomRequest {
+public class ChatRoomCreateRequest {
     private Long articleId;
     private Long receiverId;
 }

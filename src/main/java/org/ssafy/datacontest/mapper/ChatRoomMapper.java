@@ -1,6 +1,6 @@
 package org.ssafy.datacontest.mapper;
 
-import org.ssafy.datacontest.dto.chatroom.ChatRoomResponse;
+import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateResponse;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.ChatRoom;
 import org.ssafy.datacontest.entity.Company;
@@ -15,8 +15,8 @@ public class ChatRoomMapper {
                 .build();
     }
 
-    public static ChatRoomResponse toDto(ChatRoom chatRoom, Article article) {
-        return ChatRoomResponse.builder()
+    public static ChatRoomCreateResponse toDto(ChatRoom chatRoom, Article article) {
+        return ChatRoomCreateResponse.builder()
                 .roomId(chatRoom.getId())
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())

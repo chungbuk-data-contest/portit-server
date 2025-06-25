@@ -6,13 +6,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ChatMessageResponse {
-    private Long roomId;
-    private String lastMessage;
+    private String sender;
+    private String content;
     private LocalDateTime sentAt;
-    private String partnerName; // 필요 시
-    private boolean read; // 상대가 안 읽은 메시지 여부
 }

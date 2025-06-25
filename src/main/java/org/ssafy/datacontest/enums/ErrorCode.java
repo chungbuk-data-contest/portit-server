@@ -52,8 +52,10 @@ public enum ErrorCode {
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_UPLOAD_FAILED", "S3에 파일 업로드 중 오류가 발생했습니다."),
     COMPANY_NOT_FOUND(HttpStatus.BAD_REQUEST,"COMPANY_NOT_FOUND" ,"기업이 존재하지 않습니다."),
 
-    REGISTERED_ARTICLE_PREMIUM(HttpStatus.BAD_REQUEST, "REGISTERED_ARTICLE_PREMIUM", "이미 프리미엄으로 등록된 게시글입니다.")
-    ;
+    REGISTERED_ARTICLE_PREMIUM(HttpStatus.BAD_REQUEST, "REGISTERED_ARTICLE_PREMIUM", "이미 프리미엄으로 등록된 게시글입니다."),
+    CHATROOM_NOT_FOUND(HttpStatus.BAD_REQUEST, "CHATROOM_NOT_FOUND" ,"채팅방이 존재하지 않습니다." ),
+    INVALID_USER(HttpStatus.BAD_REQUEST,"INVALID_USER" ,"채팅방에 접근할 수 없는 유저입니다.");
+
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
     // code를 지정해주어서 클라이언트 측에서 디테일한 핸들링을 하도록 하는 것이 좋다.
 

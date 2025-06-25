@@ -9,7 +9,5 @@ import java.time.LocalDateTime;
 @Setter
 public class ChatMessageRequest {
     private Long roomId;
-    private String sender;
     private String content;
-    private LocalDateTime sentAt;
 }

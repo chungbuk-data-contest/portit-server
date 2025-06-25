@@ -1,15 +1,17 @@
 package org.ssafy.datacontest.dto.chatroom;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ChatRoomResponse {
     private Long roomId;
-    private String articleTitle;
-    private Long likeCount;
+    private String partnerName;
     private String thumbnailUrl;
+    private String lastMessage;
+    private boolean read;
+    private LocalDateTime sentAt;
 }

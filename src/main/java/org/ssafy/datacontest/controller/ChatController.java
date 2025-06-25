@@ -13,6 +13,7 @@ import org.ssafy.datacontest.service.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.security.Principal;
 import java.util.List;
 
 @CrossOrigin(origins = "http://127.0.0.1:5500")
@@ -31,21 +32,20 @@ public class ChatController {
     }
 
     @MessageMapping("/{roomId}")
-    public void sendMessage(@DestinationVariable Long roomId, ChatMessageRequest request) {
-        // 1. MongoDB에 저장
-        chatService.saveMessage(roomId, request);
-
-        ChatMessage savedMessage = chatService.saveMessage(roomId, request);
+    public void sendMessage(@DestinationVariable Long roomId,
+                            ChatMessageRequest request,
+                            Principal principal) {
+        ChatMessage savedMessage = chatService.saveMessage(roomId, request, principal.getName());
         messagingTemplate.convertAndSend("/topic/" + roomId, savedMessage);
     }
 
-    @GetMapping("/rooms")
-    public ResponseEntity<List<ChatMessageResponse>> getUserChatRooms(@RequestParam String email) {
-        return ResponseEntity.ok(chatService.getChatRoomsByUserEmail(email));
-    }
-
-    @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> getRoomMessages(@RequestParam Long roomId) {
-        return ResponseEntity.ok(chatService.getMessagesInRoom(roomId));
-    }
+//    @GetMapping("/rooms")
+//    public ResponseEntity<List<ChatMessageResponse>> getUserChatRooms(@RequestParam String email) {
+//        return ResponseEntity.ok(chatService.getChatRoomsByUserEmail(email));
+//    }
+//
+//    @GetMapping("/messages")
+//    public ResponseEntity<List<ChatMessage>> getRoomMessages(@RequestParam Long roomId) {
+//        return ResponseEntity.ok(chatService.getMessagesInRoom(roomId));
+//    }
 }
