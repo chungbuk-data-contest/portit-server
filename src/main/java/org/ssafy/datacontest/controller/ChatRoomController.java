@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateRequest;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateResponse;
+import org.ssafy.datacontest.dto.chatroom.ChatRoomJoinResponse;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomResponse;
 import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
@@ -63,10 +64,15 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "404", description = "채팅방이 존재하지 않음")
     })
     @PostMapping("/{roomId}/join")
-    public ResponseEntity<ChatMessageResponse> joinChatRoom(@PathVariable Long roomId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ChatRoomJoinResponse> joinChatRoom(
+            @PathVariable Long roomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         String role = getRole(userDetails);
-        chatRoomService.joinChatRoom(roomId, userDetails.getUsername(), role);
-        return ResponseEntity.ok().build();
+
+        ChatRoomJoinResponse response = chatRoomService.joinAndGetRoomData(roomId, userDetails.getUsername(), role);
+
+        return ResponseEntity.ok(response);
     }
 
     private String getRole(CustomUserDetails userDetails) {

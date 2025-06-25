@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateRequest;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateResponse;
+import org.ssafy.datacontest.dto.chatroom.ChatRoomJoinResponse;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomResponse;
 import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
 import org.ssafy.datacontest.entity.Article;
@@ -117,5 +118,42 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                         .sentAt(msg.getSentAt())
                         .build())
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public ChatRoomJoinResponse joinAndGetRoomData(Long roomId, String username, String role) {
+        // 1. 메시지 읽음 처리 + 전체 메시지 조회
+        List<ChatMessage> allMessages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
+
+        List<ChatMessage> unreadMessages = allMessages.stream()
+                .filter(msg -> !msg.isRead() && !msg.getSender().equals(username))
+                .toList();
+
+        unreadMessages.forEach(m -> m.setRead(true));
+        chatMessageRepository.saveAll(unreadMessages);
+
+        List<ChatMessageResponse> messageResponses = allMessages.stream()
+                .map(msg -> ChatMessageResponse.builder()
+                        .sender(msg.getSender())
+                        .content(msg.getContent())
+                        .sentAt(msg.getSentAt())
+                        .build())
+                .toList();
+
+        // 2. 채팅방 조회 및 예외처리
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.CHATROOM_NOT_FOUND));
+
+        // 3. 작품 정보 추출
+        Article article = chatRoom.getArticle();
+
+        return ChatRoomJoinResponse.builder()
+                .articleId(article.getArtId())
+                .articleTitle(article.getTitle())
+                .likeCount(article.getLikeCount())
+                .thumbnailUrl(article.getThumbnailUrl())
+                .messages(messageResponses)
+                .build();
     }
 }
