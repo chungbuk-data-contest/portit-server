@@ -2,13 +2,15 @@ package org.ssafy.datacontest.mapper;
 
 import org.ssafy.datacontest.dto.premium.PremiumResponse;
 import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.Payment;
 import org.ssafy.datacontest.entity.Premium;
 
 public class PremiumMapper {
 
-    public static Premium toEntity(Article article) {
+    public static Premium toEntity(Article article, Payment payment) {
         return Premium.builder()
                 .article(article)
+                .payment(payment)
                 .build();
     }
 

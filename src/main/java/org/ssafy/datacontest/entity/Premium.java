@@ -23,13 +23,18 @@ public class Premium {
     @JoinColumn(name = "art_id")
     private Article article;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
     @CreationTimestamp
     private LocalDateTime startAt;
     private LocalDateTime endAt;
 
     @Builder
-    public Premium(Article article) {
+    public Premium(Article article, Payment payment) {
         this.article = article;
+        this.payment = payment;
         this.startAt = LocalDateTime.now();
         this.endAt = this.startAt.plusDays(14); // 프리미엄 2주
     }

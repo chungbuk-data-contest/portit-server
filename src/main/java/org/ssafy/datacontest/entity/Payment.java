@@ -16,7 +16,7 @@ public class Payment {
 
     private String paymentKey; // 토스페이 - 결제키값
     private String orderId; // 토스페이 - 주문번호
-    private String approvedAt; // 토스페이 - 결제 승인 날짜
+    private LocalDateTime approvedAt; // 토스페이 - 결제 승인 날짜
     private int totalAmount; // 토스페이 - 결제 금액
 
     @ManyToOne
@@ -28,7 +28,7 @@ public class Payment {
     private User user;
 
     @Builder
-    public Payment(String paymentKey, String approvedAt, int totalAmount, String orderId, Article article, User user) {
+    public Payment(String paymentKey, LocalDateTime approvedAt, int totalAmount, String orderId, Article article, User user) {
         this.paymentKey = paymentKey;
         this.orderId = orderId;
         this.article = article;
