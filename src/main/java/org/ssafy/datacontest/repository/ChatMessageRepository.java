@@ -12,7 +12,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
 
     List<ChatMessage> findBySender(String email);
 
-    Optional<Object> findTopByRoomIdOrderBySentAtDesc(Long id);
+    Optional<ChatMessage> findTopByRoomIdOrderBySentAtDesc(Long id);
 
     List<ChatMessage> findByRoomIdAndReadIsFalseAndSenderNot(Long roomId, String username);
 }
