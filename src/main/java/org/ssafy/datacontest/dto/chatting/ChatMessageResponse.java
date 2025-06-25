@@ -14,4 +14,5 @@ public class ChatMessageResponse {
     private String sender;
     private String content;
     private LocalDateTime sentAt;
+    private boolean read; // ✅ 추가
 }

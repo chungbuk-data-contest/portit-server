@@ -35,7 +35,7 @@ public class ChatController {
     public void sendMessage(@DestinationVariable Long roomId,
                             ChatMessageRequest request,
                             Principal principal) {
-        ChatMessage savedMessage = chatService.saveMessage(roomId, request, principal.getName());
+        ChatMessageResponse savedMessage = chatService.saveMessage(roomId, request, principal.getName());
         messagingTemplate.convertAndSend("/topic/" + roomId, savedMessage);
     }
 
