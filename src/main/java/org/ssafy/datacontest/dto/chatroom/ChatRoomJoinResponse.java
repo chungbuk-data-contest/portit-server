@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRoomJoinResponse {
+    private String partnerName;
     private Long articleId;
     private String articleTitle;
     private Long likeCount;
