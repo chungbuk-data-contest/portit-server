@@ -28,7 +28,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public WebSocketConfig(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // localhost:8080/ws/chat 으로 웹소켓 연결
@@ -56,7 +55,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     String token = accessor.getFirstNativeHeader("Authorization");
                     if (token != null && token.startsWith("Bearer ")) {
                         token = token.substring(7);
-                        // 토큰 검증 후 사용자 정보 설정
                         String loginId = jwtUtil.getLoginId(token);
                         accessor.setUser(new UsernamePasswordAuthenticationToken(loginId, null, List.of()));
                     }
@@ -65,4 +63,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         });
     }
+
 }
