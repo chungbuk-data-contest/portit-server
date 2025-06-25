@@ -18,4 +18,5 @@ public abstract class BaseUser {
     protected String profileImage;
     protected String role;
     protected String fcmToken;
+    protected boolean deleted;
 }

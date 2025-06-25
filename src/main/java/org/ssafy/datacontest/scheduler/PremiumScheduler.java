@@ -24,7 +24,6 @@ public class PremiumScheduler {
         for (Premium p : expired) {
             Article article = p.getArticle();
             article.setPremium(false);
-            premiumRepository.delete(p);
         }
     }
 }

@@ -28,6 +28,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         QArticle article = QArticle.article;
         BooleanBuilder builder = new BooleanBuilder();
 
+        builder.and(article.deleted.eq(false));
+
         // 카테고리 필터링
         if (request.getKeyword() == null || request.getKeyword().isBlank()) {
             if (request.getCategory() != null && !request.getCategory().isEmpty()) {
@@ -79,7 +81,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         return queryFactory
                 .selectFrom(article)
-                .where(article.premium.eq(true))
+                .where(article.premium.eq(true).and(article.deleted.eq(false)))
                 .orderBy(Expressions.numberTemplate(Double.class, "function('rand')").asc())
                 .limit(count)
                 .fetch();

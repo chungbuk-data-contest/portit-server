@@ -122,4 +122,10 @@ public class ArticleValidation {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_THUMBNAIL);
         }
     }
+
+    public void isExistArticle(Article article) {
+        if(article.isDeleted()){
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+        }
+    }
 }

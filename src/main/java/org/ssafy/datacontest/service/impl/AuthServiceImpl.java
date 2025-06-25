@@ -7,12 +7,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.dto.register.UserRegisterRequest;
+import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.mapper.UserMapper;
+import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.AuthService;
@@ -20,6 +22,8 @@ import org.ssafy.datacontest.service.CompanyService;
 import org.ssafy.datacontest.service.UserService;
 import org.ssafy.datacontest.validation.CompanyValidation;
 import org.ssafy.datacontest.validation.UserValidation;
+
+import java.util.List;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -29,18 +33,20 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserValidation userValidation;
     private final CompanyValidation companyValidation;
+    private final ArticleRepository articleRepository;
 
     @Autowired
     public AuthServiceImpl(CompanyRepository companyRepository,
                            UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            UserValidation userValidation,
-                           CompanyValidation companyValidation) {
+                           CompanyValidation companyValidation, ArticleRepository articleRepository) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userValidation = userValidation;
         this.companyValidation = companyValidation;
+        this.articleRepository = articleRepository;
     }
 
     @Override
@@ -88,11 +94,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void deleteUser(User user){
-        userRepository.delete(user);
+        user.setDeleted(true);
+        // 작품 비공개 처리 필요
+        List<Article> articleList = articleRepository.findByUser_Id(user.getId());
+        for(Article article : articleList) {
+            article.setDeleted(true);
+        }
     }
 
     private void deleteCompany(Company company){
-
-        companyRepository.delete(company);
+        company.setDeleted(true);
     }
 }
