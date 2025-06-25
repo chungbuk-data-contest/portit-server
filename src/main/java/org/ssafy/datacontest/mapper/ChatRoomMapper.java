@@ -18,6 +18,7 @@ public class ChatRoomMapper {
     public static ChatRoomCreateResponse toDto(ChatRoom chatRoom, Article article) {
         return ChatRoomCreateResponse.builder()
                 .roomId(chatRoom.getId())
+                .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())
                 .thumbnailUrl(article.getThumbnailUrl())

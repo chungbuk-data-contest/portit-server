@@ -2,6 +2,7 @@ package org.ssafy.datacontest.service;
 
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateRequest;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateResponse;
+import org.ssafy.datacontest.dto.chatroom.ChatRoomJoinResponse;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomResponse;
 import org.ssafy.datacontest.dto.chatting.ChatMessageResponse;
 
@@ -13,4 +14,6 @@ public interface ChatRoomService {
     List<ChatRoomResponse> readChatRoomsByUser(String username, String role);
 
     List<ChatMessageResponse> joinChatRoom(Long roomId, String username, String role);
+
+    ChatRoomJoinResponse joinAndGetRoomData(Long roomId, String username, String role);
 }
