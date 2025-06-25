@@ -8,16 +8,15 @@ import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 import org.ssafy.datacontest.dto.premium.PremiumResponse;
 import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.Payment;
 import org.ssafy.datacontest.entity.Premium;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
+import org.ssafy.datacontest.mapper.PaymentMapper;
 import org.ssafy.datacontest.mapper.PremiumMapper;
-import org.ssafy.datacontest.repository.ArticleRepository;
-import org.ssafy.datacontest.repository.PremiumRepository;
-import org.ssafy.datacontest.repository.TagRepository;
-import org.ssafy.datacontest.repository.UserRepository;
+import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.PremiumService;
 import org.ssafy.datacontest.validation.ArticleValidation;
 import org.ssafy.datacontest.validation.PremiumValidation;
@@ -35,9 +34,10 @@ public class PremiumServiceImpl implements PremiumService {
     private final UserRepository userRepository;
     private final PremiumRepository premiumRepository;
     private final ArticleRepository articleRepository;
+    private final PaymentRepository paymentRepository;
+    private final TagRepository tagRepository;
     private final ArticleValidation articleValidation;
     private final PremiumValidation premiumValidation;
-    private final TagRepository tagRepository;
 
     @Override
     @Transactional
@@ -55,8 +55,10 @@ public class PremiumServiceImpl implements PremiumService {
         // 결제 로직
 
         // DB 등록
+        paymentRepository.save(PaymentMapper.toEntity(article, user));
+        Payment payment = paymentRepository.findByArticle_artId(article.getArtId());
         article.updatePremium(true);
-        Premium premium = premiumRepository.save(PremiumMapper.toEntity(article));
+        Premium premium = premiumRepository.save(PremiumMapper.toEntity(article, payment));
 
         return PremiumMapper.toResponse(premium);
     }

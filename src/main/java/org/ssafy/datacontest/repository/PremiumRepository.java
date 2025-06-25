@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface PremiumRepository extends JpaRepository<Premium, Long> {
     Optional<Premium> findByArticle_ArtId(Long articleId);
     List<Premium> findAllByEndAtBefore(LocalDateTime time);
-    void deleteByArticle_ArtId(Long articleId);
+    Premium findByPayment_paymentId(Long paymentId);
 }

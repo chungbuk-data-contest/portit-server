@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @Builder
 public class ArticleDto {
-
     private Long articleId;
     private String title;
     private String description;
