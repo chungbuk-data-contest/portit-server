@@ -20,13 +20,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable("userId") Long userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(userService.getUser(userDetails.getUsername(), userId));
+    @GetMapping("/mypage")
+    public ResponseEntity<UserResponse> getUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.getUser(userDetails.getUsername()));
     }
 
-    @PatchMapping("/{userId}")
-    public ResponseEntity<Long> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @PathVariable("userId") Long userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(userService.updateUser(userUpdateRequest, userDetails.getUsername(), userId));
+    @PatchMapping("")
+    public ResponseEntity<Long> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.updateUser(userUpdateRequest, userDetails.getUsername()));
     }
 }

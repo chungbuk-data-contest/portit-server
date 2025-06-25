@@ -33,14 +33,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUser(String username, Long userId) {
+    public UserResponse getUser(String username) {
         User user = userRepository.findByLoginId(username);
 
-        if(user.getId() != userId){
+        if(user == null){
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
         }
 
-        List<Article> userArticles = articleRepository.findByUser_Id(userId);
+        List<Article> userArticles = articleRepository.findByUser_Id(user.getId());
 
         List<LikedArticleResponse> likedArticleResponses = new ArrayList<>();
         if (!userArticles.isEmpty()) {
@@ -54,14 +54,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Long updateUser(UserUpdateRequest userUpdateRequest, String userName, Long userId) {
+    public Long updateUser(UserUpdateRequest userUpdateRequest, String userName) {
         User user = userRepository.findByLoginId(userName);
 
-        if(user.getId() != userId){
+        if(user == null){
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
         }
 
         user.updateUser(userUpdateRequest.getUserNickname());
-        return userId;
+        return user.getId();
     }
 }

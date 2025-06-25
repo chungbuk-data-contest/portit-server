@@ -58,19 +58,19 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getCompaniesByCursor(companyScrollRequest));
     }
 
-    @GetMapping("/{companyId}")
+    @GetMapping("/mypage")
     @Operation(
             summary = "기업 마이페이지 조회"
     )
-    public ResponseEntity<CompanyResponse> getCompany(@PathVariable("companyId") Long companyId, @AuthenticationPrincipal CustomUserDetails userDetails){
-        return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername(), companyId));
+    public ResponseEntity<CompanyResponse> getCompany(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
     }
 
-    @PatchMapping("/{companyId}")
+    @PatchMapping("")
     @Operation(
             summary = "기업 마이페이지 일부 수정"
     )
-    public ResponseEntity<Long> updateCompany(@PathVariable("companyId") Long companyId, @RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(companyService.updateCompany(companyUpdateRequest, userDetails.getUsername(), companyId));
+    public ResponseEntity<Long> updateCompany(@RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(companyService.updateCompany(companyUpdateRequest, userDetails.getUsername()));
     }
 }
