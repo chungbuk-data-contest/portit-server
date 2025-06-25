@@ -85,7 +85,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                             .thumbnailUrl(room.getArticle().getThumbnailUrl())
                             .lastMessage(last != null ? last.getContent() : "")
                             .sentAt(last != null ? last.getSentAt() : null)
-                            .read(last == null || last.getSender().equals(loginId))
+                            .read(last == null || last.isRead())
                             .build();
                 }).sorted(Comparator.comparing(ChatRoomResponse::getSentAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
