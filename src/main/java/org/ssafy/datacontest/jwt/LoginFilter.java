@@ -29,7 +29,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // Spring Security는 일련의 필터들에서 사용자 요청 검증
     // LoginFilter는 UsernamePasswordAuthenticationFilter의 정의에 따라 /login 경로로 오는 POST 요청 검증
     // 필터단에서 login 요청을 검증, 응답하기 때문에 컨트롤러에서 처리할 필요가 없음.
-    private static final long ACCESS_TOKEN_VALIDITY = 600_000L; // 10분
+    private static final long ACCESS_TOKEN_VALIDITY = 1_800_000L; // 30분
     private static final long REFRESH_TOKEN_VALIDITY = 86_400_000L; // 1일
     private final RefreshRepository refreshRepository;
     private final AuthenticationManager authenticationManager;
