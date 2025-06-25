@@ -56,16 +56,20 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             if(user == null) {
                 throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
             }
-            company = companyRepository.findById(chatRoomCreateRequest.getReceiverId())
-                    .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND));
+            company = companyRepository.findByLoginId(chatRoomCreateRequest.getReceiverId());
+            if(company == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
+            }
         }
         else if(role.equals("ROLE_COMPANY")){
             company = companyRepository.findByLoginId(loginId);
             if(company == null) {
                 throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
             }
-            user = userRepository.findById(chatRoomCreateRequest.getReceiverId())
-                    .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND));
+            user = userRepository.findByLoginId(chatRoomCreateRequest.getReceiverId());
+            if(user == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+            }
         }
         ChatRoom existingRoom = chatRoomRepository.findByUserIdAndCompanyCompanyIdAndArticleArtId(user.getId(), company.getCompanyId(), article.getArtId());
         if (existingRoom != null) {
