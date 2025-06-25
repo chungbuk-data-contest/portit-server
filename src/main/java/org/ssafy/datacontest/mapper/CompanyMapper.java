@@ -1,13 +1,12 @@
 package org.ssafy.datacontest.mapper;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.ssafy.datacontest.dto.company.CompanyRecommendDto;
-import org.ssafy.datacontest.dto.company.CompanyResponse;
-import org.ssafy.datacontest.dto.company.CompanyScrollResponse;
-import org.ssafy.datacontest.dto.company.LikedArticleResponse;
+import org.ssafy.datacontest.dto.company.*;
 import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
+import org.ssafy.datacontest.entity.ChatRoom;
 import org.ssafy.datacontest.entity.Company;
+import org.ssafy.datacontest.entity.Like;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 import org.ssafy.datacontest.util.RandomUtil;
@@ -92,6 +91,15 @@ public class CompanyMapper {
                 .companyLoc(company.getCompanyLoc())
                 .likedArticle(likedArticle)
                 .hiring(company.getHiring())
+                .build();
+    }
+
+    public static CompanySummaryResponse toCompanySummaryResponse(Company company, boolean chatting) {
+        return CompanySummaryResponse.builder()
+                .companyId(company.getCompanyId())
+                .companyName(company.getCompanyName())
+                .companyDescription(company.getCompanyDescription())
+                .chatting(chatting)
                 .build();
     }
 }
