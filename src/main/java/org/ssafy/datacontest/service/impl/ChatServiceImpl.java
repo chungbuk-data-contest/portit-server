@@ -1,88 +1,108 @@
 package org.ssafy.datacontest.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
-import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
-import org.ssafy.datacontest.entity.ChatMessage;
+import org.ssafy.datacontest.entity.ChatRoom;
+import org.ssafy.datacontest.entity.mongo.ChatMessage;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.ChatMessageRepository;
+import org.ssafy.datacontest.repository.ChatRoomRepository;
 import org.ssafy.datacontest.service.ChatService;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Autowired
-    public ChatServiceImpl(ChatMessageRepository chatMessageRepository) {
+    public ChatServiceImpl(ChatMessageRepository chatMessageRepository,
+                           ChatRoomRepository chatRoomRepository) {
         this.chatMessageRepository = chatMessageRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
 
     @Override
-    public void saveMessage(ChatMessageRequest request) {
-        String roomId = request.getRoomId();
-        if (roomId == null || roomId.isBlank()) {
-            roomId = createRoomId(request.getSenderEmail(), request.getReceiverEmail());
-        }
+    public ChatMessage saveMessage(Long roomId, ChatMessageRequest request, String loginId) {
+        // DB에서 채팅방을 통해 user, company 관계를 가져옴
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.CHATROOM_NOT_FOUND));
 
+        // 보낸 사람의 실제 이름을 loginId로 판단해서 sender 설정
+        String senderName;
+        if (room.getUser().getLoginId().equals(loginId)) {
+            senderName = room.getUser().getNickname(); // 유저
+        } else if (room.getCompany().getLoginId().equals(loginId)) {
+            senderName = room.getCompany().getCompanyName(); // 기업
+        } else {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_USER);
+        }
         ChatMessage message = ChatMessage.builder()
                 .roomId(roomId)
-                .senderEmail(request.getSenderEmail())
-                .receiverEmail(request.getReceiverEmail())
+                .sender(senderName)
                 .content(request.getContent())
                 .sentAt(LocalDateTime.now())
                 .read(false)
                 .build();
 
-        chatMessageRepository.save(message);
+        return chatMessageRepository.save(message);
     }
 
-    @Override
-    public List<ChatRoomResponse> getChatRoomsByUserEmail(String email) {
-        List<ChatMessage> rooms = chatMessageRepository.findBySenderEmailOrReceiverEmail(email, email);
-
-        // Map<roomId, ChatMessage> 최신 메시지만 추출
-        Map<String, ChatMessage> latestMap = new HashMap<>();
-
-        for (ChatMessage msg : rooms) {
-            ChatMessage prev = latestMap.get(msg.getRoomId());
-
-            if (prev == null || msg.getSentAt().isAfter(prev.getSentAt())) {
-                latestMap.put(msg.getRoomId(), msg);
-            }
-        }
-
-        return latestMap.values().stream()
-                .map(msg -> {
-                    String partnerEmail = msg.getSenderEmail().equals(email)
-                            ? msg.getReceiverEmail()
-                            : msg.getSenderEmail();
-
-                    return ChatRoomResponse.builder()
-                            .roomId(msg.getRoomId())
-                            .lastMessage(msg.getContent())
-                            .sentAt(msg.getSentAt())
-                            .partnerName(partnerEmail)
-                            .read(!msg.isRead() && !msg.getSenderEmail().equals(email))
-                            .build();
-                })
-                .sorted(Comparator.comparing(ChatRoomResponse::getSentAt).reversed())
-                .toList();
-    }
-
-    @Override
-    public List<ChatMessage> getMessagesInRoom(String roomId) {
-        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
-    }
-
-    private String createRoomId(String senderEmail, String receiverEmail) {
-        return senderEmail.compareTo(receiverEmail) < 0
-                ? senderEmail + "_" + receiverEmail
-                : receiverEmail + "_" + senderEmail;
-    }
+//    @Override
+//    public List<ChatMessageResponse> getChatRoomsByUserEmail(String email) {
+//        List<ChatMessage> rooms = chatMessageRepository.findBySender(email); // 이 부분도 리팩터링 필요
+//
+//        // 메시지 목록 기준 roomId별 최신 메시지 뽑기
+//        Map<Long, ChatMessage> latestMap = new HashMap<>();
+//
+//        for (ChatMessage msg : rooms) {
+//            ChatMessage prev = latestMap.get(msg.getRoomId());
+//
+//            if (prev == null || msg.getSentAt().isAfter(prev.getSentAt())) {
+//                latestMap.put(msg.getRoomId(), msg);
+//            }
+//        }
+//
+//        // ChatRoom id 모아서 조회
+//        List<Long> roomIds = latestMap.values().stream()
+//                .map(ChatMessage::getRoomId)
+//                .toList();
+//
+//        Map<Long, ChatRoom> chatRoomMap = chatRoomRepository.findAllById(roomIds).stream()
+//                .collect(Collectors.toMap(ChatRoom::getId, cr -> cr));
+//
+//        // 각 메시지에 대해 상대방 이름 추론
+//        return latestMap.values().stream()
+//                .map(msg -> {
+//                    ChatRoom room = chatRoomMap.get(Long.valueOf(msg.getRoomId()));
+//                    String partnerEmail = room.getUser().getLoginId().equals(email)
+//                            ? room.getCompany().getLoginId()
+//                            : room.getUser().getLoginId();
+//
+//                    return ChatMessageResponse.builder()
+//                            .roomId(msg.getRoomId())
+//                            .lastMessage(msg.getContent())
+//                            .sentAt(msg.getSentAt())
+//                            .partnerName(partnerEmail)
+//                            .read(!msg.isRead() && !msg.getSender().equals(email))
+//                            .build();
+//                })
+//                .sorted(Comparator.comparing(ChatMessageResponse::getSentAt).reversed())
+//                .toList();
+//    }
+//
+//    @Override
+//    public List<ChatMessage> getMessagesInRoom(Long roomId) {
+//        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
+//    }
+//
+//    private String createRoomId(String senderEmail, String receiverEmail) {
+//        return senderEmail.compareTo(receiverEmail) < 0
+//                ? senderEmail + "_" + receiverEmail
+//                : receiverEmail + "_" + senderEmail;
+//    }
 }

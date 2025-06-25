@@ -1,15 +1,12 @@
 package org.ssafy.datacontest.service;
 
 import org.ssafy.datacontest.dto.chatting.ChatMessageRequest;
-import org.ssafy.datacontest.dto.chatting.ChatRoomResponse;
-import org.ssafy.datacontest.entity.ChatMessage;
-
-import java.util.List;
+import org.ssafy.datacontest.entity.mongo.ChatMessage;
 
 public interface ChatService {
-    void saveMessage(ChatMessageRequest request);
+    ChatMessage saveMessage(Long roomId, ChatMessageRequest request, String loginId);
 
-    List<ChatRoomResponse> getChatRoomsByUserEmail(String email);
-
-    List<ChatMessage> getMessagesInRoom(String roomId);
+//    List<ChatMessageResponse> getChatRoomsByUserEmail(String email);
+//
+//    List<ChatMessage> getMessagesInRoom(Long roomId);
 }
