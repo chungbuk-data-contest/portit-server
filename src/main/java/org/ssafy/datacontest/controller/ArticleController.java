@@ -75,14 +75,7 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getArticlesByCursor(request));
     }
 
-    @GetMapping("/premium")
-    @Operation(
-            summary = "프리미엄 작품 조회",
-            description = "프리미엄 작품 랜덤 4개 반환합니다."
-    )
-    public ResponseEntity<List<ArticlesResponseDto>> getPremiumArticles() {
-        return ResponseEntity.ok(articleService.getPremiumArticles());
-    }
+
 
     @GetMapping("/{articleId}")
     @Operation(

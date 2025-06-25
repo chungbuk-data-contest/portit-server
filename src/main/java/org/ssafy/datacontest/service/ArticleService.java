@@ -13,6 +13,5 @@ public interface ArticleService {
     void deleteArticle(Long articleId, String userName);
     ArticleDetailResponse getArticle(Long articleId, String userName);
     SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
-    List<ArticlesResponseDto> getPremiumArticles();
     List<String> generateTags(GptRequest gptRequest);
 }

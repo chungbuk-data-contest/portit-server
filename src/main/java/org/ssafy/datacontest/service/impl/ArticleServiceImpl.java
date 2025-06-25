@@ -205,19 +205,6 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticlesResponseDto> getPremiumArticles() {
-        List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
-        List<Long> premiumIds = premiumArticles.stream()
-                .map(Article::getArtId)
-                .toList();
-
-        Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
-        List<ArticlesResponseDto> premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
-
-        return premiumDtoList;
-    }
-
-    @Override
     public List<String> generateTags(GptRequest gptRequest) {
         String prompt = String.format("""
             다음 작품 설명을 기반으로 4글자의 태그 2개를 생성해줘. 해시태그 기호 없이, 콤마로 구분해서 응답해줘.
