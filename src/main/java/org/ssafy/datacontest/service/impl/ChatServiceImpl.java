@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
         // 보여줄 이름 (닉네임 or 회사명)
         String senderName;
         if (room.getUser().getLoginId().equals(loginId)) {
-            senderName = room.getUser().getNickname();
+            senderName = room.getUser().getLoginId();
         } else if (room.getCompany().getLoginId().equals(loginId)) {
             senderName = room.getCompany().getCompanyName();
         } else {
