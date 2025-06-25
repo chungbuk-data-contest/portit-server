@@ -42,12 +42,12 @@ public class ArticleServiceImpl implements ArticleService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
-    private final PremiumRepository premiumRepository;
     private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
     private final CompanyRepository companyRepository;
     private final GptUtil gptUtil;
     private final ArticleLikeRepository articleLikeRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     @Override
@@ -215,6 +215,28 @@ public class ArticleServiceImpl implements ArticleService {
         return Arrays.stream(response.split(","))
                 .map(String::trim)
                 .toList();
+    }
+
+    @Override
+    public List<MyArticleResponse> getMyArticles(String userName, Long companyId) {
+        User user = userRepository.findByLoginId(userName);
+        Company company = companyRepository.findByCompanyId(companyId);
+        if(user == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+        if(company == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
+
+        List<Article> articles = articleRepository.findByUser_Id(user.getId());
+
+        List<MyArticleResponse> myArticleResponses = new ArrayList<>();
+        if(articles == null) return myArticleResponses;
+
+        for(Article article : articles) {
+            boolean isChatting = false;
+            ChatRoom chat = chatRoomRepository.findByArticle_ArtIdAndCompany_CompanyId(article.getArtId(), companyId);
+            if(chat != null) isChatting = true;
+            myArticleResponses.add(ArticleMapper.toMyArticleResponse(article, isChatting));
+        }
+
+        return myArticleResponses;
     }
 
     private String generateIndustry(GptRequest gptRequest) {
