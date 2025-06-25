@@ -123,4 +123,10 @@ public class ArticleController {
         List<String> tags = articleService.generateTags(gptRequest);
         return ResponseEntity.ok(tags);
     }
+
+    @GetMapping("/my/{companyId}")
+    @Operation(summary = "내 작품 조회", description = "작품 제안하기용")
+    public ResponseEntity<List<MyArticleResponse>> getMyArticles(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("companyId") Long companyId) {
+        return ResponseEntity.ok(articleService.getMyArticles(userDetails.getUsername(), companyId));
+    }
 }

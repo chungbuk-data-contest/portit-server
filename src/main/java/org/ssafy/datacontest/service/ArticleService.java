@@ -14,4 +14,5 @@ public interface ArticleService {
     ArticleDetailResponse getArticle(Long articleId, String userName);
     SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
     List<String> generateTags(GptRequest gptRequest);
+    List<MyArticleResponse> getMyArticles(String userName, Long companyId);
 }
