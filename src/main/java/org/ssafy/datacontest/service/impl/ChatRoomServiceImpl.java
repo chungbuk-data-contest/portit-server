@@ -72,13 +72,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             }
         }
         ChatRoom existingRoom = chatRoomRepository.findByUserIdAndCompanyCompanyIdAndArticleArtId(user.getId(), company.getCompanyId(), article.getArtId());
+
         if (existingRoom != null) {
-            return ChatRoomMapper.toDto(existingRoom, article);
+            String partnerName = role.equals("ROLE_USER")
+                    ? existingRoom.getCompany().getCompanyName()
+                    : existingRoom.getUser().getNickname();
+            return ChatRoomMapper.toDto(existingRoom, article, partnerName);
         }
         ChatRoom chatRoom = ChatRoomMapper.toEntity(user, company, article);
-
+        String partnerName = role.equals("ROLE_USER")
+                ? chatRoom.getCompany().getCompanyName()
+                : chatRoom.getUser().getNickname();
         chatRoomRepository.save(chatRoom);
-        return ChatRoomMapper.toDto(chatRoom, article);
+        return ChatRoomMapper.toDto(chatRoom, article, partnerName);
     }
 
     @Override
@@ -163,8 +169,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 3. 작품 정보 추출
         Article article = chatRoom.getArticle();
 
+        String partnerName = role.equals("ROLE_USER")
+                ? chatRoom.getCompany().getCompanyName()
+                : chatRoom.getUser().getNickname();
+
         return ChatRoomJoinResponse.builder()
                 .articleId(article.getArtId())
+                .partnerName(partnerName)
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())
                 .thumbnailUrl(article.getThumbnailUrl())
