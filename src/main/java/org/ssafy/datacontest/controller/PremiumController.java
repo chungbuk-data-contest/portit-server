@@ -26,4 +26,5 @@ public class PremiumController {
     public ResponseEntity<PremiumResponse> registerPremium(@PathVariable("articleId") Long articleId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(premiumService.registerPremium(articleId, userDetails.getUsername()));
     }
+
 }

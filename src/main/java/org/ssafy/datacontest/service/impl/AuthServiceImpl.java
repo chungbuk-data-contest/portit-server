@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,8 @@ import org.ssafy.datacontest.mapper.UserMapper;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.AuthService;
+import org.ssafy.datacontest.service.CompanyService;
+import org.ssafy.datacontest.service.UserService;
 import org.ssafy.datacontest.validation.CompanyValidation;
 import org.ssafy.datacontest.validation.UserValidation;
 
@@ -69,5 +72,27 @@ public class AuthServiceImpl implements AuthService {
         if(existsUser) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_NICKNAME);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteAccount(String username) {
+        User user = userRepository.findByLoginId(username);
+        Company company = companyRepository.findByLoginId(username);
+
+        if(user == null && company == null)
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.USER_NOT_FOUND);
+
+        if(user != null) deleteUser(user);
+        if(company != null) deleteCompany(company);
+    }
+
+    private void deleteUser(User user){
+        userRepository.delete(user);
+    }
+
+    private void deleteCompany(Company company){
+
+        companyRepository.delete(company);
     }
 }

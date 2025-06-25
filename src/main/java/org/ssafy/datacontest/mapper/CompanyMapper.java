@@ -31,6 +31,7 @@ public class CompanyMapper {
                 .companyLoc(RegionType.fromAlias(request.getCompanyLoc()))
                 .hiring(request.getHiring())
                 .companyLink(request.getCompanyLink())
+                .deleted(false)
                 .build();
     }
 

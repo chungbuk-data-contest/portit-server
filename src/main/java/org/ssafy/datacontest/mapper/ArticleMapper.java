@@ -22,6 +22,7 @@ public class ArticleMapper {
                 .premium(false)
                 .thumbnailUrl(thumbnailUrl)
                 .industryType(industryType)
+                .deleted(false)
                 .build();
     }
 

@@ -15,8 +15,13 @@ public class User extends BaseUser {
 
     private String nickname;
     private boolean isStudent;
+    private boolean deleted;
 
     public void updateUser(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

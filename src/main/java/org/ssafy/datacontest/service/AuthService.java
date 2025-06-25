@@ -11,4 +11,6 @@ public interface AuthService {
     void checkUserLoginId(String loginId);
 
     void checkUserNickname(String nickname);
+
+    void deleteAccount(String username);
 }

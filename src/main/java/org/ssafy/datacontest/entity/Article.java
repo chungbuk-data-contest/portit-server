@@ -42,8 +42,10 @@ public class Article {
     @Enumerated(EnumType.STRING)
     private IndustryType industryType;
 
+    private boolean deleted;
+
     @Builder
-    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium, IndustryType industryType) {
+    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium, IndustryType industryType, boolean deleted) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
@@ -52,6 +54,7 @@ public class Article {
         this.thumbnailUrl = thumbnailUrl;
         this.premium = premium;
         this.industryType = industryType;
+        this.deleted = deleted;
     }
 
     public void updateArticle(String title, String description, String externalLink, Category category, String thumbnailUrl) {
@@ -60,6 +63,10 @@ public class Article {
         this.externalLink = externalLink;
         this.category = category;
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public void updateDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public void decreaseLikeCount() {
