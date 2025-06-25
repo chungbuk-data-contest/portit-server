@@ -10,4 +10,5 @@ public class LikedArticleResponse {
     private String articleTitle;
     private Long likeCount;
     private String thumbnailUrl;
+    private boolean premium;
 }

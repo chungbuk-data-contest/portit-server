@@ -87,6 +87,9 @@ public class CompanyMapper {
                 .companyName(company.getCompanyName())
                 .companyDescription(company.getCompanyDescription())
                 .companyLoginId(company.getLoginId())
+                .companyLink(company.getCompanyLink())
+                .companyField(company.getCompanyField())
+                .companyLoc(company.getCompanyLoc())
                 .likedArticle(likedArticle)
                 .hiring(company.getHiring())
                 .build();

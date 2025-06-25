@@ -2,6 +2,8 @@ package org.ssafy.datacontest.dto.company;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.ssafy.datacontest.enums.IndustryType;
+import org.ssafy.datacontest.enums.RegionType;
 
 import java.util.List;
 
@@ -13,6 +15,9 @@ public class CompanyResponse {
     private String companyName;
     private String companyDescription;
     private String companyLoginId;
+    private IndustryType companyField;
+    private RegionType companyLoc;
+    private String companyLink;
     private List<LikedArticleResponse> likedArticle;
     private boolean hiring;
 }

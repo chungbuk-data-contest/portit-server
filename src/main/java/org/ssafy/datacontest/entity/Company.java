@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.ssafy.datacontest.dto.company.CompanyUpdateRequest;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 
@@ -37,8 +38,12 @@ public class Company extends BaseUser{
     private Boolean hiring;
     private String companyLink;
 
-    public void updateCompany(String companyName, Boolean hiring) {
-        this.companyName = companyName;
-        this.hiring = hiring;
+    public void updateCompany(CompanyUpdateRequest request) {
+        this.companyName = request.getCompanyName();
+        this.hiring = request.getHiring();
+        this.companyDescription = request.getCompanyDescription();
+        this.companyField = IndustryType.fromAlias(request.getCompanyField());
+        this.companyLoc = RegionType.fromAlias(request.getCompanyLoc());
+        this.companyLink = request.getCompanyLink();
     }
 }

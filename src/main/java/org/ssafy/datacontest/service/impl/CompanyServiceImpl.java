@@ -23,6 +23,7 @@ import org.ssafy.datacontest.repository.ArticleLikeRepository;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.service.CompanyService;
+import org.ssafy.datacontest.validation.CompanyValidation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final PasswordEncoder passwordEncoder;
     private final ArticleLikeRepository articleLikeRepository;
     private final ArticleRepository articleRepository;
+    private final CompanyValidation companyValidation;
 
     @Transactional // 중간에 하나라도 실패하면 전부 롤백
     public void fetchAndSaveCompanies() {
@@ -128,7 +130,9 @@ public class CompanyServiceImpl implements CompanyService {
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
         }
 
-        company.updateCompany(companyUpdateRequest.getCompanyName(), companyUpdateRequest.getHiring());
+        companyValidation.validateUpdateCompany(companyUpdateRequest);
+
+        company.updateCompany(companyUpdateRequest);
         return company.getCompanyId();
     }
 }
