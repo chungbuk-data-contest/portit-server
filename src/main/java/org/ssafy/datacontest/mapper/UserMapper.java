@@ -40,6 +40,7 @@ public class UserMapper {
                 .companyName(company.getCompanyName())
                 .articleTitle(article.getTitle())
                 .readed(like.isReaded())
+                .alertId(like.getLikeId())
                 .build();
     }
 }

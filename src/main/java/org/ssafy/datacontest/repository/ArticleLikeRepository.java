@@ -10,4 +10,5 @@ public interface ArticleLikeRepository extends JpaRepository<Like, Long> {
     Optional<Like> findByCompany_CompanyIdAndArticle_ArtId(Long articleId, Long companyId);
     List<Like> findByCompany_CompanyId(Long companyId);
     List<Like> findByUser_Id(Long userId);
+    Like findByLikeId(Long likeId);
 }

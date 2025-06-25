@@ -72,6 +72,7 @@ public class CompanyServiceImpl implements CompanyService {
             Like newLike = Like.builder()
                     .company(company)
                     .article(article)
+                    .readed(false)
                     .user(article.getUser())
                     .build();
             articleLikeRepository.save(newLike);

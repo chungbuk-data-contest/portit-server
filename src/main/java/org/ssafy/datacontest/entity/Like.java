@@ -1,10 +1,7 @@
 package org.ssafy.datacontest.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -33,6 +30,7 @@ public class Like {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Setter
     private boolean readed;
 
     @Builder

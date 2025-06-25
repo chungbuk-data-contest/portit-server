@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserAlertResponse {
+    private Long alertId;
     private Long companyId;
     private String companyName;
     private String articleTitle;

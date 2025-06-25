@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.ssafy.datacontest.dto.company.CompanySummaryResponse;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.dto.user.UserAlertResponse;
 import org.ssafy.datacontest.dto.user.UserResponse;
@@ -49,5 +50,14 @@ public class UserController {
     )
     public ResponseEntity<List<UserAlertResponse>> getUserAlert(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(userService.getUserAlerts(userDetails.getUsername()));
+    }
+
+    @PostMapping("/alert/{alertId}")
+    @Operation(
+            summary = "알림 클릭 시 해당 기업 반환",
+            description = "알림 클릭 시 읽음 처리 및 해당 기업 정보 반환합니다."
+    )
+    public ResponseEntity<CompanySummaryResponse> checkAlert(@PathVariable("alertId") Long alertId, @AuthenticationPrincipal CustomUserDetails userDetails){
+        return ResponseEntity.ok(userService.checkAlert(alertId, userDetails.getUsername()));
     }
 }

@@ -4,22 +4,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.ssafy.datacontest.dto.company.CompanySummaryResponse;
 import org.ssafy.datacontest.dto.company.LikedArticleResponse;
 import org.ssafy.datacontest.dto.user.UserAlertResponse;
 import org.ssafy.datacontest.dto.user.UserResponse;
 import org.ssafy.datacontest.dto.user.UserUpdateRequest;
-import org.ssafy.datacontest.entity.Article;
-import org.ssafy.datacontest.entity.Company;
-import org.ssafy.datacontest.entity.Like;
-import org.ssafy.datacontest.entity.User;
+import org.ssafy.datacontest.entity.*;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleLikeMapper;
+import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.mapper.UserMapper;
-import org.ssafy.datacontest.repository.ArticleLikeRepository;
-import org.ssafy.datacontest.repository.ArticleRepository;
-import org.ssafy.datacontest.repository.CompanyRepository;
-import org.ssafy.datacontest.repository.UserRepository;
+import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.UserService;
 
 import java.util.ArrayList;
@@ -33,12 +29,14 @@ public class UserServiceImpl implements UserService {
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final CompanyRepository companyRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
-    public UserServiceImpl(UserRepository userRepository, ArticleRepository articleRepository, ArticleLikeRepository articleLikeRepository, CompanyRepository companyRepository) {
+    public UserServiceImpl(UserRepository userRepository, ArticleRepository articleRepository, ArticleLikeRepository articleLikeRepository, CompanyRepository companyRepository, ChatRoomRepository chatRoomRepository) {
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
         this.articleLikeRepository = articleLikeRepository;
         this.companyRepository = companyRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
 
     @Override
@@ -90,5 +88,19 @@ public class UserServiceImpl implements UserService {
         }
 
         return userAlertResponses;
+    }
+
+    @Override
+    @Transactional
+    public CompanySummaryResponse checkAlert(Long alertId, String userName) {
+        Like like = articleLikeRepository.findByLikeId(alertId);
+        like.setReaded(true);
+
+        Company company = companyRepository.findByCompanyId(like.getCompany().getCompanyId());
+        ChatRoom chatRoom = chatRoomRepository.findByArticle_ArtIdAndCompany_CompanyId(like.getArticle().getArtId(), company.getCompanyId());
+
+        boolean chatting = false;
+        if(chatRoom != null) chatting = true;
+        return CompanyMapper.toCompanySummaryResponse(company, chatting);
     }
 }
