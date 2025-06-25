@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,11 +22,19 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
+    @Operation(
+            summary = "유저 조회",
+            description = "유저 정보를 조회합니다."
+    )
     public ResponseEntity<UserResponse> getUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(userService.getUser(userDetails.getUsername()));
     }
 
-    @PatchMapping("")
+    @PutMapping("")
+    @Operation(
+            summary = "유저 정보 수정",
+            description = "수정되지 않은 필드도 다 보내주세요."
+    )
     public ResponseEntity<Long> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(userService.updateUser(userUpdateRequest, userDetails.getUsername()));
     }

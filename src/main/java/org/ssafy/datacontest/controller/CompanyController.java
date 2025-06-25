@@ -16,6 +16,7 @@ import retrofit2.http.Path;
 
 import javax.swing.plaf.synth.Region;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,15 +61,17 @@ public class CompanyController {
 
     @GetMapping("/mypage")
     @Operation(
-            summary = "기업 마이페이지 조회"
+            summary = "기업 정보 조회",
+            description = "기업 마이페이지 정보를 조회합니다."
     )
     public ResponseEntity<CompanyResponse> getCompany(@AuthenticationPrincipal CustomUserDetails userDetails){
         return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
     }
 
-    @PatchMapping("")
+    @PutMapping("")
     @Operation(
-            summary = "기업 마이페이지 일부 수정"
+            summary = "기업 정보 수정",
+            description = "수정되지 않은 필드도 다 보내주세요."
     )
     public ResponseEntity<Long> updateCompany(@RequestBody CompanyUpdateRequest companyUpdateRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(companyService.updateCompany(companyUpdateRequest, userDetails.getUsername()));

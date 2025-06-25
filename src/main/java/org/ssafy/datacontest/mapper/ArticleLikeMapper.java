@@ -19,6 +19,7 @@ public class ArticleLikeMapper {
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())
                 .thumbnailUrl(article.getThumbnailUrl())
+                .premium(article.isPremium())
                 .build();
     }
 }
