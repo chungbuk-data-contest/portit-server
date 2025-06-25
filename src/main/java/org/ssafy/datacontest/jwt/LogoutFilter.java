@@ -69,7 +69,7 @@ public class LogoutFilter extends GenericFilterBean {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-
+        logger.info("null check passed");
         // expired check
         try{
             jwtUtil.isExpired(refresh);
@@ -77,6 +77,7 @@ public class LogoutFilter extends GenericFilterBean {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+        logger.info("expired check passed");
 
         // 토큰이 refresh 인지 확인(발급 시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
@@ -84,6 +85,7 @@ public class LogoutFilter extends GenericFilterBean {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+        logger.info("category check passed");
 
         // DB에 저장되어 있는 지 확인
         String loginId = jwtUtil.getLoginId(refresh);
@@ -92,6 +94,8 @@ public class LogoutFilter extends GenericFilterBean {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+
+        logger.info("refresh save check passed");
 
         String role = jwtUtil.getRole(refresh);
         // 로그아웃 진행
