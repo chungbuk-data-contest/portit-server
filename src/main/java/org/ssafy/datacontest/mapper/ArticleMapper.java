@@ -4,6 +4,7 @@ import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.ChatRoom;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.IndustryType;
@@ -54,6 +55,16 @@ public class ArticleMapper {
                 .createdAt(article.getCreatedAt())
                 .likeCount(article.getLikeCount())
                 .userName(article.getUser().getNickname())
+                .build();
+    }
+
+    public static MyArticleResponse toMyArticleResponse(Article article, boolean chatting) {
+        return MyArticleResponse.builder()
+                .articleId(article.getArtId())
+                .articleTitle(article.getTitle())
+                .thumbnailUrl(article.getThumbnailUrl())
+                .likeCount(article.getLikeCount())
+                .chatting(chatting)
                 .build();
     }
 }

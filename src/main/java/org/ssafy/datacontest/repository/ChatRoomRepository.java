@@ -14,4 +14,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     List<ChatRoom> findByCompanyCompanyId(Long id);
 
     ChatRoom findByUserIdAndCompanyCompanyIdAndArticleArtId(Long userId, Long companyId, Long articleId);
+
+    ChatRoom findByArticle_ArtIdAndCompany_CompanyId(Long articleId, Long companyId);
 }
