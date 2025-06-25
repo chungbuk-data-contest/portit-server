@@ -3,6 +3,7 @@ package org.ssafy.datacontest.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Where;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.IndustryType;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "Article")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted = false")
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,14 +38,18 @@ public class Article {
     private LocalDateTime createdAt;
 
     private String thumbnailUrl;
+
     @Setter
     private boolean premium;
 
     @Enumerated(EnumType.STRING)
     private IndustryType industryType;
 
+    @Setter
+    private boolean deleted;
+
     @Builder
-    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium, IndustryType industryType) {
+    public Article(String title, String description, String externalLink, Category category, User user, String thumbnailUrl, boolean premium, IndustryType industryType, boolean deleted) {
         this.title = title;
         this.description = description;
         this.externalLink = externalLink;
@@ -52,6 +58,7 @@ public class Article {
         this.thumbnailUrl = thumbnailUrl;
         this.premium = premium;
         this.industryType = industryType;
+        this.deleted = deleted;
     }
 
     public void updateArticle(String title, String description, String externalLink, Category category, String thumbnailUrl) {

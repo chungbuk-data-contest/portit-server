@@ -6,7 +6,6 @@ import org.ssafy.datacontest.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
     User findByLoginId(String email);
 
     boolean existsByLoginId(String email);

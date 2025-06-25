@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.register.CompanyRegisterRequest;
 import org.ssafy.datacontest.dto.register.LoginRequest;
@@ -54,6 +56,13 @@ public class AuthController {
     public ResponseEntity<Void> checkUserNickname(@RequestParam String nickname) {
         authService.checkUserNickname(nickname);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "회원 삭제", description = "User, Company 회원 삭제")
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        authService.deleteAccount(userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
 }

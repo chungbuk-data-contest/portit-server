@@ -17,6 +17,7 @@ public class UserMapper {
                 .phoneNum(userRegisterRequest.getPhoneNum())
                 .profileImage(userRegisterRequest.getProfileImage())
                 .role("ROLE_USER")
+                .deleted(false)
                 .build();
     }
 

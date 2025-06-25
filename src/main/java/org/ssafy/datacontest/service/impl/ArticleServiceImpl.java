@@ -28,7 +28,6 @@ import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
 import org.ssafy.datacontest.util.GptUtil;
 import org.ssafy.datacontest.validation.ArticleValidation;
-import org.ssafy.datacontest.validation.PremiumValidation;
 
 import java.security.MessageDigest;
 import java.util.*;
@@ -55,7 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
         User user = userRepository.findByLoginId(userName);
 
-        articleValidation.isValidRequest(articleRequestDto); // null 여부 처리
+        articleValidation.isValidRequest(articleRequestDto);
 
         List<MultipartFile> files = articleRequestDto.getFiles();
         MultipartFile thumbnail = articleRequestDto.getThumbnail();
@@ -102,6 +101,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleValidation.checkUserAuthorizationForArticle(user, article);
         articleValidation.isValidRequest(articleRequestDto);
+        articleValidation.isExistArticle(article);
 
         // 이미지 수정 혹은 순서 변경 반영
         List<Image> existingFile = imageRepository.findByArticle(article);
@@ -155,23 +155,15 @@ public class ArticleServiceImpl implements ArticleService {
         // 권한 확인 ( ==, != 는 객체 주소(참조)로 비교하기에 다를 수 있음 )
         articleValidation.checkUserAuthorizationForArticle(user, article);
 
-        // 파일 조회 => s3 삭제
-        List<Image> images = imageRepository.findByArticle(article);
-        deleteFile(images);
-
-        premiumRepository.deleteByArticle_ArtId(article.getArtId());
-        imageRepository.deleteByArticle(article);
-        tagRepository.deleteByArticle(article);
-
-        // 썸네일 s3 존재할 경우 삭제
-        deleteImageUrl(article.getThumbnailUrl());
-        articleRepository.deleteById(articleId); // 글 삭제
+        article.setDeleted(true);
     }
 
     @Override
     public ArticleDetailResponse getArticle(Long articleId, String userName) {
         Article article = getArticleOrThrow(articleId);
         User user = article.getUser();
+
+        articleValidation.isExistArticle(article);
 
         boolean liked = false;
 
@@ -210,19 +202,6 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticlesResponseDto> dtoList = mapArticlesToDtoList(articleList, tagMap);
 
         return new SliceResponseDto<>(dtoList, articles.hasNext());
-    }
-
-    @Override
-    public List<ArticlesResponseDto> getPremiumArticles() {
-        List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
-        List<Long> premiumIds = premiumArticles.stream()
-                .map(Article::getArtId)
-                .toList();
-
-        Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
-        List<ArticlesResponseDto> premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
-
-        return premiumDtoList;
     }
 
     @Override
@@ -307,12 +286,6 @@ public class ArticleServiceImpl implements ArticleService {
             if (fileUrl != null && !fileUrl.isBlank()) {
                 s3FileService.deleteFile(fileUrl);
             }
-        }
-    }
-
-    private void deleteImageUrl(String fileUrl) {
-        if(fileUrl != null && !fileUrl.isBlank()) {
-            s3FileService.deleteFile(fileUrl);
         }
     }
 

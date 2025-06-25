@@ -5,21 +5,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 import org.ssafy.datacontest.dto.premium.PremiumResponse;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Premium;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
+import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.PremiumMapper;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.PremiumRepository;
+import org.ssafy.datacontest.repository.TagRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.PremiumService;
 import org.ssafy.datacontest.validation.ArticleValidation;
 import org.ssafy.datacontest.validation.PremiumValidation;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +37,7 @@ public class PremiumServiceImpl implements PremiumService {
     private final ArticleRepository articleRepository;
     private final ArticleValidation articleValidation;
     private final PremiumValidation premiumValidation;
+    private final TagRepository tagRepository;
 
     @Override
     @Transactional
@@ -52,5 +59,37 @@ public class PremiumServiceImpl implements PremiumService {
         Premium premium = premiumRepository.save(PremiumMapper.toEntity(article));
 
         return PremiumMapper.toResponse(premium);
+    }
+
+    @Override
+    public List<ArticlesResponseDto> getPremiumArticles() {
+        List<Article> premiumArticles = articleRepository.findRandomPremiumArticles(4);
+        List<Long> premiumIds = premiumArticles.stream()
+                .map(Article::getArtId)
+                .toList();
+
+        Map<Long, List<String>> premiumTagMap = getTagMapByArticleIds(premiumIds);
+        List<ArticlesResponseDto> premiumDtoList = mapArticlesToDtoList(premiumArticles, premiumTagMap);
+
+        return premiumDtoList;
+    }
+
+    private List<ArticlesResponseDto> mapArticlesToDtoList(List<Article> articles, Map<Long, List<String>> tagMap) {
+        return articles.stream()
+                .map(article -> ArticleMapper.toArticlesResponseDto(
+                        article,
+                        tagMap.getOrDefault(article.getArtId(), List.of())
+                ))
+                .toList();
+    }
+
+    private Map<Long, List<String>> getTagMapByArticleIds(List<Long> articleIds) {
+        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
+
+        return rawTagData.stream()
+                .collect(Collectors.groupingBy(
+                        row -> ((Number) row[0]).longValue(),
+                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
+                ));
     }
 }

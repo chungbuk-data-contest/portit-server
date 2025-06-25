@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 
@@ -15,6 +17,7 @@ import org.ssafy.datacontest.enums.RegionType;
 @SuperBuilder
 @NoArgsConstructor // 기본 생성자 자동 생성
 @AllArgsConstructor // 모든 필드를 인자로 받는 생성자를 자동 생성
+@Where(clause = "deleted = false")
 public class Company extends BaseUser{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
