@@ -14,6 +14,7 @@ import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.Like;
+import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleLikeMapper;
@@ -22,6 +23,7 @@ import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.repository.ArticleLikeRepository;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
+import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.CompanyService;
 import org.ssafy.datacontest.validation.CompanyValidation;
 
@@ -36,6 +38,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
     private final PublicApiClient publicApiClient;
     private final PasswordEncoder passwordEncoder;
     private final ArticleLikeRepository articleLikeRepository;
@@ -69,6 +72,7 @@ public class CompanyServiceImpl implements CompanyService {
             Like newLike = Like.builder()
                     .company(company)
                     .article(article)
+                    .user(article.getUser())
                     .build();
             articleLikeRepository.save(newLike);
             article.increaseLikeCount();

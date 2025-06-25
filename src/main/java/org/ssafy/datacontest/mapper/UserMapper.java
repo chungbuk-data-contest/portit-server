@@ -3,7 +3,11 @@ package org.ssafy.datacontest.mapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.ssafy.datacontest.dto.company.LikedArticleResponse;
 import org.ssafy.datacontest.dto.register.UserRegisterRequest;
+import org.ssafy.datacontest.dto.user.UserAlertResponse;
 import org.ssafy.datacontest.dto.user.UserResponse;
+import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.Company;
+import org.ssafy.datacontest.entity.Like;
 import org.ssafy.datacontest.entity.User;
 
 import java.util.List;
@@ -27,6 +31,15 @@ public class UserMapper {
                 .userNickname(user.getNickname())
                 .userLoginId(user.getLoginId())
                 .myArticles(myArticles)
+                .build();
+    }
+
+    public static UserAlertResponse toAlertResponse(Company company, Like like, Article article) {
+        return UserAlertResponse.builder()
+                .companyId(company.getCompanyId())
+                .companyName(company.getCompanyName())
+                .articleTitle(article.getTitle())
+                .readed(like.isReaded())
                 .build();
     }
 }

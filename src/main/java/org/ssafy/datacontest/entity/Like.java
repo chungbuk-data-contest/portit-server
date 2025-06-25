@@ -23,16 +23,24 @@ public class Like {
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    private boolean readed;
+
     @Builder
-    public Like(Article article, Company company) {
+    public Like(Article article, Company company, User user, boolean readed) {
         this.article = article;
         this.company = company;
+        this.user = user;
+        this.readed = readed;
         this.createdAt = LocalDateTime.now();
     }
 }

@@ -5,31 +5,40 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.company.LikedArticleResponse;
+import org.ssafy.datacontest.dto.user.UserAlertResponse;
 import org.ssafy.datacontest.dto.user.UserResponse;
 import org.ssafy.datacontest.dto.user.UserUpdateRequest;
 import org.ssafy.datacontest.entity.Article;
+import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.Like;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleLikeMapper;
 import org.ssafy.datacontest.mapper.UserMapper;
+import org.ssafy.datacontest.repository.ArticleLikeRepository;
 import org.ssafy.datacontest.repository.ArticleRepository;
+import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final CompanyRepository companyRepository;
 
-    public UserServiceImpl(UserRepository userRepository, ArticleRepository articleRepository) {
+    public UserServiceImpl(UserRepository userRepository, ArticleRepository articleRepository, ArticleLikeRepository articleLikeRepository, CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
+        this.articleLikeRepository = articleLikeRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override
@@ -63,5 +72,23 @@ public class UserServiceImpl implements UserService {
 
         user.updateUser(userUpdateRequest.getUserNickname());
         return user.getId();
+    }
+
+    @Override
+    public List<UserAlertResponse> getUserAlerts(String userName) {
+        User user = userRepository.findByLoginId(userName);
+        if(user == null) throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+
+        List<Like> likes = articleLikeRepository.findByUser_Id(user.getId());
+        if(likes.isEmpty()) return new ArrayList<>();
+
+        List<UserAlertResponse> userAlertResponses = new ArrayList<>();
+        for (Like like : likes) {
+            Company company = companyRepository.findByCompanyId(like.getCompany().getCompanyId());
+            Article article = articleRepository.findDeletedArticleById(like.getArticle().getArtId());
+            userAlertResponses.add(UserMapper.toAlertResponse(company, like, article));
+        }
+
+        return userAlertResponses;
     }
 }
