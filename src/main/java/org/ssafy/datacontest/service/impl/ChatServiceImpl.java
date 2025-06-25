@@ -50,7 +50,7 @@ public class ChatServiceImpl implements ChatService {
         if (room.getUser().getLoginId().equals(loginId)) {
             senderName = room.getUser().getLoginId();
         } else if (room.getCompany().getLoginId().equals(loginId)) {
-            senderName = room.getCompany().getCompanyName();
+            senderName = room.getCompany().getLoginId();
         } else {
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_USER);
         }
