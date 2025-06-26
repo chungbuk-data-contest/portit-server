@@ -35,7 +35,9 @@ public enum IndustryType {
         String trimmedInput = input.trim();
 
         return Arrays.stream(values())
-                .filter(type -> type.label.equalsIgnoreCase(trimmedInput) || type.aliases.contains(trimmedInput))
+                .filter(type -> type.label.equalsIgnoreCase(trimmedInput)
+                        || type.name().equalsIgnoreCase(trimmedInput)
+                        || type.aliases.contains(trimmedInput))
                 .findFirst()
                 .orElseThrow(() -> {
                     log.info(input);
