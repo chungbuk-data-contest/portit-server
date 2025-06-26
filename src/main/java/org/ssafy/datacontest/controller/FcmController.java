@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.ssafy.datacontest.dto.fcm.FcmTokenRequest;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.service.FcmService;
@@ -52,5 +49,10 @@ public class FcmController {
         return ResponseEntity.ok().build();
     }
 
-
+    @PostMapping("like")
+    public ResponseEntity<Void> sendLikeNotification(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                     @RequestParam Long articleId) {
+        fcmService.sendLikeNotification(userDetails.getUsername(), articleId);
+        return ResponseEntity.ok().build();
+    }
 }

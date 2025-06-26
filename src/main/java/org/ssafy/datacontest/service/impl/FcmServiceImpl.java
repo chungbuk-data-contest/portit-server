@@ -14,10 +14,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.fcm.FcmTokenRequest;
+import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
+import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.FcmService;
@@ -34,11 +36,13 @@ public class FcmServiceImpl implements FcmService {
     private static final String API_URL ="https://fcm.googleapis.com/v1/projects/portit-ac611/messages:send";
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
+    private final ArticleRepository articleRepository;
 
     @Autowired
-    public FcmServiceImpl(UserRepository userRepository, CompanyRepository companyRepository) {
+    public FcmServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, ArticleRepository articleRepository) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
+        this.articleRepository = articleRepository;
     }
 
     @PostConstruct
@@ -92,6 +96,27 @@ public class FcmServiceImpl implements FcmService {
                 company.setFcmToken(token);
                 companyRepository.save(company);
             }
+        }
+    }
+
+    @Override
+    public void sendLikeNotification(String loginId, Long articleId) {
+        Article article = articleRepository.findByArtId(articleId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.ARTICLE_NOT_FOUND));
+        String targetToken = article.getUser().getFcmToken();
+        Company company = companyRepository.findByLoginId(loginId);
+
+        if (targetToken == null || targetToken.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.FCM_TOKEN_NOT_FOUND);
+        }
+
+        String title = "작품에 관심이 등록되었어요!";
+        String body = String.format("'%s' 작품에 '%s' 기업이 관심을 표현했습니다.", article.getTitle(), company.getCompanyName());
+
+        try{
+            sendMessage(targetToken, title, body);
+        } catch (IOException e) {
+            log.error("FCM 알림 전송 실패 : {}", e.getMessage());
         }
     }
 
