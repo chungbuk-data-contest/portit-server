@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### firebase ###
+/src/main/resources/firebase/portit-firebase.json

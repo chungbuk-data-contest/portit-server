@@ -30,6 +30,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         builder.and(article.deleted.eq(false));
 
+        // 원래 코드(시은)
         // 카테고리 필터링
         if (request.getKeyword() == null || request.getKeyword().isBlank()) {
             if (request.getCategory() != null && !request.getCategory().isEmpty()) {
@@ -42,6 +43,24 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                     .or(article.user.nickname.containsIgnoreCase(request.getKeyword())));
         }
 
+
+        // TODO: 시은이가 코드랑 주석 확인하기
+        // 내가 바꾼 코드(동근)
+        // 앱에서 기획 카테고리를 선택하고, keyword에 "test" 를 입력했을 때
+        // 기획 카테고리에서 keyword에 test 가 존재하는 작품이 아닌,
+        // 카테고리는 제외하고 keyword에 test가 포함된 작품을 다 반환함.
+        // 승훈이 의도는 카테고리랑 keyword 둘 다 만족하는 작품을 반환받고 싶어하는데
+        // 둘이 얘기해보고 둘 중 하나로 바꾼 다음 지워
+//        // category 항상 적용
+//                if (request.getCategory() != null && !request.getCategory().isEmpty()) {
+//                    builder.and(article.category.in(request.getCategory()));
+//                }
+//
+//        // keyword 있으면 검색 필터 추가
+//                if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+//                    builder.and(article.title.containsIgnoreCase(request.getKeyword())
+//                            .or(article.user.nickname.containsIgnoreCase(request.getKeyword())));
+//                }
         // 정렬 기준별 커서 조건 추가
         switch (request.getSortType()) {
             case POPULAR -> {
