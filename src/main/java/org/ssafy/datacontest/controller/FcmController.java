@@ -49,15 +49,4 @@ public class FcmController {
         fcmService.saveOrUpdateToken(fcmTokenRequest, userDetails.getUsername(), role);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("like")
-    public ResponseEntity<Void> sendLikeNotification(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                     @RequestParam Long articleId) {
-        boolean isSuccess = fcmService.sendLikeNotification(userDetails.getUsername(), articleId);
-
-        if (!isSuccess) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        return ResponseEntity.ok().build();
-    }
 }

@@ -77,21 +77,4 @@ public class FcmServiceImpl implements FcmService {
             }
         }
     }
-
-    @Override
-    public boolean sendLikeNotification(String loginId, Long articleId) {
-        Article article = articleRepository.findByArtId(articleId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.ARTICLE_NOT_FOUND));
-        String targetToken = article.getUser().getFcmToken();
-        Company company = companyRepository.findByLoginId(loginId);
-
-        if (targetToken == null || targetToken.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.FCM_TOKEN_NOT_FOUND);
-        }
-
-        String title = "작품에 관심이 등록되었어요!";
-        String body = String.format("'%s' 작품에 '%s' 기업이 관심을 표현했습니다.", article.getTitle(), company.getCompanyName());
-
-        return fcmUtil.sendMessage(targetToken, title, body);
-    }
 }

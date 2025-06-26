@@ -5,5 +5,4 @@ import org.ssafy.datacontest.dto.fcm.FcmTokenRequest;
 public interface FcmService {
     void saveOrUpdateToken(FcmTokenRequest fcmTokenRequest, String username, String role);
 
-    boolean sendLikeNotification(String loginId, Long articleId);
 }
