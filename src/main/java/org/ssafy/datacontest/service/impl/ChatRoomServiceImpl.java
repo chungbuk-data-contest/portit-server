@@ -93,23 +93,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Transactional
     @Override
-    public List<ChatMessageResponse> joinChatRoom(Long roomId, String username, String role) {
-        List<ChatMessage> unread = chatMessageRepository.findByRoomIdAndReadIsFalseAndSenderNot(roomId, username);
-        unread.forEach(m -> m.setRead(true));
-        chatMessageRepository.saveAll(unread);
-
-        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId)
-                .stream()
-                .map(m -> ChatMessageResponse.builder()
-                        .sender(m.getSender())
-                        .content(m.getContent())
-                        .sentAt(m.getSentAt())
-                        .build())
-                .toList();
-    }
-
-    @Transactional
-    @Override
     public ChatRoomJoinResponse joinAndGetRoomData(Long roomId, String username, String role) {
         List<ChatMessage> messages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
         messages.stream()
@@ -122,6 +105,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                         .sender(m.getSender())
                         .content(m.getContent())
                         .sentAt(m.getSentAt())
+                        .read(m.isRead())
                         .build())
                 .toList();
 
