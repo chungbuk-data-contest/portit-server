@@ -63,6 +63,7 @@ public class CompanyMapper {
     public static CompanyScrollResponse toCompanyScrollResponse(Company company) {
         return CompanyScrollResponse.builder()
                 .companyId(company.getCompanyId())
+                .companyLoginId(company.getLoginId())
                 .companyName(company.getCompanyName())
                 .companyDescription(company.getCompanyDescription())
                 .companyLink(company.getCompanyLink())
