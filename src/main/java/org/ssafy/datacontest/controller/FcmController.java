@@ -51,4 +51,6 @@ public class FcmController {
         fcmService.saveOrUpdateToken(fcmTokenRequest, userDetails.getUsername(), role);
         return ResponseEntity.ok().build();
     }
+
+
 }
