@@ -70,6 +70,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return ChatRoomMapper.toDto(newRoom, article, getPartnerName(newRoom, role));
     }
 
+
     @Override
     public List<ChatRoomResponse> readChatRoomsByUser(String loginId, String role) {
         List<ChatRoom> rooms = role.equals("ROLE_USER")
@@ -79,32 +80,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return rooms.stream()
                 .map(room -> {
                     ChatMessage last = getLastMessage(room.getId());
+
+                    boolean isRead;
+                    if (last == null) {
+                        isRead = true;
+                    } else if (last.getSender().equals(loginId)) {
+                        isRead = true;
+                    } else {
+                        isRead = last.isRead();
+                    }
+
                     return ChatRoomResponse.builder()
                             .roomId(room.getId())
                             .partnerName(getPartnerName(room, role))
                             .thumbnailUrl(room.getArticle().getThumbnailUrl())
                             .lastMessage(last != null ? last.getContent() : "")
                             .sentAt(last != null ? last.getSentAt() : null)
-                            .read(last == null || last.isRead())
+                            .read(isRead)
                             .build();
-                }).sorted(Comparator.comparing(ChatRoomResponse::getSentAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .toList();
-    }
-
-    @Transactional
-    @Override
-    public List<ChatMessageResponse> joinChatRoom(Long roomId, String username, String role) {
-        List<ChatMessage> unread = chatMessageRepository.findByRoomIdAndReadIsFalseAndSenderNot(roomId, username);
-        unread.forEach(m -> m.setRead(true));
-        chatMessageRepository.saveAll(unread);
-
-        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId)
-                .stream()
-                .map(m -> ChatMessageResponse.builder()
-                        .sender(m.getSender())
-                        .content(m.getContent())
-                        .sentAt(m.getSentAt())
-                        .build())
+                })
+                .sorted(Comparator.comparing(ChatRoomResponse::getSentAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
     }
 
@@ -122,6 +117,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                         .sender(m.getSender())
                         .content(m.getContent())
                         .sentAt(m.getSentAt())
+                        .read(m.isRead())
                         .build())
                 .toList();
 

@@ -13,7 +13,5 @@ public interface ChatRoomService {
 
     List<ChatRoomResponse> readChatRoomsByUser(String username, String role);
 
-    List<ChatMessageResponse> joinChatRoom(Long roomId, String username, String role);
-
     ChatRoomJoinResponse joinAndGetRoomData(Long roomId, String username, String role);
 }
