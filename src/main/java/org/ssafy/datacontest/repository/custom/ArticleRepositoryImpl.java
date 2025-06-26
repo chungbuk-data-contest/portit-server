@@ -37,8 +37,10 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         // keyword 필터링
         if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
-            builder.and(article.title.containsIgnoreCase(request.getKeyword())
-                    .or(article.user.nickname.containsIgnoreCase(request.getKeyword())));
+            BooleanBuilder keywordBuilder = new BooleanBuilder();
+            keywordBuilder.or(article.title.containsIgnoreCase(request.getKeyword()));
+            keywordBuilder.or(article.user.nickname.containsIgnoreCase(request.getKeyword()));
+            builder.and(keywordBuilder);
         }
 
         // 정렬 기준별 커서 조건 추가
