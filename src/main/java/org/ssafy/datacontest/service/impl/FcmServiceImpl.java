@@ -23,6 +23,7 @@ import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.FcmService;
+import org.ssafy.datacontest.util.FcmUtil;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,39 +38,17 @@ public class FcmServiceImpl implements FcmService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final ArticleRepository articleRepository;
+    private final FcmUtil fcmUtil;
 
     @Autowired
-    public FcmServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, ArticleRepository articleRepository) {
+    public FcmServiceImpl(UserRepository userRepository,
+                          CompanyRepository companyRepository,
+                          ArticleRepository articleRepository,
+                          FcmUtil fcmUtil) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.articleRepository = articleRepository;
-    }
-
-    @PostConstruct
-    public void initialize() {
-        try {
-            FirebaseApp firebaseApp = null;
-            List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
-            //Firebase app이 다시 로딩되지 않도록.
-            if(firebaseApps != null && !firebaseApps.isEmpty()){
-                for(FirebaseApp app : firebaseApps){
-                    if(app.getName().equals(FirebaseApp.DEFAULT_APP_NAME)) {
-                        firebaseApp = app;
-                    }
-                }
-            }else{
-                //Firebase initialize
-                InputStream credential = new ClassPathResource(FIREBASE_KEY_FILE).getInputStream();
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(credential))
-                        .build();
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (FileNotFoundException e) {
-            log.error("Firebase ServiceAccountKey FileNotFoundException" + e.getMessage());
-        } catch (IOException e) {
-            log.error("FirebaseOptions IOException" + e.getMessage());
-        }
+        this.fcmUtil = fcmUtil;
     }
 
     @Override
@@ -100,7 +79,7 @@ public class FcmServiceImpl implements FcmService {
     }
 
     @Override
-    public void sendLikeNotification(String loginId, Long articleId) {
+    public boolean sendLikeNotification(String loginId, Long articleId) {
         Article article = articleRepository.findByArtId(articleId)
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.ARTICLE_NOT_FOUND));
         String targetToken = article.getUser().getFcmToken();
@@ -113,61 +92,6 @@ public class FcmServiceImpl implements FcmService {
         String title = "작품에 관심이 등록되었어요!";
         String body = String.format("'%s' 작품에 '%s' 기업이 관심을 표현했습니다.", article.getTitle(), company.getCompanyName());
 
-        try{
-            sendMessage(targetToken, title, body);
-        } catch (IOException e) {
-            log.error("FCM 알림 전송 실패 : {}", e.getMessage());
-        }
-    }
-
-    public boolean sendMessage(String targetToken, String title, String body) throws IOException {
-        Notification noti = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
-
-        Message message = Message.builder()
-                .setToken(targetToken)
-                .setNotification(noti)
-                .build();
-
-        log.info("title : {}", message.toString());
-
-        try {
-            String response = FirebaseMessaging.getInstance().send(message);
-            // Response is a message ID string.
-            log.info("Successfully sent message: {}", response);
-            return true;
-        } catch (FirebaseMessagingException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean sendNotificationWithDataMessage(String targetToken, String title, String body, String data1, String data2) throws IOException {
-
-        Notification noti = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
-
-        Message message = Message.builder()
-                .setToken(targetToken)
-                .setNotification(noti)
-                .putData("data1", data1)
-                .putData("data2", data2)
-                .build();
-
-        log.info("title : {}", message.toString());
-
-        try {
-            String response = FirebaseMessaging.getInstance().send(message);
-            // Response is a message ID string.
-            log.info("Successfully sent message: {}", response);
-            return true;
-        } catch (FirebaseMessagingException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return fcmUtil.sendMessage(targetToken, title, body);
     }
 }

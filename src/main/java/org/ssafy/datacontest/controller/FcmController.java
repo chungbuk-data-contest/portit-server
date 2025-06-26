@@ -3,6 +3,7 @@ package org.ssafy.datacontest.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,7 +53,11 @@ public class FcmController {
     @PostMapping("like")
     public ResponseEntity<Void> sendLikeNotification(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                      @RequestParam Long articleId) {
-        fcmService.sendLikeNotification(userDetails.getUsername(), articleId);
+        boolean isSuccess = fcmService.sendLikeNotification(userDetails.getUsername(), articleId);
+
+        if (!isSuccess) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.ok().build();
     }
 }
