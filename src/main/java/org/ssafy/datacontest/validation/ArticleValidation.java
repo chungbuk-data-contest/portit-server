@@ -56,7 +56,7 @@ public class ArticleValidation {
 
         for (String tag : tagList) {
             if (tag.charAt(0) != '#') throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
-            if (tag.length() != 5) {
+            if (tag.length() > 5) {
                 throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_LENGTH);
             }
         }
