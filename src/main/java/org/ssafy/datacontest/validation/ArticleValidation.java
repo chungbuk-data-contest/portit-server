@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.validation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,7 @@ import org.ssafy.datacontest.exception.CustomException;
 
 import java.util.List;
 
+@Slf4j
 @Component
 public class ArticleValidation {
 
@@ -47,6 +49,7 @@ public class ArticleValidation {
 
     private void validateTagCount(List<String> tagList) {
         if(tagList.size() > 2) {
+            log.info("태그 개수 초과: {}", tagList.size());
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
         }
     }
