@@ -25,6 +25,7 @@ import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.CompanyService;
+import org.ssafy.datacontest.util.FcmUtil;
 import org.ssafy.datacontest.validation.CompanyValidation;
 
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final ArticleLikeRepository articleLikeRepository;
     private final ArticleRepository articleRepository;
     private final CompanyValidation companyValidation;
+    private final FcmUtil fcmUtil;
 
     @Transactional // 중간에 하나라도 실패하면 전부 롤백
     public void fetchAndSaveCompanies() {
@@ -76,12 +78,26 @@ public class CompanyServiceImpl implements CompanyService {
                     .user(article.getUser())
                     .build();
             articleLikeRepository.save(newLike);
+            sendLikeNotification(company, article);
             article.increaseLikeCount();
         }
 
         articleRepository.save(article);
 
         return ArticleLikeMapper.toResponse(!like.isPresent(), article);
+    }
+
+    private void sendLikeNotification(Company company, Article article) {
+        String targetToken = article.getUser().getFcmToken();
+
+        if (targetToken == null || targetToken.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.FCM_TOKEN_NOT_FOUND);
+        }
+
+        String title = "작품에 관심이 등록되었어요!";
+        String body = String.format("'%s' 작품에 '%s' 기업이 관심을 표현했습니다.", article.getTitle(), company.getCompanyName());
+        fcmUtil.sendMessage(targetToken, title, body);
+        log.info("FCM Notification send succes");
     }
 
     @Override
