@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ChatRoomCreateResponse {
     private Long roomId;
+    private String partnerName;
     private Long articleId;
     private String articleTitle;
     private Long likeCount;

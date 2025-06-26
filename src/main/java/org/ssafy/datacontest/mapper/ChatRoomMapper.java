@@ -15,10 +15,11 @@ public class ChatRoomMapper {
                 .build();
     }
 
-    public static ChatRoomCreateResponse toDto(ChatRoom chatRoom, Article article) {
+    public static ChatRoomCreateResponse toDto(ChatRoom chatRoom, Article article, String partnerName) {
         return ChatRoomCreateResponse.builder()
                 .roomId(chatRoom.getId())
                 .articleId(article.getArtId())
+                .partnerName(partnerName)
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())
                 .thumbnailUrl(article.getThumbnailUrl())

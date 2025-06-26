@@ -46,66 +46,46 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest chatRoomCreateRequest, String loginId, String role) {
-        Article article = articleRepository.findById(chatRoomCreateRequest.getArticleId())
+    public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest req, String loginId, String role) {
+        Article article = articleRepository.findById(req.getArticleId())
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.ARTICLE_NOT_FOUND));
-        User user = null;
-        Company company = null;
-        if(role.equals("ROLE_USER")){
-            user = userRepository.findByLoginId(loginId);
-            if(user == null) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
-            }
-            company = companyRepository.findByLoginId(chatRoomCreateRequest.getReceiverId());
-            if(company == null) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
-            }
-        }
-        else if(role.equals("ROLE_COMPANY")){
-            company = companyRepository.findByLoginId(loginId);
-            if(company == null) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
-            }
-            user = userRepository.findByLoginId(chatRoomCreateRequest.getReceiverId());
-            if(user == null) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
-            }
-        }
-        ChatRoom existingRoom = chatRoomRepository.findByUserIdAndCompanyCompanyIdAndArticleArtId(user.getId(), company.getCompanyId(), article.getArtId());
-        if (existingRoom != null) {
-            return ChatRoomMapper.toDto(existingRoom, article);
-        }
-        ChatRoom chatRoom = ChatRoomMapper.toEntity(user, company, article);
 
-        chatRoomRepository.save(chatRoom);
-        return ChatRoomMapper.toDto(chatRoom, article);
+        User user;
+        Company company;
+        if (role.equals("ROLE_USER")) {
+            user = findUser(loginId);
+            company = findCompany(req.getReceiverId());
+        } else {
+            company = findCompany(loginId);
+            user = findUser(req.getReceiverId());
+        }
+
+        ChatRoom room = chatRoomRepository.findByUserIdAndCompanyCompanyIdAndArticleArtId(user.getId(), company.getCompanyId(), article.getArtId());
+        if (room != null) {
+            return ChatRoomMapper.toDto(room, article, getPartnerName(room, role));
+        }
+
+        ChatRoom newRoom = ChatRoomMapper.toEntity(user, company, article);
+        chatRoomRepository.save(newRoom);
+        return ChatRoomMapper.toDto(newRoom, article, getPartnerName(newRoom, role));
     }
 
     @Override
     public List<ChatRoomResponse> readChatRoomsByUser(String loginId, String role) {
-        List<ChatRoom> rooms;
+        List<ChatRoom> rooms = role.equals("ROLE_USER")
+                ? chatRoomRepository.findByUserId(findUser(loginId).getId())
+                : chatRoomRepository.findByCompanyCompanyId(findCompany(loginId).getCompanyId());
 
-        if (role.equals("ROLE_USER")) {
-            User user = userRepository.findByLoginId(loginId);
-            rooms = chatRoomRepository.findByUserId(user.getId());
-        } else {
-            Company company = companyRepository.findByLoginId(loginId);
-            rooms = chatRoomRepository.findByCompanyCompanyId(company.getCompanyId());
-        }
-
-        return rooms.stream().map(room -> {
-                    // 최근 메시지 가져오기
-                    ChatMessage lastMessage = (ChatMessage) chatMessageRepository.findTopByRoomIdOrderBySentAtDesc(room.getId()).orElse(null);
-
+        return rooms.stream()
+                .map(room -> {
+                    ChatMessage last = getLastMessage(room.getId());
                     return ChatRoomResponse.builder()
                             .roomId(room.getId())
-                            .partnerName(role.equals("ROLE_USER")
-                                    ? room.getCompany().getCompanyName()
-                                    : room.getUser().getNickname())
+                            .partnerName(getPartnerName(room, role))
                             .thumbnailUrl(room.getArticle().getThumbnailUrl())
-                            .lastMessage(lastMessage != null ? lastMessage.getContent() : "")
-                            .sentAt(lastMessage != null ? lastMessage.getSentAt() : null)
-                            .read(lastMessage == null || lastMessage.getSender().equals(loginId)) // 내가 보낸 메시지면 읽음으로 간주
+                            .lastMessage(last != null ? last.getContent() : "")
+                            .sentAt(last != null ? last.getSentAt() : null)
+                            .read(last == null || last.isRead())
                             .build();
                 }).sorted(Comparator.comparing(ChatRoomResponse::getSentAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
@@ -114,61 +94,75 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Transactional
     @Override
     public List<ChatMessageResponse> joinChatRoom(Long roomId, String username, String role) {
-        // 해당 채팅방의 모든 메시지 중 내가 보낸 게 아닌 메시지 중 read = false 인 메시지를 찾아서 수정
-        // 1. 읽지 않은 메시지 읽음 처리
-        List<ChatMessage> unreadMessages = chatMessageRepository
-                .findByRoomIdAndReadIsFalseAndSenderNot(roomId, username);
+        List<ChatMessage> unread = chatMessageRepository.findByRoomIdAndReadIsFalseAndSenderNot(roomId, username);
+        unread.forEach(m -> m.setRead(true));
+        chatMessageRepository.saveAll(unread);
 
-        unreadMessages.forEach(m -> m.setRead(true));
-        chatMessageRepository.saveAll(unreadMessages);
-
-        // 2. 전체 메시지 조회
-        List<ChatMessage> allMessages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
-
-        // 3. DTO로 변환
-        return allMessages.stream()
-                .map(msg -> ChatMessageResponse.builder()
-                        .sender(msg.getSender())
-                        .content(msg.getContent())
-                        .sentAt(msg.getSentAt())
+        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId)
+                .stream()
+                .map(m -> ChatMessageResponse.builder()
+                        .sender(m.getSender())
+                        .content(m.getContent())
+                        .sentAt(m.getSentAt())
                         .build())
                 .toList();
     }
 
-    @Override
     @Transactional
+    @Override
     public ChatRoomJoinResponse joinAndGetRoomData(Long roomId, String username, String role) {
-        // 1. 메시지 읽음 처리 + 전체 메시지 조회
-        List<ChatMessage> allMessages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
+        List<ChatMessage> messages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
+        messages.stream()
+                .filter(m -> !m.isRead() && !m.getSender().equals(username))
+                .forEach(m -> m.setRead(true));
+        chatMessageRepository.saveAll(messages);
 
-        List<ChatMessage> unreadMessages = allMessages.stream()
-                .filter(msg -> !msg.isRead() && !msg.getSender().equals(username))
-                .toList();
-
-        unreadMessages.forEach(m -> m.setRead(true));
-        chatMessageRepository.saveAll(unreadMessages);
-
-        List<ChatMessageResponse> messageResponses = allMessages.stream()
-                .map(msg -> ChatMessageResponse.builder()
-                        .sender(msg.getSender())
-                        .content(msg.getContent())
-                        .sentAt(msg.getSentAt())
+        List<ChatMessageResponse> responseList = messages.stream()
+                .map(m -> ChatMessageResponse.builder()
+                        .sender(m.getSender())
+                        .content(m.getContent())
+                        .sentAt(m.getSentAt())
                         .build())
                 .toList();
 
-        // 2. 채팅방 조회 및 예외처리
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+        ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.CHATROOM_NOT_FOUND));
 
-        // 3. 작품 정보 추출
-        Article article = chatRoom.getArticle();
+        Article article = room.getArticle();
 
         return ChatRoomJoinResponse.builder()
                 .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
                 .likeCount(article.getLikeCount())
                 .thumbnailUrl(article.getThumbnailUrl())
-                .messages(messageResponses)
+                .partnerName(getPartnerName(room, role))
+                .messages(responseList)
                 .build();
+    }
+
+    private User findUser(String loginId) {
+        User user = userRepository.findByLoginId(loginId);
+        if (user == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+        }
+        return user;
+    }
+
+    private Company findCompany(String loginId) {
+        Company company = companyRepository.findByLoginId(loginId);
+        if (company == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
+        }
+        return company;
+    }
+
+    private String getPartnerName(ChatRoom room, String role) {
+        return role.equals("ROLE_USER")
+                ? room.getCompany().getCompanyName()
+                : room.getUser().getNickname();
+    }
+
+    private ChatMessage getLastMessage(Long roomId) {
+        return chatMessageRepository.findTopByRoomIdOrderBySentAtDesc(roomId).orElse(null);
     }
 }
