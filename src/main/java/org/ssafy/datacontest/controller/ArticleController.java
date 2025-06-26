@@ -66,12 +66,6 @@ public class ArticleController {
             @ModelAttribute ArticleScrollRequestDto request
     ) {
         request.setCategory(category);  // 수동으로 세팅
-
-        // 검색 시, 강제 최신순 정렬
-        if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
-            request.setSortType(SortType.LATEST);
-        }
-
         return ResponseEntity.ok(articleService.getArticlesByCursor(request));
     }
 
