@@ -52,38 +52,33 @@ public class ChatServiceImpl implements ChatService {
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.CHATROOM_NOT_FOUND));
 
-        // MongoDB에 저장할 sender: loginId
+        String receiverLoginId = getReceiverLoginId(room, loginId);
+        String senderName = getSenderName(room, loginId);
+        boolean receiverConnected = webSocketSessionManager.isUserInRoom(roomId, receiverLoginId);
+
         ChatMessage message = ChatMessage.builder()
                 .roomId(roomId)
                 .sender(loginId)
                 .content(request.getContent())
                 .sentAt(LocalDateTime.now())
-                .read(false)
+                .read(receiverConnected)
                 .build();
 
         chatMessageRepository.save(message);
 
-        // 상대방 정보 및 FCM 토큰 확인
-        String receiverLoginId = getReceiverLoginId(room, loginId);
-        String senderName = getSenderName(room, loginId);
-
-        // 상대방이 해당 채팅방에 접속 중인지 확인
-        if (!webSocketSessionManager.isUserInRoom(roomId, receiverLoginId)) {
-            // 상대방이 접속 중이 아니면 FCM 푸시 알림 전송
+        if (!receiverConnected) {
             sendPushNotification(receiverLoginId, senderName, request.getContent(), room);
         }
 
         return ChatMessageResponse.builder()
-                .sender(senderName)
+                .sender(loginId)
                 .content(message.getContent())
                 .sentAt(message.getSentAt())
-                .read(false)
+                .read(message.isRead())
                 .build();
     }
 
-    /**
-     * 상대방의 loginId를 반환
-     */
+    // 상대방의 loginId 반환
     private String getReceiverLoginId(ChatRoom room, String senderLoginId) {
         if (room.getUser().getLoginId().equals(senderLoginId)) {
             return room.getCompany().getLoginId();
@@ -94,9 +89,7 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    /**
-     * 발신자의 표시 이름을 반환 (닉네임 또는 회사명)
-     */
+    // 발신자 이름 반환 (닉네임 또는 회사명)
     private String getSenderName(ChatRoom room, String senderLoginId) {
         if (room.getUser().getLoginId().equals(senderLoginId)) {
             return room.getUser().getNickname();
@@ -107,6 +100,7 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    // FCM 푸시 알림 전송
     private void sendPushNotification(String receiverLoginId, String senderName, String messageContent, ChatRoom room) {
         String fcmToken = getFcmToken(receiverLoginId);
 
@@ -131,6 +125,7 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    // 로그인 ID로 FCM 토큰 반환
     private String getFcmToken(String loginId) {
         User user = userRepository.findByLoginId(loginId);
         if (user != null) {
