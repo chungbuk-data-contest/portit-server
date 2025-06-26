@@ -53,7 +53,7 @@ public class FcmUtil {
     }
 
     public boolean sendNotificationWithDataMessage(String targetToken, String title, String body,
-                                                   String data1, String data2) {
+                                                   String data) {
         Notification notification = Notification.builder()
                 .setTitle(title)
                 .setBody(body)
@@ -62,8 +62,7 @@ public class FcmUtil {
         Message message = Message.builder()
                 .setToken(targetToken)
                 .setNotification(notification)
-                .putData("data1", data1)
-                .putData("data2", data2)
+                .putData("roomId", data)
                 .build();
 
         return send(message);
