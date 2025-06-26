@@ -37,7 +37,9 @@ public enum RegionType {
 
     public static RegionType fromAlias(String input) {
         return Arrays.stream(values())
-                .filter(type -> type.label.equalsIgnoreCase(input.trim()) || type.aliases.contains(input.trim()))
+                .filter(type -> type.label.equalsIgnoreCase(input.trim())
+                        || type.name().equalsIgnoreCase(input.trim())
+                        || type.aliases.contains(input.trim()))
                 .findFirst()
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_COMPANY_LOCATION));
     }
