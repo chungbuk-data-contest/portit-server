@@ -56,7 +56,8 @@ public enum ErrorCode {
 
     REGISTERED_ARTICLE_PREMIUM(HttpStatus.BAD_REQUEST, "REGISTERED_ARTICLE_PREMIUM", "이미 프리미엄으로 등록된 게시글입니다."),
     CHATROOM_NOT_FOUND(HttpStatus.BAD_REQUEST, "CHATROOM_NOT_FOUND" ,"채팅방이 존재하지 않습니다." ),
-    INVALID_USER(HttpStatus.BAD_REQUEST,"INVALID_USER" ,"채팅방에 접근할 수 없는 유저입니다.");
+    INVALID_USER(HttpStatus.BAD_REQUEST,"INVALID_USER" ,"채팅방에 접근할 수 없는 유저입니다."),
+    FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"FCM_TOKEN_NOT_FOUND" ,"토큰을 조회할 수 없습니다."),;
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
     // code를 지정해주어서 클라이언트 측에서 디테일한 핸들링을 하도록 하는 것이 좋다.
