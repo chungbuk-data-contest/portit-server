@@ -19,6 +19,12 @@ import java.util.List;
 @Component
 public class ArticleValidation {
 
+    public void validateUpdateRequest(ArticleUpdateRequestDto articleRequestDto, User user, Article article) {
+        checkUserAuthorizationForArticle(user, article);
+        isValidRequest(articleRequestDto);
+        isExistArticle(article);
+    }
+
     public void checkUserAuthorizationForArticle(User user, Article article){
         if(!article.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);

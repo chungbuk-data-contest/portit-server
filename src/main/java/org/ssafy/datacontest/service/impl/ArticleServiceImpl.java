@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ssafy.datacontest.dto.SliceResponseDto;
@@ -26,6 +27,7 @@ import org.ssafy.datacontest.mapper.TagMapper;
 import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
 import org.ssafy.datacontest.service.S3FileService;
+import org.ssafy.datacontest.service.helper.ImageHelper;
 import org.ssafy.datacontest.util.GptUtil;
 import org.ssafy.datacontest.validation.ArticleValidation;
 
@@ -48,45 +50,26 @@ public class ArticleServiceImpl implements ArticleService {
     private final GptUtil gptUtil;
     private final ArticleLikeRepository articleLikeRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ImageHelper imageHelper;
 
     @Transactional
     @Override
     public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
-        User user = userRepository.findByLoginId(userName);
+        User user = findUser(userName);
         articleValidation.isValidRequest(articleRequestDto);
 
         List<MultipartFile> files = articleRequestDto.getFiles();
         MultipartFile thumbnail = articleRequestDto.getThumbnail();
 
+        List<String> fileUrls = uploadFiles(files);
+
         // 썸네일 파일과 파일 리스트 - 해시값 비교 => 다를 경우에만 S3 저장 필요
         int index = isDuplicateThumbnail(thumbnail, files);
+        String thumbnailUrl = (index == -1) ? uploadFile(thumbnail) : fileUrls.get(index);
 
-        String thumbnailUrl = "";
-        if(index == -1) { // 썸네일 따로 저장 필요
-            thumbnailUrl = uploadFile(thumbnail);
-        }
-
-        // 이미지, 영상 업로드
-        List<String> fileUrls = new ArrayList<>();
-
-        int loop = 0;
-        for(MultipartFile file : files){
-            String fileUrl = uploadFile(file);
-            if(index != -1 && loop == index) {
-                thumbnailUrl = fileUrl;
-            }
-            fileUrls.add(fileUrl);
-            loop++;
-        }
-
-        // 글 DB 등록
-        String industry = generateIndustry(new GptRequest(articleRequestDto.getDescription()));
-        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl, IndustryType.valueOf(industry));
-        articleRepository.save(article);
-
-        // List들 DB 등록
-        saveTag(articleRequestDto.getTag(), article);
-        saveFile(fileUrls, article);
+        // DB 등록
+        Article article = createAndSaveArticle(articleRequestDto, user, thumbnailUrl);
+        saveAdditionalArticleData(articleRequestDto, article, fileUrls);
 
         return article.getArtId();
     }
@@ -94,23 +77,15 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception {
-        User user = userRepository.findByLoginId(userName);
+        User user = findUser(userName);
         Article article = getArticleOrThrow(articleId);
         articleRequestDto.setImageIdList(imageIdList);
 
-        articleValidation.checkUserAuthorizationForArticle(user, article);
-        articleValidation.isValidRequest(articleRequestDto);
-        articleValidation.isExistArticle(article);
+        articleValidation.validateUpdateRequest(articleRequestDto, user, article);
 
-        // 이미지 수정 혹은 순서 변경 반영
+        // 이미지 관련 처리
         List<Image> existingFile = imageRepository.findByArticle(article);
-
-        // 삭제된 이미지 찾아서 삭제
-        deleteImagesNotInRequest(articleRequestDto, existingFile);
-
-        // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
-        updateImageOrder(articleRequestDto);
-
+        imageHelper.updateImages(articleRequestDto, existingFile);
 
         // 새로 추가한 이미지 db & s3 저장
         List<String> newFiles = saveNewFile(articleRequestDto, article);
@@ -145,8 +120,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void deleteArticle(Long articleId, String userName) {
-        // 유저 가져오기
-        User user = userRepository.findByLoginId(userName);
+        User user = findUser(userName);
 
         // articleId 존재 여부 확인
         Article article = getArticleOrThrow(articleId);
@@ -238,6 +212,22 @@ public class ArticleServiceImpl implements ArticleService {
         return myArticleResponses;
     }
 
+    private User findUser(String userName) {
+        return userRepository.findByLoginId(userName);
+    }
+
+    private Article createAndSaveArticle(ArticleRequestDto dto, User user, String thumbnailUrl) {
+        String industry = generateIndustry(new GptRequest(dto.getDescription()));
+        Article article = ArticleMapper.toEntity(dto, user, thumbnailUrl, IndustryType.valueOf(industry));
+        articleRepository.save(article);
+        return article;
+    }
+
+    private void saveAdditionalArticleData(ArticleRequestDto dto, Article article, List<String> fileUrls) {
+        saveTag(dto.getTag(), article);
+        saveFile(fileUrls, article);
+    }
+
     private String generateIndustry(GptRequest gptRequest) {
         String prompt = String.format("""
         다음 작품 설명을 기반으로 가장 관련 있는 산업 분야 하나를 골라줘.
@@ -281,9 +271,19 @@ public class ArticleServiceImpl implements ArticleService {
                 ));
     }
 
+    private List<String> uploadFiles(List<MultipartFile> files) {
+        List<String> urls = new ArrayList<>();
+        for (MultipartFile file : files) {
+            urls.add(uploadFile(file));
+        }
+        return urls;
+    }
+
     private String uploadFile(MultipartFile file) {
         return s3FileService.uploadFile(file);
     }
+
+
 
     private void saveTag(List<String> tags, Article article) {
         for(String tag: tags){
@@ -301,14 +301,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    private void deleteFile(List<Image> fileUrls) {
-        for (Image file : fileUrls) {
-            String fileUrl = file.getImageUrl();
-            if (fileUrl != null && !fileUrl.isBlank()) {
-                s3FileService.deleteFile(fileUrl);
-            }
-        }
-    }
+
 
     private Article getArticleOrThrow(Long articleId) {
         Article article = articleRepository.findByArtId(articleId)
@@ -338,51 +331,6 @@ public class ArticleServiceImpl implements ArticleService {
             imageDtos.add(ImageMapper.toDto(image));
         }
         return imageDtos;
-    }
-
-    private void deleteImagesNotInRequest(ArticleUpdateRequestDto articleRequestDto, List<Image> existingFile) {
-        // imageIdList에서 null이 아닌 id만 추출해서 Set으로 변환
-        Set<Long> incomingIds = articleRequestDto.getImageIdList().stream()
-                .map(ImageUpdateDto::getImageId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // 기존 이미지 중 요청에 포함되지 않은 이미지만 삭제 대상
-        List<Image> toDeleteImage = existingFile.stream()
-                .filter(img -> !incomingIds.contains(img.getImageId()))
-                .toList();
-
-        // 삭제
-        for (Image image : toDeleteImage) {
-            imageRepository.deleteByImageId(image.getImageId());
-        }
-        deleteFile(toDeleteImage);
-    }
-
-    private void updateImageOrder(ArticleUpdateRequestDto articleRequestDto) {
-        // 1. 유효한 imageId만 필터링해서 DB 조회
-        List<Image> existingImages = imageRepository.findByImageIdIn(
-                articleRequestDto.getImageIdList().stream()
-                        .filter(dto -> dto.getImageId() != null)  // imageId가 null이 아닌 경우만
-                        .map(ImageUpdateDto::getImageId)
-                        .toList()
-        );
-
-        // 2. imageId → Image 매핑
-        Map<Long, Image> imageMap = existingImages.stream()
-                .collect(Collectors.toMap(Image::getImageId, Function.identity()));
-
-        // 3. 순서 업데이트
-        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
-            Long imageId = articleRequestDto.getImageIdList().get(i).getImageId();
-
-            if (imageId == null) continue; // 새 이미지인 경우
-
-            Image image = imageMap.get(imageId);
-            if (image != null && image.getImageIndex() != i) {
-                image.updateImageIndex(i);
-            }
-        }
     }
 
     private List<String> saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
@@ -432,5 +380,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         return -1;
     }
+
+
 
 }
