@@ -53,7 +53,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
         User user = userRepository.findByLoginId(userName);
-
+        log.info("tag size : {}", articleRequestDto.getTag().size());
         articleValidation.isValidRequest(articleRequestDto);
 
         List<MultipartFile> files = articleRequestDto.getFiles();
