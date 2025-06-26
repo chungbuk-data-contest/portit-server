@@ -16,7 +16,7 @@ public enum ErrorCode {
     EMPTY_IMAGE_ID(HttpStatus.BAD_REQUEST, "EMPTY_IMAGE_ID", "이미지/영상 파일 ID는 필수 전달 항목입니다."),
     EMPTY_THUMBNAIL(HttpStatus.BAD_REQUEST, "EMPTY_THUMBNAIL", "썸네일은 필수 전달 항목입니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "INVALID_CATEGORY", "존재하지 않는 카테고리입니다."),
-    INVALID_TAG(HttpStatus.BAD_REQUEST, "INVALID_TAG", "태그는 2개를 초과할 수 없습니다."),
+    INVALID_TAG_COUNT(HttpStatus.BAD_REQUEST, "INVALID_TAG_COUNT", "태그는 2개를 초과할 수 없습니다."),
     INVALID_TAG_LENGTH(HttpStatus.BAD_REQUEST, "INVALID_TAG_LENGTH", "태그는 반드시 4자여야 합니다."),
     INVALID_TAG_TYPE(HttpStatus.BAD_REQUEST, "INVALID_TAG_TYPE", "태그는 #을 포함하여 전달해야 합니다."),
     INVALID_THUMBNAIL(HttpStatus.BAD_REQUEST, "INVALID_THUMBNAIL", "썸네일 파일 또는 링크 중 하나는 반드시 전달해야 합니다."),

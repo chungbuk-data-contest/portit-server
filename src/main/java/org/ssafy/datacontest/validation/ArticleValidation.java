@@ -50,7 +50,7 @@ public class ArticleValidation {
     private void validateTagCount(List<String> tagList) {
         if(tagList.size() > 2) {
             log.info("태그 개수 초과: {}", tagList.size());
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_COUNT);
         }
     }
 
@@ -58,7 +58,7 @@ public class ArticleValidation {
         if (tagList == null || tagList.isEmpty()) return;
 
         for (String tag : tagList) {
-            if (tag.charAt(0) != '#') throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG);
+            if (tag.charAt(0) != '#') throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_TYPE);
             if (tag.length() > 5) {
                 throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TAG_LENGTH);
             }
