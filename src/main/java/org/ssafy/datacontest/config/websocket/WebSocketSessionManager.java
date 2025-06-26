@@ -71,7 +71,7 @@ public class WebSocketSessionManager {
      */
     public boolean isUserInRoom(Long roomId, String loginId) {
         Set<String> users = roomUsers.get(roomId);
-        return users != null && users.contains(loginId) && isUserOnline(loginId);
+        return users != null && users.contains(loginId);
     }
 
     /**
