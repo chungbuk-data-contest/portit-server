@@ -30,17 +30,19 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
         QCompany company = QCompany.company;
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (req.getKeyword() == null || req.getKeyword().isBlank()) {
-            if (req.getCompanyField() != null && !req.getCompanyField().isEmpty()) {
-                builder.and(company.companyField.in(req.getCompanyField()));
-            }
-            if(req.getCompanyLoc() != null && !req.getCompanyLoc().isEmpty()) {
-                builder.and(company.companyLoc.in(req.getCompanyLoc()));
-            }
-            if(req.getHiring() != null){
-                builder.and(company.hiring.eq(req.getHiring()));
-            }
-        } else {
+        if (req.getCompanyField() != null && !req.getCompanyField().isEmpty()) {
+            builder.and(company.companyField.in(req.getCompanyField()));
+        }
+
+        if(req.getCompanyLoc() != null && !req.getCompanyLoc().isEmpty()) {
+            builder.and(company.companyLoc.in(req.getCompanyLoc()));
+        }
+
+        if(req.getHiring() != null){
+            builder.and(company.hiring.eq(req.getHiring()));
+        }
+
+        if(req.getKeyword() != null && !req.getKeyword().isBlank()) {
             builder.and(company.companyName.containsIgnoreCase(req.getKeyword()));
         }
 
