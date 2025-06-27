@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TossPaymentRequest {
     private String paymentKey;
+    private Long articleId;
     private String orderId;
-    private String amount;
+    private int amount;
 }

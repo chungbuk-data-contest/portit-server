@@ -38,8 +38,9 @@ public class PaymentController {
     }
 
     @PostMapping("toss/prepare")
-    public ResponseEntity<TossPaymentPrepareResponse> preparePayment(@RequestBody TossPaymentPrepareRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.preparePayment(request));
+    public ResponseEntity<TossPaymentPrepareResponse> preparePayment(@RequestBody TossPaymentPrepareRequest request,
+                                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.preparePayment(request, userDetails.getUsername()));
     }
 
     @PostMapping("toss/confirm")

@@ -12,7 +12,7 @@ import java.util.List;
 public interface PaymentService {
     List<PaymentResponse> getPayments(String username);
 
-    TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request);
+    TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request, String username);
 
     TossPaymentResponse confirmPayment(TossPaymentRequest request) throws JsonProcessingException;
 }

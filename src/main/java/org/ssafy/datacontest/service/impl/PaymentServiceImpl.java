@@ -21,16 +21,15 @@ import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.PaymentMapper;
+import org.ssafy.datacontest.mapper.PremiumMapper;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.PaymentRepository;
 import org.ssafy.datacontest.repository.PremiumRepository;
 import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.PaymentService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +69,17 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public TossPaymentResponse confirmPayment(TossPaymentRequest request) throws JsonProcessingException {
+        Article article = articleRepository.findByArtId(request.getArticleId())
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        Payment payment = paymentRepository.findByOrderNum(request.getOrderId());
+        if (payment == null) {
+            throw new CustomException(HttpStatus.NOT_FOUND, ErrorCode.PAYMENT_NOT_FOUND);
+        }
+
+        if(payment.getTotalAmount() != request.getAmount()){
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.AMOUNT_MISMATCH);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -86,6 +96,16 @@ public class PaymentServiceImpl implements PaymentService {
             String url = "https://api.tosspayments.com/v1/payments/confirm";
             ResponseEntity<TossPaymentResponse> response =
                     restTemplate.exchange(url, HttpMethod.POST, entity, TossPaymentResponse.class);
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                payment.updateStatus("PAID");
+                payment.setApprovedAt(LocalDateTime.now());
+                paymentRepository.save(payment);
+                article.updatePremium(true);
+                Premium premium = premiumRepository.save(PremiumMapper.toEntity(article, payment));
+                premiumRepository.save(premium);
+            }
+
             return response.getBody();
         } catch (HttpClientErrorException e){
             ObjectMapper mapper = new ObjectMapper();
@@ -98,7 +118,26 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request) {
-        return null;
+    public TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request, String username) {
+        Article article = articleRepository.findByArtId(request.getArticleId())
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        User user = userRepository.findByLoginId(username);
+        if (user == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+        }
+        if (article.isPremium()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.PREMIUM_ARTICLE);
+        }
+        String orderNum = "ORDER_" + UUID.randomUUID();
+
+        Payment payment = PaymentMapper.toEntity(article, user, orderNum);
+        paymentRepository.save(payment);
+
+        return TossPaymentPrepareResponse.builder()
+                .orderNum(orderNum)
+                .amount(payment.getTotalAmount())
+                .articleId(payment.getArticle().getArtId())
+                .build();
     }
 }
