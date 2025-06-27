@@ -1,5 +1,6 @@
 package org.ssafy.datacontest.validation;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -11,24 +12,16 @@ import org.ssafy.datacontest.enums.RegionType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.repository.CompanyRepository;
 
-import java.util.Arrays;
-
 @Component
+@RequiredArgsConstructor
 public class CompanyValidation {
 
     private final CompanyRepository companyRepository;
     private final RegisterCommonValidation registerCommonValidation;
 
-    @Autowired
-    public CompanyValidation(CompanyRepository companyRepository,
-                             RegisterCommonValidation registerCommonValidation) {
-        this.companyRepository = companyRepository;
-        this.registerCommonValidation = registerCommonValidation;
-    }
-
     public void validateCompany(CompanyRegisterRequest request) {
         registerCommonValidation.companyValidate(request);
-        loginIdDuplicateValidate(request.getLoginId());
+        validateLoginIdDuplicate(request.getLoginId());
         validateCompanyName(request.getCompanyName());
         validateCompanyField(request.getCompanyField());
         validateCompanyLocation(request.getCompanyLoc());
@@ -42,7 +35,7 @@ public class CompanyValidation {
         validateHiringStatus(request.getHiring());
     }
 
-    private void loginIdDuplicateValidate(String loginId) {
+    private void validateLoginIdDuplicate(String loginId) {
         if (companyRepository.existsByLoginId(loginId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATED_ID);
         }
@@ -59,6 +52,7 @@ public class CompanyValidation {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_FIELD);
         }
 
+        // 유효하지 않은 경우 fromAlias 내부에서 CustomException 발생
         IndustryType.fromAlias(companyField);
     }
 
@@ -67,6 +61,7 @@ public class CompanyValidation {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_COMPANY_LOCATION);
         }
 
+        // 유효하지 않은 경우 fromAlias 내부에서 CustomException 발생
         RegionType.fromAlias(companyLoc);
     }
 

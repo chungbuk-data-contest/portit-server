@@ -12,11 +12,8 @@ import org.ssafy.datacontest.dto.register.CustomUserDetails;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 import org.ssafy.datacontest.service.CompanyService;
-import retrofit2.http.Path;
 
-import javax.swing.plaf.synth.Region;
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +23,7 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
-    @PostMapping("")
+    @PostMapping
     @Operation(
             summary = "공공데이터 이용한 기업 등록"
     )
@@ -44,7 +41,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.toggleLike(articleId, userDetails.getUsername()));
     }
 
-    @GetMapping("")
+    @GetMapping
     @Operation(
             summary = "기업 목록 무한 스크롤 조회 (필터링 및 커서 기반 페이징)"
     )
@@ -53,8 +50,7 @@ public class CompanyController {
             @RequestParam(required = false) List<RegionType> companyLoc,
             @ModelAttribute CompanyScrollRequest companyScrollRequest
             ){
-        companyScrollRequest.setCompanyField(companyField);
-        companyScrollRequest.setCompanyLoc(companyLoc);
+        companyScrollRequest.fillFields(companyField, companyLoc);
 
         return ResponseEntity.ok(companyService.getCompaniesByCursor(companyScrollRequest));
     }
@@ -68,7 +64,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getCompany(userDetails.getUsername()));
     }
 
-    @PutMapping("")
+    @PutMapping
     @Operation(
             summary = "기업 정보 수정",
             description = "수정되지 않은 필드도 다 보내주세요."

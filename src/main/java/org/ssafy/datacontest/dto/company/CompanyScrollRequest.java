@@ -4,6 +4,7 @@ import lombok.*;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.enums.RegionType;
 
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -18,4 +19,9 @@ public class CompanyScrollRequest {
     private int size = 10;
 
     private String keyword;
+
+    public void fillFields(List<IndustryType> companyField, List<RegionType> companyLoc) {
+        this.companyField = companyField != null ? companyField : Collections.emptyList();
+        this.companyLoc = companyLoc != null ? companyLoc : Collections.emptyList();
+    }
 }

@@ -14,21 +14,17 @@ import org.ssafy.datacontest.dto.publicApi.PublicCompanyDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Company;
 import org.ssafy.datacontest.entity.Like;
-import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleLikeMapper;
-import org.ssafy.datacontest.mapper.ArticleMapper;
 import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.repository.ArticleLikeRepository;
 import org.ssafy.datacontest.repository.ArticleRepository;
 import org.ssafy.datacontest.repository.CompanyRepository;
-import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.CompanyService;
 import org.ssafy.datacontest.util.FcmUtil;
 import org.ssafy.datacontest.validation.CompanyValidation;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +35,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
-    private final UserRepository userRepository;
     private final PublicApiClient publicApiClient;
     private final PasswordEncoder passwordEncoder;
     private final ArticleLikeRepository articleLikeRepository;
@@ -47,6 +42,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final CompanyValidation companyValidation;
     private final FcmUtil fcmUtil;
 
+    @Override
     @Transactional // 중간에 하나라도 실패하면 전부 롤백
     public void fetchAndSaveCompanies() {
         // api 부르기
@@ -97,12 +93,12 @@ public class CompanyServiceImpl implements CompanyService {
         String title = "작품에 관심이 등록되었어요!";
         String body = String.format("'%s' 작품에 '%s' 기업이 관심을 표현했습니다.", article.getTitle(), company.getCompanyName());
         fcmUtil.sendMessage(targetToken, title, body);
-        log.info("FCM Notification send succes");
+        log.info("FCM Notification send success");
     }
 
     @Override
     public SliceResponseDto<CompanyScrollResponse> getCompaniesByCursor(CompanyScrollRequest companyScrollRequest) {
-        Slice<Company> companies = companyRepository.findNextPageByCompanyName(companyScrollRequest);
+        Slice<Company> companies = companyRepository.findCompaniesByScrollRequest(companyScrollRequest);
         List<Company> companyList = companies.getContent();
 
         List<CompanyScrollResponse> dtoList = companyList.stream()
@@ -123,21 +119,9 @@ public class CompanyServiceImpl implements CompanyService {
 
         List<Like> likedArticles = articleLikeRepository.findByCompany_CompanyId(company.getCompanyId());
 
-        List<LikedArticleResponse> likedArticleResponses = new ArrayList<>();
-        if (!likedArticles.isEmpty()) {
-            likedArticleResponses = likedArticles.stream()
-                    .map(like -> {
-                        Article article = articleRepository.findByArtId(like.getArticle().getArtId())
-                                .orElse(null);
-                        if (article != null) {
-                            return ArticleLikeMapper.toLikedArticleResponse(article);
-                        } else {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
+        List<LikedArticleResponse> likedArticleResponses = likedArticles.stream()
+                    .map(like -> ArticleLikeMapper.toLikedArticleResponse(like.getArticle()))
                     .toList();
-        }
 
         return CompanyMapper.toCompanyResponse(company, likedArticleResponses);
     }
