@@ -8,7 +8,6 @@ import org.ssafy.datacontest.enums.RegionType;
 @Getter
 @Builder
 public class CompanyScrollResponse {
-    // 로고 삭제...일 걸..
     private Long companyId;
     private String companyLoginId;
     private String companyName;
