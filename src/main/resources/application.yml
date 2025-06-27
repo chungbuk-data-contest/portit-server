@@ -65,3 +65,7 @@ coolsms:
 gpt:
     api:
         key: ${GPT_API_KEY}
+
+toss:
+    secret:
+        key: ${TOSS_PAY_SECRET_KEY}

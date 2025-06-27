@@ -19,7 +19,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/chat")
-@Tag(name = "Chatting", description = "웹소켓 기반 채팅 API, 개발 중")
+@Tag(name = "Chatting", description = "웹소켓 기반 채팅")
 public class ChatController {
 
     private final ChatService chatService;
