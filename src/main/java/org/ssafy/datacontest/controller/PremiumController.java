@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.ssafy.datacontest.dto.article.ArticleListResponse;
+import org.ssafy.datacontest.dto.article.ArticlesResponseDto;
 import org.ssafy.datacontest.dto.premium.PremiumResponse;
 import org.ssafy.datacontest.dto.register.CustomUserDetails;
+import org.ssafy.datacontest.entity.Premium;
 import org.ssafy.datacontest.service.PremiumService;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class PremiumController {
             summary = "프리미엄 작품 조회",
             description = "프리미엄 작품 랜덤 4개 반환합니다."
     )
-    public ResponseEntity<List<ArticleListResponse>> getPremiumArticles() {
+    public ResponseEntity<List<ArticlesResponseDto>> getPremiumArticles() {
         return ResponseEntity.ok(premiumService.getPremiumArticles());
     }
 

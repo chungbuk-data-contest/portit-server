@@ -69,10 +69,6 @@ public class Article {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public void updateThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
     public void decreaseLikeCount() {
         this.likeCount--;
     }

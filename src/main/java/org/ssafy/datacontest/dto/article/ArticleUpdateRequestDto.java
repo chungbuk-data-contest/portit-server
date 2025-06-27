@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 외부 new 생성 방지
-public class ArticleUpdateRequest {
+public class ArticleUpdateRequestDto {
     private String title;
     private String description;
     private String category;
