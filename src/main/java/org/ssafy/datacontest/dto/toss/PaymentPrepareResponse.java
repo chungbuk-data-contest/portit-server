@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TossPaymentRequest {
-    private String paymentKey;
+public class PaymentPrepareResponse {
     private String orderId;
-    private String amount;
+    private int amount;
+    private Long articleId;
 }

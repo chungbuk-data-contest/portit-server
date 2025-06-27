@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TossPaymentResponse {
+public class PaymentResponse {
     private String mId;
     private String orderId;
     private String paymentKey;

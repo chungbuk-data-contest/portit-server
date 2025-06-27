@@ -1,9 +1,13 @@
 package org.ssafy.datacontest.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.ssafy.datacontest.dto.toss.TossPaymentRequest;
-import org.ssafy.datacontest.dto.toss.TossPaymentResponse;
+import org.ssafy.datacontest.dto.toss.PaymentPrepareRequest;
+import org.ssafy.datacontest.dto.toss.PaymentPrepareResponse;
+import org.ssafy.datacontest.dto.toss.PaymentRequest;
+import org.ssafy.datacontest.dto.toss.PaymentResponse;
 
 public interface TossPaymentService {
-    TossPaymentResponse confirmPayment(TossPaymentRequest request) throws JsonProcessingException;
+    PaymentResponse confirmPayment(PaymentRequest request) throws JsonProcessingException;
+
+    PaymentPrepareResponse preparePayment(PaymentPrepareRequest request);
 }
