@@ -8,5 +8,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, Company
     Company findByLoginId(String email);
     boolean existsByLoginId(String email);
     Company findByCompanyId(Long companyId);
-    // save(), saveAll(), findAll() 등 기본 제공
+
+    boolean existsByPhoneNum(String phoneNum);
 }
