@@ -14,7 +14,6 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    private String paymentKey; // 토스페이 - 결제키값
     private String orderNum; // 토스페이 - 주문번호
     @Setter
     private LocalDateTime approvedAt; // 토스페이 - 결제 승인 날짜
@@ -30,8 +29,7 @@ public class Payment {
     private User user;
 
     @Builder
-    public Payment(String paymentKey, LocalDateTime approvedAt, int totalAmount, String orderNum, Article article, User user, String status) {
-        this.paymentKey = paymentKey;
+    public Payment(LocalDateTime approvedAt, int totalAmount, String orderNum, Article article, User user, String status) {
         this.orderNum = orderNum;
         this.article = article;
         this.user = user;

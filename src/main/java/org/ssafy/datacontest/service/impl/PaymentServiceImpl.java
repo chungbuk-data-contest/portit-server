@@ -29,6 +29,7 @@ import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.PaymentService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -129,7 +130,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (article.isPremium()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.PREMIUM_ARTICLE);
         }
-        String orderNum = "ORDER_" + UUID.randomUUID();
+        String orderNum = generateOrderNumber();
 
         Payment payment = PaymentMapper.toEntity(article, user, orderNum);
         paymentRepository.save(payment);
@@ -139,5 +140,13 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(payment.getTotalAmount())
                 .articleId(payment.getArticle().getArtId())
                 .build();
+    }
+
+    public static String generateOrderNumber() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String timestamp = LocalDateTime.now().format(dtf);
+
+        int randomNumber = new Random().nextInt(99999); // 0~99999
+        return "ORDER-" + timestamp + "-" + randomNumber;
     }
 }
