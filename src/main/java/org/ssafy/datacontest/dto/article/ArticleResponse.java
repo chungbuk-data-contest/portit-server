@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class ArticleResponseDto {
+public class ArticleResponse {
     // 유저 정보
     private String userName;
     private String userLoginId;
@@ -32,7 +32,7 @@ public class ArticleResponseDto {
 
 
     @Builder
-    public ArticleResponseDto(String userName, String userLoginId, Long articleId, String title, String description, String thumbnailUrl, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt, boolean premium) {
+    public ArticleResponse(String userName, String userLoginId, Long articleId, String title, String description, String thumbnailUrl, List<ImageDto> fileUrl, List<TagDto> tagList, Category category, String externalLink, Long likeCount, LocalDateTime createdAt, boolean premium) {
         this.userName = userName;
         this.userLoginId = userLoginId;
         this.articleId = articleId;

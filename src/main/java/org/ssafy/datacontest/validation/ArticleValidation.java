@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import org.ssafy.datacontest.dto.article.ArticleRequestDto;
-import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
+import org.ssafy.datacontest.dto.article.ArticleRequest;
+import org.ssafy.datacontest.dto.article.ArticleUpdateRequest;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.User;
@@ -19,31 +19,37 @@ import java.util.List;
 @Component
 public class ArticleValidation {
 
+    public void validateUpdateRequest(ArticleUpdateRequest articleRequestDto, User user, Article article) {
+        checkUserAuthorizationForArticle(user, article);
+        validRequest(articleRequestDto);
+        validateNotDeleted(article);
+    }
+
     public void checkUserAuthorizationForArticle(User user, Article article){
         if(!article.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
         }
     }
 
-    public void isValidRequest(Object request) {
-        if (request instanceof ArticleRequestDto dto) {
-            isValidTitle(dto.getTitle());
-            isValidDescription(dto.getDescription());
-            isValidCategory(dto.getCategory());
-            isValidCategoryName(dto.getCategory());
-            isValidFile(dto.getFiles());
+    public void validRequest(Object request) {
+        if (request instanceof ArticleRequest dto) {
+            validTitle(dto.getTitle());
+            validDescription(dto.getDescription());
+            validCategory(dto.getCategory());
+            validCategoryName(dto.getCategory());
+            validFile(dto.getFiles());
             validateTagCount(dto.getTag());
-            isValidTag(dto.getTag());
-            isValidThumbnail(dto.getThumbnail());
-        } else if (request instanceof ArticleUpdateRequestDto dto) {
-            isValidTitle(dto.getTitle());
-            isValidDescription(dto.getDescription());
-            isValidCategory(dto.getCategory());
-            isValidCategoryName(dto.getCategory());
+            validTag(dto.getTag());
+            validThumbnail(dto.getThumbnail());
+        } else if (request instanceof ArticleUpdateRequest dto) {
+            validTitle(dto.getTitle());
+            validDescription(dto.getDescription());
+            validCategory(dto.getCategory());
+            validCategoryName(dto.getCategory());
             validateTagCount(dto.getTag());
-            isValidTag(dto.getTag());
+            validTag(dto.getTag());
             validateImageListAndFileSize(dto.getImageIdList(), dto.getFiles());
-            isValidNewOrExistingThumbnail(dto.getNewThumbnailImage(), dto.getThumbnailUrl());
+            validNewOrExistingThumbnail(dto.getNewThumbnailImage(), dto.getThumbnailUrl());
         }
     }
 
@@ -54,7 +60,7 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidTag(List<String> tagList) {
+    private void validTag(List<String> tagList) {
         if (tagList == null || tagList.isEmpty()) return;
 
         for (String tag : tagList) {
@@ -65,31 +71,31 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidTitle(String title){
+    private void validTitle(String title){
         if(title == null || title.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_TITLE);
         }
     }
 
-    private void isValidDescription(String description){
+    private void validDescription(String description){
         if(description == null || description.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_DESCRIPTION);
         }
     }
 
-    private void isValidCategory(String category){
+    private void validCategory(String category){
         if(category == null || category.isBlank()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_CATEGORY);
         }
     }
 
-    private void isValidThumbnail(MultipartFile multipartFile){
+    private void validThumbnail(MultipartFile multipartFile){
         if(multipartFile == null || multipartFile.isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_THUMBNAIL);
         }
     }
 
-    private void isValidCategoryName(String category){
+    private void validCategoryName(String category){
         try{
             Category.valueOf(category);
         } catch (IllegalArgumentException e){
@@ -97,7 +103,7 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidFile(List<MultipartFile> file){
+    private void validFile(List<MultipartFile> file){
         if(file == null || file.isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.EMPTY_FILE);
         }
@@ -121,15 +127,15 @@ public class ArticleValidation {
         }
     }
 
-    private void isValidNewOrExistingThumbnail(MultipartFile newThumbnailImage, String newThumbnailUrl) {
+    private void validNewOrExistingThumbnail(MultipartFile newThumbnailImage, String newThumbnailUrl) {
         if( (newThumbnailImage == null || newThumbnailImage.isEmpty()) && (newThumbnailUrl == null || newThumbnailUrl.isEmpty()) ) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_THUMBNAIL);
         }
     }
 
-    public void isExistArticle(Article article) {
+    public void validateNotDeleted(Article article) {
         if(article.isDeleted()){
-            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED_USER);
+            throw new CustomException(HttpStatus.NOT_FOUND, ErrorCode.DELETED_ARTICLE);
         }
     }
 }

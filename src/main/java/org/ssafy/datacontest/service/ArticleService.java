@@ -8,11 +8,11 @@ import org.ssafy.datacontest.dto.image.ImageUpdateDto;
 import java.util.List;
 
 public interface ArticleService {
-    Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception;
-    Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception;
-    void deleteArticle(Long articleId, String userName);
+    Long createArticle(ArticleRequest articleRequest, String userName) throws Exception;
     ArticleDetailResponse getArticle(Long articleId, String userName);
-    SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto);
+    SliceResponseDto<ArticleListResponse> getArticlesByCursor(ArticleScrollRequest articleScrollRequest);
+    Long updateArticle(ArticleUpdateRequest articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception;
+    void deleteArticle(Long articleId, String userName);
     List<String> generateTags(GptRequest gptRequest);
-    List<MyArticleResponse> getMyArticles(String userName, Long companyId);
+    List<MyArticlesResponse> getMyArticles(String userName, Long companyId);
 }

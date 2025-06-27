@@ -4,7 +4,6 @@ import org.ssafy.datacontest.dto.article.*;
 import org.ssafy.datacontest.dto.image.ImageDto;
 import org.ssafy.datacontest.dto.tag.TagDto;
 import org.ssafy.datacontest.entity.Article;
-import org.ssafy.datacontest.entity.ChatRoom;
 import org.ssafy.datacontest.entity.User;
 import org.ssafy.datacontest.enums.Category;
 import org.ssafy.datacontest.enums.IndustryType;
@@ -13,7 +12,7 @@ import java.util.List;
 
 public class ArticleMapper {
 
-    public static Article toEntity(ArticleRequestDto dto, User user, String thumbnailUrl, IndustryType industryType) {
+    public static Article toEntity(ArticleRequest dto, User user, String thumbnailUrl, IndustryType industryType) {
         return Article.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -27,8 +26,8 @@ public class ArticleMapper {
                 .build();
     }
 
-    public static ArticleResponseDto toArticleResponseDto(Article article, List<ImageDto> fileUrls, List<TagDto> tags, User user) {
-        return ArticleResponseDto.builder()
+    public static ArticleResponse toArticleResponseDto(Article article, List<ImageDto> fileUrls, List<TagDto> tags, User user) {
+        return ArticleResponse.builder()
                 .articleId(article.getArtId())
                 .title(article.getTitle())
                 .description(article.getDescription())
@@ -45,8 +44,8 @@ public class ArticleMapper {
                 .build();
     }
 
-    public static ArticlesResponseDto toArticlesResponseDto(Article article, List<String> tagList){
-        return ArticlesResponseDto.builder()
+    public static ArticleListResponse toArticlesResponseDto(Article article, List<String> tagList){
+        return ArticleListResponse.builder()
                 .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
                 .imageUrl(article.getThumbnailUrl())
@@ -58,8 +57,8 @@ public class ArticleMapper {
                 .build();
     }
 
-    public static MyArticleResponse toMyArticleResponse(Article article, boolean chatting) {
-        return MyArticleResponse.builder()
+    public static MyArticlesResponse toMyArticleResponse(Article article, boolean chatting) {
+        return MyArticlesResponse.builder()
                 .articleId(article.getArtId())
                 .articleTitle(article.getTitle())
                 .thumbnailUrl(article.getThumbnailUrl())

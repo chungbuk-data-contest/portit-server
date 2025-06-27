@@ -3,7 +3,6 @@ package org.ssafy.datacontest.dto.article;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
-import org.ssafy.datacontest.entity.Tag;
 import org.ssafy.datacontest.enums.Category;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ArticlesResponseDto {
+public class ArticleListResponse {
     // 작품 번호, 이미지 썸네일, 제목, 작성자명, 태그List, 카테고리, 만든 날짜
     private Long articleId;
     private String articleTitle;

@@ -20,19 +20,14 @@ import org.ssafy.datacontest.enums.ErrorCode;
 import org.ssafy.datacontest.enums.IndustryType;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.mapper.ArticleMapper;
-import org.ssafy.datacontest.mapper.CompanyMapper;
 import org.ssafy.datacontest.mapper.ImageMapper;
-import org.ssafy.datacontest.mapper.TagMapper;
 import org.ssafy.datacontest.repository.*;
 import org.ssafy.datacontest.service.ArticleService;
-import org.ssafy.datacontest.service.S3FileService;
+import org.ssafy.datacontest.service.helper.*;
 import org.ssafy.datacontest.util.GptUtil;
 import org.ssafy.datacontest.validation.ArticleValidation;
 
-import java.security.MessageDigest;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,115 +36,65 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleRepository articleRepository;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
-    private final TagRepository tagRepository;
-    private final S3FileService s3FileService;
     private final ArticleValidation articleValidation;
     private final CompanyRepository companyRepository;
     private final GptUtil gptUtil;
     private final ArticleLikeRepository articleLikeRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ImageHelper imageHelper;
+    private final GptHelper gptHelper;
+    private final ThumbnailHelper thumbnailHelper;
+    private final ArticleAssembler articleAssembler;
+    private final TagHelper tagHelper;
+
+    // ====== Create ======
 
     @Transactional
     @Override
-    public Long createArticle(ArticleRequestDto articleRequestDto, String userName) throws Exception {
-        User user = userRepository.findByLoginId(userName);
-        log.info("tag size : {}", articleRequestDto.getTag().size());
-        articleValidation.isValidRequest(articleRequestDto);
+    public Long createArticle(ArticleRequest articleRequest, String userName) throws Exception {
+        User user = findUser(userName);
+        articleValidation.validRequest(articleRequest);
 
-        List<MultipartFile> files = articleRequestDto.getFiles();
-        MultipartFile thumbnail = articleRequestDto.getThumbnail();
+        List<MultipartFile> files = articleRequest.getFiles();
+        MultipartFile thumbnail = articleRequest.getThumbnail();
+
+        List<String> fileUrls = imageHelper.uploadFiles(files);
 
         // 썸네일 파일과 파일 리스트 - 해시값 비교 => 다를 경우에만 S3 저장 필요
-        int index = isDuplicateThumbnail(thumbnail, files);
+        int index = thumbnailHelper.isDuplicateThumbnail(thumbnail, files);
+        String thumbnailUrl = (index == -1) ? imageHelper.uploadFile(thumbnail) : fileUrls.get(index);
 
-        String thumbnailUrl = "";
-        if(index == -1) { // 썸네일 따로 저장 필요
-            thumbnailUrl = uploadFile(thumbnail);
-        }
-
-        // 이미지, 영상 업로드
-        List<String> fileUrls = new ArrayList<>();
-
-        int loop = 0;
-        for(MultipartFile file : files){
-            String fileUrl = uploadFile(file);
-            if(index != -1 && loop == index) {
-                thumbnailUrl = fileUrl;
-            }
-            fileUrls.add(fileUrl);
-            loop++;
-        }
-
-        // 글 DB 등록
-        String industry = generateIndustry(new GptRequest(articleRequestDto.getDescription()));
-        Article article = ArticleMapper.toEntity(articleRequestDto, user, thumbnailUrl, IndustryType.valueOf(industry));
-        articleRepository.save(article);
-
-        // List들 DB 등록
-        saveTag(articleRequestDto.getTag(), article);
-        saveFile(fileUrls, article);
+        // DB 등록
+        Article article = createAndSaveArticle(articleRequest, user, thumbnailUrl);
+        saveAdditionalArticleData(articleRequest, article, fileUrls);
 
         return article.getArtId();
     }
 
+    // ====== Update ======
+
     @Override
     @Transactional
-    public Long updateArticle(ArticleUpdateRequestDto articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception {
-        User user = userRepository.findByLoginId(userName);
+    public Long updateArticle(ArticleUpdateRequest articleRequestDto, String userName, Long articleId, List<ImageUpdateDto> imageIdList) throws Exception {
+        User user = findUser(userName);
         Article article = getArticleOrThrow(articleId);
         articleRequestDto.setImageIdList(imageIdList);
 
-        articleValidation.checkUserAuthorizationForArticle(user, article);
-        articleValidation.isValidRequest(articleRequestDto);
-        articleValidation.isExistArticle(article);
+        articleValidation.validateUpdateRequest(articleRequestDto, user, article);
 
-        // 이미지 수정 혹은 순서 변경 반영
-        List<Image> existingFile = imageRepository.findByArticle(article);
-
-        // 삭제된 이미지 찾아서 삭제
-        deleteImagesNotInRequest(articleRequestDto, existingFile);
-
-        // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
-        updateImageOrder(articleRequestDto);
-
-
-        // 새로 추가한 이미지 db & s3 저장
-        List<String> newFiles = saveNewFile(articleRequestDto, article);
-
-        MultipartFile thumbnailFile = articleRequestDto.getNewThumbnailImage();
-
-        String thumbnailUrl = "";
-        if (thumbnailFile != null) { // 썸네일사진 - 파일들 중복 확인
-            int index = isDuplicateThumbnail(thumbnailFile, articleRequestDto.getFiles());
-
-            if (index == -1) { // 중복 X -> S3 업로드
-                thumbnailUrl = uploadFile(thumbnailFile);
-            } else { // 파일들에서 가져오기
-                thumbnailUrl = newFiles.get(index); // newFiles도 null 체크 되어야 안전
-            }
-        } else if (articleRequestDto.getThumbnailUrl() != null) { // 기존 사진일 경우
-            thumbnailUrl = articleRequestDto.getThumbnailUrl();
-        }
-
-        log.info("Thumbnail url is {}", thumbnailUrl);
-
-        // 태그 삭제
-        tagRepository.deleteByArticle(article);
-        saveTag(articleRequestDto.getTag(), article);
-
-        // 나머지 업데이트
-        article.updateArticle(articleRequestDto.getTitle(), articleRequestDto.getDescription(), articleRequestDto.getExternalLink(), Category.valueOf(articleRequestDto.getCategory()), thumbnailUrl);
+        updateArticleImages(articleRequestDto, article);
+        tagHelper.updateArticleTags(articleRequestDto, article);
+        updateArticleInfo(articleRequestDto, article);
 
         return articleId;
     }
 
+    // ====== Delete ======
+
     @Override
     @Transactional
     public void deleteArticle(Long articleId, String userName) {
-        // 유저 가져오기
-        User user = userRepository.findByLoginId(userName);
-
-        // articleId 존재 여부 확인
+        User user = findUser(userName);
         Article article = getArticleOrThrow(articleId);
 
         // 권한 확인 ( ==, != 는 객체 주소(참조)로 비교하기에 다를 수 있음 )
@@ -158,50 +103,60 @@ public class ArticleServiceImpl implements ArticleService {
         article.setDeleted(true);
     }
 
+    // ====== Get ======
+
     @Override
     public ArticleDetailResponse getArticle(Long articleId, String userName) {
         Article article = getArticleOrThrow(articleId);
         User user = article.getUser();
 
-        articleValidation.isExistArticle(article);
+        articleValidation.validateNotDeleted(article);
 
-        boolean liked = false;
+        boolean liked = isArticleLikedByUser(articleId, userName);
 
-        if (userName != null && !userName.isBlank()) {
-            Company company = companyRepository.findByLoginId(userName);
+        List<TagDto> tagDtos = articleAssembler.getTagDto(article);
+        List<ImageDto> fileDtos = articleAssembler.getImageDto(article);
 
-            if (company != null) {
-                liked = articleLikeRepository
-                        .findByCompany_CompanyIdAndArticle_ArtId(company.getCompanyId(), articleId)
-                        .isPresent();
-            }
-        }
+        ArticleResponse articleDto = ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
+        List<CompanyRecommendDto> companyDtoList = articleAssembler.getRecommendedCompanies(article);
 
-        List<TagDto> tagDtos = getTagDto(article);
-        List<ImageDto> fileDtos = getImageDto(article);
-
-        ArticleResponseDto articleDto = ArticleMapper.toArticleResponseDto(article, fileDtos, tagDtos, user);
-        List<Company> companies = companyRepository.findRandomCompany(article.getIndustryType());
-        List<CompanyRecommendDto> companyDtoList = companies.stream()
-                .map(CompanyMapper::toCompanyRecommendDto)
-                .toList();
         return ArticleDetailResponse.builder().article(articleDto).companies(companyDtoList).liked(liked).build();
     }
 
     @Override
-    public SliceResponseDto<ArticlesResponseDto> getArticlesByCursor(ArticleScrollRequestDto articleScrollRequestDto) {
-        // 일반 게시글 처리
-        Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequestDto);
+    public SliceResponseDto<ArticleListResponse> getArticlesByCursor(ArticleScrollRequest articleScrollRequest) {
+        Slice<Article> articles = articleRepository.findNextPageByCursor(articleScrollRequest);
         List<Article> articleList = articles.getContent();
 
         List<Long> articleIds = articleList.stream()
                 .map(Article::getArtId)
                 .toList();
 
-        Map<Long, List<String>> tagMap = getTagMapByArticleIds(articleIds);
-        List<ArticlesResponseDto> dtoList = mapArticlesToDtoList(articleList, tagMap);
+        Map<Long, List<String>> tagMap = articleAssembler.getTagMapByArticleIds(articleIds);
+        List<ArticleListResponse> dtoList = articleAssembler.mapArticlesToDtoList(articleList, tagMap);
 
         return new SliceResponseDto<>(dtoList, articles.hasNext());
+    }
+
+    @Override
+    public List<MyArticlesResponse> getMyArticles(String userName, Long companyId) {
+        User user = userRepository.findByLoginId(userName);
+        if(user == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+
+        Company company = companyRepository.findByCompanyId(companyId);
+        if(company == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
+
+        List<Article> articles = articleRepository.findByUser_Id(user.getId());
+        if (articles == null || articles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return articles.stream()
+                .map(article -> {
+                    boolean isChatting = hasChatRoom(article.getArtId(), companyId);
+                    return ArticleMapper.toMyArticleResponse(article, isChatting);
+                })
+                .toList();
     }
 
     @Override
@@ -217,80 +172,24 @@ public class ArticleServiceImpl implements ArticleService {
                 .toList();
     }
 
-    @Override
-    public List<MyArticleResponse> getMyArticles(String userName, Long companyId) {
-        User user = userRepository.findByLoginId(userName);
-        Company company = companyRepository.findByCompanyId(companyId);
-        if(user == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
-        if(company == null) throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.COMPANY_NOT_FOUND);
-
-        List<Article> articles = articleRepository.findByUser_Id(user.getId());
-
-        List<MyArticleResponse> myArticleResponses = new ArrayList<>();
-        if(articles == null) return myArticleResponses;
-
-        for(Article article : articles) {
-            boolean isChatting = false;
-            ChatRoom chat = chatRoomRepository.findByArticle_ArtIdAndCompany_CompanyId(article.getArtId(), companyId);
-            if(chat != null) isChatting = true;
-            myArticleResponses.add(ArticleMapper.toMyArticleResponse(article, isChatting));
-        }
-
-        return myArticleResponses;
+    private boolean hasChatRoom(Long articleId, Long companyId){
+        return chatRoomRepository.findByArticle_ArtIdAndCompany_CompanyId(articleId, companyId) != null;
     }
 
-    private String generateIndustry(GptRequest gptRequest) {
-        String prompt = String.format("""
-        다음 작품 설명을 기반으로 가장 관련 있는 산업 분야 하나를 골라줘.
-        응답은 반드시 아래 enum 중 하나의 **영문 이름(대문자)**만 리턴해줘.
-        
-        산업 분야(enum 이름):
-        - IT_SOFTWARE
-        - DESIGN_CONTENTS
-        - MEDIA
-        - EDUCATION_EDUTECH
-        - MEDICAL_HEALTH
-        - MANUFACTURING_ELECTRONICS
-        - COMMERCE
-        - CONSTRUCTION_REAL_ESTATE
-        - CULTURE_ART
-        - ENVIRONMENT_ENERGY
-        - PUBLIC_ORGANIZATION
-        
-        작품 설명: %s
-        """, gptRequest.getDescription());
-
-        return gptUtil.callGpt(prompt).trim();
+    private User findUser(String userName) {
+        return userRepository.findByLoginId(userName);
     }
 
-    private List<ArticlesResponseDto> mapArticlesToDtoList(List<Article> articles, Map<Long, List<String>> tagMap) {
-        return articles.stream()
-                .map(article -> ArticleMapper.toArticlesResponseDto(
-                        article,
-                        tagMap.getOrDefault(article.getArtId(), List.of())
-                ))
-                .toList();
+    private Article createAndSaveArticle(ArticleRequest dto, User user, String thumbnailUrl) {
+        String industry = gptHelper.generateIndustry(new GptRequest(dto.getDescription()));
+        Article article = ArticleMapper.toEntity(dto, user, thumbnailUrl, IndustryType.valueOf(industry));
+        articleRepository.save(article);
+        return article;
     }
 
-    private Map<Long, List<String>> getTagMapByArticleIds(List<Long> articleIds) {
-        List<Object[]> rawTagData = tagRepository.findTagsByArticleIds(articleIds);
-
-        return rawTagData.stream()
-                .collect(Collectors.groupingBy(
-                        row -> ((Number) row[0]).longValue(),
-                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
-                ));
-    }
-
-    private String uploadFile(MultipartFile file) {
-        return s3FileService.uploadFile(file);
-    }
-
-    private void saveTag(List<String> tags, Article article) {
-        for(String tag: tags){
-            Tag tagg = TagMapper.toEntity(tag, article);
-            tagRepository.save(tagg);
-        }
+    private void saveAdditionalArticleData(ArticleRequest dto, Article article, List<String> fileUrls) {
+        tagHelper.saveTag(dto.getTag(), article);
+        saveFile(fileUrls, article);
     }
 
     private void saveFile(List<String> fileUrls, Article article) {
@@ -302,15 +201,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    private void deleteFile(List<Image> fileUrls) {
-        for (Image file : fileUrls) {
-            String fileUrl = file.getImageUrl();
-            if (fileUrl != null && !fileUrl.isBlank()) {
-                s3FileService.deleteFile(fileUrl);
-            }
-        }
-    }
-
     private Article getArticleOrThrow(Long articleId) {
         Article article = articleRepository.findByArtId(articleId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
@@ -318,120 +208,44 @@ public class ArticleServiceImpl implements ArticleService {
         return article;
     }
 
-    private List<TagDto> getTagDto(Article article) {
-        List<Tag> tagList = tagRepository.findByArticle(article);
-        List<TagDto> tagDtos = new ArrayList<>();
-        for(Tag tag : tagList){
-            tagDtos.add(TagMapper.toDto(tag));
+    private void updateArticleImages(ArticleUpdateRequest articleRequestDto, Article article) throws Exception {
+        // 이미지 관련 처리
+        List<Image> existingFile = imageRepository.findByArticle(article);
+        imageHelper.updateImages(articleRequestDto, existingFile);
+
+        // 새로 추가한 이미지 db & s3 저장
+        List<String> newFiles = imageHelper.saveNewFile(articleRequestDto, article);
+        MultipartFile thumbnailFile = articleRequestDto.getNewThumbnailImage();
+
+        String thumbnailUrl = "";
+
+        if (thumbnailFile != null) { // 썸네일사진 - 파일들 중복 확인
+            int index = thumbnailHelper.isDuplicateThumbnail(thumbnailFile, articleRequestDto.getFiles());
+            thumbnailUrl = (index == -1) ? imageHelper.uploadFile(thumbnailFile) : newFiles.get(index);
+        } else if (articleRequestDto.getThumbnailUrl() != null) { // 기존 사진일 경우
+            thumbnailUrl = articleRequestDto.getThumbnailUrl();
         }
 
-        return tagDtos;
+        article.updateThumbnailUrl(thumbnailUrl);
     }
 
-    private List<ImageDto> getImageDto(Article article) {
-        List<Image> fileList = imageRepository.findByArticle(article)
-                .stream()
-                .sorted(Comparator.comparingInt(Image::getImageIndex))
-                .toList();
-
-        List<ImageDto> imageDtos = new ArrayList<>();
-        for (Image image : fileList) {
-            imageDtos.add(ImageMapper.toDto(image));
-        }
-        return imageDtos;
-    }
-
-    private void deleteImagesNotInRequest(ArticleUpdateRequestDto articleRequestDto, List<Image> existingFile) {
-        // imageIdList에서 null이 아닌 id만 추출해서 Set으로 변환
-        Set<Long> incomingIds = articleRequestDto.getImageIdList().stream()
-                .map(ImageUpdateDto::getImageId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // 기존 이미지 중 요청에 포함되지 않은 이미지만 삭제 대상
-        List<Image> toDeleteImage = existingFile.stream()
-                .filter(img -> !incomingIds.contains(img.getImageId()))
-                .toList();
-
-        // 삭제
-        for (Image image : toDeleteImage) {
-            imageRepository.deleteByImageId(image.getImageId());
-        }
-        deleteFile(toDeleteImage);
-    }
-
-    private void updateImageOrder(ArticleUpdateRequestDto articleRequestDto) {
-        // 1. 유효한 imageId만 필터링해서 DB 조회
-        List<Image> existingImages = imageRepository.findByImageIdIn(
-                articleRequestDto.getImageIdList().stream()
-                        .filter(dto -> dto.getImageId() != null)  // imageId가 null이 아닌 경우만
-                        .map(ImageUpdateDto::getImageId)
-                        .toList()
+    private void updateArticleInfo(ArticleUpdateRequest dto, Article article) {
+        article.updateArticle(
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getExternalLink(),
+                Category.valueOf(dto.getCategory()),
+                article.getThumbnailUrl()
         );
-
-        // 2. imageId → Image 매핑
-        Map<Long, Image> imageMap = existingImages.stream()
-                .collect(Collectors.toMap(Image::getImageId, Function.identity()));
-
-        // 3. 순서 업데이트
-        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
-            Long imageId = articleRequestDto.getImageIdList().get(i).getImageId();
-
-            if (imageId == null) continue; // 새 이미지인 경우
-
-            Image image = imageMap.get(imageId);
-            if (image != null && image.getImageIndex() != i) {
-                image.updateImageIndex(i);
-            }
-        }
     }
 
-    private List<String> saveNewFile(ArticleUpdateRequestDto articleRequestDto, Article article) {
-        List<MultipartFile> files = articleRequestDto.getFiles();
-        List<String> uploadedUrls = new ArrayList<>();
+    private boolean isArticleLikedByUser(Long articleId, String userName){
+        if(userName == null && userName.isBlank()) return false;
+        Company company = companyRepository.findByLoginId(userName);
+        if(company == null) return false;
 
-        int fileIndex = 0;
-
-        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
-            ImageUpdateDto dto = articleRequestDto.getImageIdList().get(i);
-
-            if (dto.getImageId() == null) { // 새 이미지
-                String url = uploadFile(files.get(fileIndex++));
-                uploadedUrls.add(url);
-                Image image = ImageMapper.toEntity(url, article, i);
-                imageRepository.save(image);
-            }
-        }
-
-        return uploadedUrls;
+        return articleLikeRepository
+                .findByCompany_CompanyIdAndArticle_ArtId(company.getCompanyId(), articleId)
+                .isPresent();
     }
-
-    private String getHash(MultipartFile file) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] bytes = file.getBytes();
-        byte[] hash = digest.digest(bytes);
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            hexString.append(String.format("%02x", b));
-        }
-        return hexString.toString();
-    }
-
-    private int isDuplicateThumbnail(MultipartFile thumbnail, List<MultipartFile> files) throws Exception {
-        if (thumbnail == null || files == null || files.isEmpty()) {
-            return -1;
-        }
-
-        String thumbnailHash = getHash(thumbnail);
-
-        for (int i = 0; i < files.size(); i++) {
-            String fileHash = getHash(files.get(i));
-            if (fileHash.equals(thumbnailHash)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
 }
