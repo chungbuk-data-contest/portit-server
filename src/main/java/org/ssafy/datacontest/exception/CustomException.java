@@ -21,4 +21,10 @@ public class CustomException extends RuntimeException {
     this.code = errorCode.getCode();
     this.message = errorCode.getMessage();
   }
+
+  public CustomException(HttpStatus status, String message) {
+    this.status = status;
+    this.code = "CUSTOM_ERROR";  // 필요하면 기본 코드
+    this.message = message;
+  }
 }

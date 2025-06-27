@@ -55,7 +55,7 @@ public class PremiumServiceImpl implements PremiumService {
         // 결제 로직
 
         // DB 등록
-        paymentRepository.save(PaymentMapper.toEntity(article, user));
+//        paymentRepository.save(PaymentMapper.toEntity(article, user,));
         Payment payment = paymentRepository.findByArticle_artId(article.getArtId());
         article.updatePremium(true);
         Premium premium = premiumRepository.save(PremiumMapper.toEntity(article, payment));

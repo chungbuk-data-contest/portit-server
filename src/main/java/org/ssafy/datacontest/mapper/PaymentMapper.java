@@ -6,13 +6,18 @@ import org.ssafy.datacontest.entity.Payment;
 import org.ssafy.datacontest.entity.Premium;
 import org.ssafy.datacontest.entity.User;
 
+import java.time.LocalDateTime;
+
 public class PaymentMapper {
 
-    public static Payment toEntity(Article article, User user) {
+    public static Payment toEntity(Article article, User user, String orderNum) {
         return Payment.builder()
+                .orderNum(orderNum)
+                .approvedAt(LocalDateTime.now())
                 .article(article)
                 .totalAmount(990)
                 .user(user)
+                .status("READY")
                 .build();
     }
 
