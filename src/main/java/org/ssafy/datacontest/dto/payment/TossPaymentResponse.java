@@ -1,4 +1,4 @@
-package org.ssafy.datacontest.dto.toss;
+package org.ssafy.datacontest.dto.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentResponse {
+public class TossPaymentResponse {
     private String mId;
     private String orderId;
     private String paymentKey;

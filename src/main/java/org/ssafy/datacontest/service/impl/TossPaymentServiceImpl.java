@@ -8,10 +8,10 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.ssafy.datacontest.dto.toss.PaymentPrepareRequest;
-import org.ssafy.datacontest.dto.toss.PaymentPrepareResponse;
-import org.ssafy.datacontest.dto.toss.PaymentRequest;
-import org.ssafy.datacontest.dto.toss.PaymentResponse;
+import org.ssafy.datacontest.dto.payment.TossPaymentPrepareRequest;
+import org.ssafy.datacontest.dto.payment.TossPaymentPrepareResponse;
+import org.ssafy.datacontest.dto.payment.TossPaymentRequest;
+import org.ssafy.datacontest.dto.payment.TossPaymentResponse;
 import org.ssafy.datacontest.exception.CustomException;
 import org.ssafy.datacontest.service.TossPaymentService;
 
@@ -27,7 +27,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public PaymentResponse confirmPayment(PaymentRequest request) throws JsonProcessingException {
+    public TossPaymentResponse confirmPayment(TossPaymentRequest request) throws JsonProcessingException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -42,8 +42,8 @@ public class TossPaymentServiceImpl implements TossPaymentService {
 
         try{
             String url = "https://api.tosspayments.com/v1/payments/confirm";
-            ResponseEntity<PaymentResponse> response =
-                    restTemplate.exchange(url, HttpMethod.POST, entity, PaymentResponse.class);
+            ResponseEntity<TossPaymentResponse> response =
+                    restTemplate.exchange(url, HttpMethod.POST, entity, TossPaymentResponse.class);
             return response.getBody();
         } catch (HttpClientErrorException e){
             ObjectMapper mapper = new ObjectMapper();
@@ -56,7 +56,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
     }
 
     @Override
-    public PaymentPrepareResponse preparePayment(PaymentPrepareRequest request) {
+    public TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request) {
         return null;
     }
 }
