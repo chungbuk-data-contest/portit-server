@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 외부 new 생성 방지
-public class ArticleRequestDto { // 작품 등록 DTO
+public class ArticleRequest { // 작품 등록 DTO
     // 필수 : 제목, 카테고리, 파일들, 썸네일
     private String title;
     private String description;

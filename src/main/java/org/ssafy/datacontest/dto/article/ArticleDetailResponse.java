@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ArticleDetailResponse {
-    ArticleResponseDto article;
+    ArticleResponse article;
     boolean liked;
     List<CompanyRecommendDto> companies;
 }

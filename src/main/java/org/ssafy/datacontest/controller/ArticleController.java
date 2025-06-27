@@ -37,7 +37,7 @@ public class ArticleController {
             summary = "작품 등록",
             description = "작품을 등록하고 작품 번호를 리턴합니다."
     )
-    public ResponseEntity<?> registerArticle(@ModelAttribute @Valid ArticleRequestDto request, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+    public ResponseEntity<?> registerArticle(@ModelAttribute @Valid ArticleRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         String userName = SecurityUtil.extractUsername(userDetails);
         Long articleId = articleService.createArticle(request, userName);
 
@@ -62,9 +62,9 @@ public class ArticleController {
                     "파라미터 없이 요청 시 전체 작품을 반환합니다."
     )
     // category 하나만 들어왔을 때 인식이 안 되는 문제 -> RequestParam 으로 받아서 직접 넣어주기
-    public ResponseEntity<SliceResponseDto<ArticlesResponseDto>> getArticles(
+    public ResponseEntity<SliceResponseDto<ArticleListResponse>> getArticles(
             @RequestParam(required = false) List<Category> category,
-            @ModelAttribute ArticleScrollRequestDto request
+            @ModelAttribute ArticleScrollRequest request
     ) {
         request.setCategory(category);  // 수동으로 세팅
         return ResponseEntity.ok(articleService.getArticlesByCursor(request));
@@ -86,7 +86,7 @@ public class ArticleController {
     )
     public ResponseEntity<Long> updateArticle(
             @PathVariable("articleId") Long articleId,
-            @ModelAttribute ArticleUpdateRequestDto request,
+            @ModelAttribute ArticleUpdateRequest request,
             @RequestPart("imageList") String imageListJson,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         String userName = SecurityUtil.extractUsername(userDetails);
@@ -120,7 +120,7 @@ public class ArticleController {
 
     @GetMapping("/my/{companyId}")
     @Operation(summary = "내 작품 조회", description = "작품 제안 시 사용")
-    public ResponseEntity<List<MyArticleResponse>> getMyArticles(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("companyId") Long companyId) {
+    public ResponseEntity<List<MyArticlesResponse>> getMyArticles(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("companyId") Long companyId) {
         String userName = SecurityUtil.extractUsername(userDetails);
         return ResponseEntity.ok(articleService.getMyArticles(userName, companyId));
     }

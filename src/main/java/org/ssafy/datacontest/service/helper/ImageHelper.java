@@ -1,16 +1,16 @@
 package org.ssafy.datacontest.service.helper;
 
 import org.springframework.stereotype.Component;
-import org.ssafy.datacontest.dto.article.ArticleUpdateRequestDto;
+import org.springframework.web.multipart.MultipartFile;
+import org.ssafy.datacontest.dto.article.ArticleUpdateRequest;
 import org.ssafy.datacontest.dto.image.ImageUpdateDto;
+import org.ssafy.datacontest.entity.Article;
 import org.ssafy.datacontest.entity.Image;
+import org.ssafy.datacontest.mapper.ImageMapper;
 import org.ssafy.datacontest.repository.ImageRepository;
 import org.ssafy.datacontest.service.S3FileService;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,14 +25,14 @@ public class ImageHelper {
         this.s3FileService = s3FileService;
     }
 
-    public void updateImages(ArticleUpdateRequestDto dto, List<Image> existingImages) {
+    public void updateImages(ArticleUpdateRequest dto, List<Image> existingImages) {
         // 삭제된 이미지 찾아서 삭제
         deleteImagesNotInRequest(dto, existingImages);
         // 기존에 남아있는 이미지 -> 순서 바뀐 경우 수정
         updateImageOrder(dto);
     }
 
-    private void deleteImagesNotInRequest(ArticleUpdateRequestDto articleRequestDto, List<Image> existingFile) {
+    private void deleteImagesNotInRequest(ArticleUpdateRequest articleRequestDto, List<Image> existingFile) {
         // imageIdList에서 null이 아닌 id만 추출해서 Set으로 변환
         Set<Long> incomingIds = articleRequestDto.getImageIdList().stream()
                 .map(ImageUpdateDto::getImageId)
@@ -60,7 +60,7 @@ public class ImageHelper {
         }
     }
 
-    private void updateImageOrder(ArticleUpdateRequestDto articleRequestDto) {
+    private void updateImageOrder(ArticleUpdateRequest articleRequestDto) {
         // 1. 유효한 imageId만 필터링해서 DB 조회
         List<Image> existingImages = imageRepository.findByImageIdIn(
                 articleRequestDto.getImageIdList().stream()
@@ -85,4 +85,37 @@ public class ImageHelper {
             }
         }
     }
+
+    public List<String> uploadFiles(List<MultipartFile> files) {
+        List<String> urls = new ArrayList<>();
+        for (MultipartFile file : files) {
+            urls.add(uploadFile(file));
+        }
+        return urls;
+    }
+
+    public String uploadFile(MultipartFile file) {
+        return s3FileService.uploadFile(file);
+    }
+
+    public List<String> saveNewFile(ArticleUpdateRequest articleRequestDto, Article article) {
+        List<MultipartFile> files = articleRequestDto.getFiles();
+        List<java.lang.String> uploadedUrls = new ArrayList<>();
+
+        int fileIndex = 0;
+
+        for (int i = 0; i < articleRequestDto.getImageIdList().size(); i++) {
+            ImageUpdateDto dto = articleRequestDto.getImageIdList().get(i);
+
+            if (dto.getImageId() == null) { // 새 이미지
+                java.lang.String url = uploadFile(files.get(fileIndex++));
+                uploadedUrls.add(url);
+                Image image = ImageMapper.toEntity(url, article, i);
+                imageRepository.save(image);
+            }
+        }
+
+        return uploadedUrls;
+    }
+
 }

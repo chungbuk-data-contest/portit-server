@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MyArticleResponse {
+public class MyArticlesResponse {
     private Long articleId;
     private String thumbnailUrl;
     private String articleTitle;
