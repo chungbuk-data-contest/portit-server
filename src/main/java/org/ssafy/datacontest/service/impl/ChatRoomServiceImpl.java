@@ -153,9 +153,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     private String getPartnerName(ChatRoom room, String role) {
-        return role.equals("ROLE_USER")
-                ? room.getCompany().getCompanyName()
-                : room.getUser().getNickname();
+        if (role.equals("ROLE_USER")) {
+            Company company = room.getCompany();
+            return company.isDeleted() ? "(탈퇴한 사용자)" : company.getCompanyName();
+        } else {
+            User user = room.getUser();
+            return user.isDeleted() ? "(탈퇴한 사용자)" : user.getNickname();
+        }
     }
 
     private ChatMessage getLastMessage(Long roomId) {
