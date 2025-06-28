@@ -1,10 +1,15 @@
 package org.ssafy.datacontest.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.ssafy.datacontest.dto.sms.SmsRequest;
 import org.ssafy.datacontest.dto.sms.SmsVerify;
+import org.ssafy.datacontest.enums.ErrorCode;
+import org.ssafy.datacontest.exception.CustomException;
+import org.ssafy.datacontest.repository.CompanyRepository;
 import org.ssafy.datacontest.repository.SmsRepository;
+import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.SmsService;
 import org.ssafy.datacontest.util.SmsCertificationUtil;
 
@@ -12,17 +17,26 @@ import org.ssafy.datacontest.util.SmsCertificationUtil;
 public class SmsServiceImpl implements SmsService {
     private final SmsCertificationUtil smsCertificationUtil;
     private final SmsRepository smsRepository;
+    private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
 
     @Autowired
     public SmsServiceImpl(SmsCertificationUtil smsCertificationUtil,
-                          SmsRepository smsRepository) {
+                          SmsRepository smsRepository,
+                          UserRepository userRepository,
+                          CompanyRepository companyRepository) {
         this.smsCertificationUtil = smsCertificationUtil;
         this.smsRepository = smsRepository;
+        this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override // SmsService 인터페이스 메서드 구현
     public void sendSms(SmsRequest smsRequest) {
         String phoneNum = smsRequest.getPhoneNum(); // SmsrequestDto에서 전화번호를 가져온다.
+        if(userRepository.existsByPhoneNum(phoneNum) || companyRepository.existsByPhoneNum(phoneNum)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_PHONE);
+        }
         String certificationCode = Integer.toString((int)(Math.random() * (999999 - 100000 + 1)) + 100000); // 6자리 인증 코드를 랜덤으로 생성
         smsCertificationUtil.sendSMS(phoneNum, certificationCode); // SMS 인증 유틸리티를 사용하여 SMS 발송
         smsRepository.createSmsCertification(phoneNum, certificationCode); // 인증 코드를 Redis에 저장

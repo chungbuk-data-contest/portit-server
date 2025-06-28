@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +22,7 @@ import org.ssafy.datacontest.service.ChatRoomService;
 import java.util.List;
 
 @Tag(name = "ChatRoom")
+@Slf4j
 @RestController
 @RequestMapping("/chat-rooms")
 public class ChatRoomController {
@@ -73,6 +75,15 @@ public class ChatRoomController {
         ChatRoomJoinResponse response = chatRoomService.joinAndGetRoomData(roomId, userDetails.getUsername(), role);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("{roomId}/leave")
+    public ResponseEntity<Void> leaveRoom(
+            @PathVariable Long roomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("User {} leaving room {}", userDetails.getUsername(), roomId);
+        chatRoomService.leaveRoom(roomId, userDetails.getUsername());
+        return ResponseEntity.ok().build();
     }
 
     private String getRole(CustomUserDetails userDetails) {

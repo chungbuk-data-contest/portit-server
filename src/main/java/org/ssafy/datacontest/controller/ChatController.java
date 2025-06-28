@@ -38,14 +38,4 @@ public class ChatController {
         ChatMessageResponse savedMessage = chatService.saveMessage(roomId, request, principal.getName());
         messagingTemplate.convertAndSend("/topic/" + roomId, savedMessage);
     }
-
-//    @GetMapping("/rooms")
-//    public ResponseEntity<List<ChatMessageResponse>> getUserChatRooms(@RequestParam String email) {
-//        return ResponseEntity.ok(chatService.getChatRoomsByUserEmail(email));
-//    }
-//
-//    @GetMapping("/messages")
-//    public ResponseEntity<List<ChatMessage>> getRoomMessages(@RequestParam Long roomId) {
-//        return ResponseEntity.ok(chatService.getMessagesInRoom(roomId));
-//    }
 }

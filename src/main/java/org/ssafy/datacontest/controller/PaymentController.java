@@ -19,6 +19,8 @@ import org.ssafy.datacontest.service.PaymentService;
 
 import java.util.List;
 
+
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @Slf4j
 @RestController
 @RequiredArgsConstructor

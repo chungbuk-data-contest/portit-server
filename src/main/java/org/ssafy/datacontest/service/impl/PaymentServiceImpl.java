@@ -29,6 +29,7 @@ import org.ssafy.datacontest.repository.UserRepository;
 import org.ssafy.datacontest.service.PaymentService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -67,6 +68,42 @@ public class PaymentServiceImpl implements PaymentService {
         return response;
     }
 
+    @Override
+    public TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request, String username) {
+        Article article = articleRepository.findByArtId(request.getArticleId())
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
+
+        User user = userRepository.findByLoginId(username);
+        if (user == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
+        }
+        if (article.isPremium()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.PREMIUM_ARTICLE);
+        }
+
+        if (paymentRepository.existsByUserAndArticleAndStatus(user, article, "READY")) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_PURCHASE);
+        }
+
+        String orderNum = generateOrderNumber();
+
+        Payment payment = PaymentMapper.toEntity(article, user, orderNum);
+        paymentRepository.save(payment);
+
+        return TossPaymentPrepareResponse.builder()
+                .orderNum(orderNum)
+                .amount(payment.getTotalAmount())
+                .articleId(payment.getArticle().getArtId())
+                .build();
+    }
+
+    public static String generateOrderNumber() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String timestamp = LocalDateTime.now().format(dtf);
+
+        int randomNumber = new Random().nextInt(99999); // 0~99999
+        return "ORDER-" + timestamp + "-" + randomNumber;
+    }
     @Override
     public TossPaymentResponse confirmPayment(TossPaymentRequest request) throws JsonProcessingException {
         Article article = articleRepository.findByArtId(request.getArticleId())
@@ -115,29 +152,5 @@ public class PaymentServiceImpl implements PaymentService {
 
             throw new CustomException(HttpStatus.BAD_REQUEST, errorCode, errorMessage);
         }
-    }
-
-    @Override
-    public TossPaymentPrepareResponse preparePayment(TossPaymentPrepareRequest request, String username) {
-        Article article = articleRepository.findByArtId(request.getArticleId())
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, ErrorCode.ARTICLE_NOT_FOUND));
-
-        User user = userRepository.findByLoginId(username);
-        if (user == null) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.USER_NOT_FOUND);
-        }
-        if (article.isPremium()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.PREMIUM_ARTICLE);
-        }
-        String orderNum = "ORDER_" + UUID.randomUUID();
-
-        Payment payment = PaymentMapper.toEntity(article, user, orderNum);
-        paymentRepository.save(payment);
-
-        return TossPaymentPrepareResponse.builder()
-                .orderNum(orderNum)
-                .amount(payment.getTotalAmount())
-                .articleId(payment.getArticle().getArtId())
-                .build();
     }
 }
