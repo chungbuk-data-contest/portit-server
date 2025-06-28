@@ -55,7 +55,7 @@ public class WebSocketSessionManager {
                 roomUsers.remove(roomId);
             }
         }
-        log.info("User {} left room {}", loginId, roomId);
+        log.info("SessionManager: User {} left room {}", loginId, roomId);
     }
 
     /**

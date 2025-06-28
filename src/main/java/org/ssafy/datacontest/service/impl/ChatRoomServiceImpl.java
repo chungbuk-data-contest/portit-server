@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.ssafy.datacontest.config.websocket.WebSocketSessionManager;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateRequest;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomCreateResponse;
 import org.ssafy.datacontest.dto.chatroom.ChatRoomJoinResponse;
@@ -31,18 +32,21 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ArticleRepository articleRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final WebSocketSessionManager sessionManager;
 
     @Autowired
     public ChatRoomServiceImpl(UserRepository userRepository,
                                CompanyRepository companyRepository,
                                ArticleRepository articleRepository,
                                ChatRoomRepository chatRoomRepository,
-                               ChatMessageRepository chatMessageRepository) {
+                               ChatMessageRepository chatMessageRepository,
+                               WebSocketSessionManager sessionManager) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.articleRepository = articleRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -134,6 +138,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .partnerName(getPartnerName(room, role))
                 .messages(responseList)
                 .build();
+    }
+
+    @Override
+    public void leaveRoom(Long roomId, String loginId) {
+        sessionManager.removeUserFromRoom(roomId, loginId);
     }
 
     private User findUser(String loginId) {

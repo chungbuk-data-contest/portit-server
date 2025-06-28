@@ -61,7 +61,8 @@ public enum ErrorCode {
     PREMIUM_ARTICLE(HttpStatus.BAD_REQUEST,"PREMIUM_ARTICLE" ,"이미 프리미엄 게시글입니다."),
     PAYMENT_NOT_FOUND(HttpStatus.BAD_REQUEST,"PAYMENT_NOT_FOUND" ,"유효한 주문번호가 아닙니다."),
     AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST,"AMOUND_MISMATCH" ,"결제 금액이 일치하지 않습니다."),
-    DUPLICATE_PHONE(HttpStatus.BAD_REQUEST,"DUPLICATED_PHONE" ,"중복된 휴대폰 번호입니다.");
+    DUPLICATE_PHONE(HttpStatus.BAD_REQUEST,"DUPLICATED_PHONE" ,"중복된 휴대폰 번호입니다."),
+    DUPLICATE_PURCHASE(HttpStatus.BAD_REQUEST,"DUPLICATE_PURCHASED" ,"이미 결제 대기 중인 목록입니다." );
 
     // 프론트에서 message 만을 이용해서 에러를 구분하는 건 유지보수 면에서 좋지 않기에,
     // code를 지정해주어서 클라이언트 측에서 디테일한 핸들링을 하도록 하는 것이 좋다.
