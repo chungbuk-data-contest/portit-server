@@ -9,4 +9,8 @@
 
 # 시스템 아키텍처
 
+# Database Schema (ERD)
+
+![ERD](./docs/portIt_ERD.png)
+
 # 기능 목록
