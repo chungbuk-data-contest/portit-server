@@ -4,6 +4,7 @@
 - [Port-It Backend](#port-it-backend)
 - [시스템 아키텍처](#시스템-아키텍처)
 - [Database Schema (ERD)](#database-schema-erd)
+- [기술 스택](#기술 스택)
 - [기능 목록](#기능-목록)
 - [API Reference](#api-reference)
 
