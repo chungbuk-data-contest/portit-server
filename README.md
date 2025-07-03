@@ -20,6 +20,9 @@
 - java : 17
 - Gradle - Groovy 
 - Java
+- Spring Security
+- WebSocket(STOMP)
+- QueryDSL
 
 ### DB
 - AWS RDS(MySQL)
