@@ -15,29 +15,29 @@
 - [기능 목록](#기능-목록)
 - [API Reference](#api-reference)
 
-# 시스템 아키텍처
+## 시스템 아키텍처
 <img width="850" alt="스크린샷 2025-07-03 오후 5 10 25" src="https://github.com/user-attachments/assets/a5ba4674-8aee-4274-aa97-7874f3f88447" />
 
-# Database Schema (ERD)
+## Database Schema (ERD)
 
 ![ERD](./docs/portIt_ERD.png)
 
-# 기술 스택
-## Spring Boot
+## 기술 스택
+### Spring Boot
 - version : 3.3.12
 - java : 17
 - Gradle - Groovy 
 - Java
 
-## DB
+### DB
 - AWS RDS(MySQL)
 - MongoDB
 - Redis
 
-## Infra
+### Infra
 - AWS(EC2, S3)
 
-# 기능 목록
+## 기능 목록
 
 | 구분 | 기능 |
 |------|------|
@@ -50,5 +50,5 @@
 | **알림** | FCM 기반 푸시 알림 및 알림 관리 |
 | **SMS/이메일 인증** | 휴대폰 및 이메일 인증번호 발송 및 검증 |
 
-# API Reference
+## API Reference
 [![Swagger](https://img.shields.io/badge/Swagger-UI-green)](https://6-data-contest.github.io/portit-server/)
