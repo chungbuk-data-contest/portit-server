@@ -16,7 +16,7 @@
 - [API Reference](#api-reference)
 
 # 시스템 아키텍처
-<img width="980" alt="스크린샷 2025-07-03 오후 5 10 25" src="https://github.com/user-attachments/assets/a5ba4674-8aee-4274-aa97-7874f3f88447" />
+<img width="900" alt="스크린샷 2025-07-03 오후 5 10 25" src="https://github.com/user-attachments/assets/a5ba4674-8aee-4274-aa97-7874f3f88447" />
 
 # Database Schema (ERD)
 
