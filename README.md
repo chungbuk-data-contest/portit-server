@@ -14,3 +14,6 @@
 ![ERD](./docs/portIt_ERD.png)
 
 # 기능 목록
+
+# API Reference
+[![Swagger](https://img.shields.io/badge/Swagger-UI-green)](https://6-data-contest.github.io/portit-server/)
