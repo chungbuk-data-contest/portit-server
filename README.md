@@ -47,4 +47,4 @@
 | **SMS/이메일 인증** | 휴대폰 및 이메일 인증번호 발송 및 검증 |
 
 ## API Reference
-[![Swagger](https://img.shields.io/badge/Swagger-UI-green)](https://6-data-contest.github.io/portit-server/)
+[![Swagger](https://img.shields.io/badge/Swagger-UI-green)](https://chungbuk-data-contest.github.io/portit-server/)
