@@ -23,12 +23,19 @@
 ![ERD](./docs/portIt_ERD.png)
 
 # 기술 스택
-`Spring Boot`
+## Spring Boot
 - version : 3.3.12
 - java : 17
 - Gradle - Groovy 
 - Java
 
+## DB
+- AWS RDS(MySQL)
+- MongoDB
+- Redis
+
+## Infra
+- AWS(EC2, S3)
 
 # 기능 목록
 
