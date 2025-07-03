@@ -1,4 +1,6 @@
 # Port-It Backend
+> 작품(포트폴리오) 기반 AI 구직·채용 플랫폼 **Port-It의 백엔드 서버 레포지토리**입니다.
+
 ## 📑 목차
 
 - [Port-It Backend](#port-it-backend)
