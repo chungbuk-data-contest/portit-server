@@ -22,6 +22,14 @@
 
 ![ERD](./docs/portIt_ERD.png)
 
+# 기술 스택
+`Spring Boot`
+- version : 3.3.12
+- java : 17
+- Gradle - Groovy 
+- Java
+
+
 # 기능 목록
 
 | 구분 | 기능 |
